@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             JurusanSeeder::class,
             ProdiSeeder::class,
             AdminSeeder::class,
+            ProvinsiSeeder::class,
+            KotaSeeder::class,
+            AlumniSeeder::class,
         ]);
     }
 }

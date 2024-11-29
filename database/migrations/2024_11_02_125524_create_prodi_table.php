@@ -22,6 +22,15 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
+
+    //  public function down()
+    // {
+    //     Schema::table('admin', function (Blueprint $table) {
+    //         $table->dropForeign(['prodi_id']); // Hapus foreign key di sini
+    //     });
+
+    //     Schema::dropIfExists('admin');
+    // }
     public function down(): void
     {
         Schema::dropIfExists('prodi');

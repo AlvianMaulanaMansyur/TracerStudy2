@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AuthController extends Controller
+class AuthAdmin extends Controller
 {
     public function showLoginForm()
     {
@@ -35,8 +35,5 @@ class AuthController extends Controller
         return redirect()->route('admin.login');
     }
 
-    public function dashboard()
-    {
-        return view('admin.dashboard'); // This view should be created for the dashboard page
-    }
+    
 }

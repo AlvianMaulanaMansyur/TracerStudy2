@@ -31,6 +31,6 @@ class PertanyaanController extends Controller
         // Save JSON data in the single `data` column
         $kuesioner->pertanyaan()->create(['data' => $data]);
     
-        return redirect()->route('kuesioner.show', $kuesioner);
+        return redirect()->route('kuesioner.admin.show', $kuesioner);
     }
 }

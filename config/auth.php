@@ -13,10 +13,10 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'alumni'), // Ubah ini jika ingin menggunakan broker lain
-    ],
+    // 'defaults' => [
+    //     'guard' => env('AUTH_GUARD', 'web'),
+    //     'passwords' => env('AUTH_PASSWORD_BROKER', 'alumni'), // Ubah ini jika ingin menggunakan broker lain
+    // ],
 
     'guards' => [
         'alumni' => [
@@ -25,7 +25,7 @@ return [
         ],
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins',
+            'provider' => 'admin',
         ],
     ],
     
@@ -34,7 +34,7 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Alumni::class,
         ],
-        'admins' => [
+        'admin' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
         ],

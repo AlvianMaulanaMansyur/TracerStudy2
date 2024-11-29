@@ -4,7 +4,7 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Login Alumni</h1>
-        <form method="POST">
+        <form action="{{ route('alumni.login') }}" method="POST">
             @csrf
             <div class="form-group">
                 <label for="email">Email:</label>
