@@ -1,4 +1,3 @@
-<!-- resources/views/kuesioner/show.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -24,11 +23,20 @@
                         <label class="form-label">{{ $dataPertanyaan->pertanyaan }}</label>
                         @if ($dataPertanyaan->tipe_pertanyaan === 'text')
                             <input type="text" name="jawaban[{{ $pertanyaan->id }}]" class="form-control" placeholder="Jawaban...">
-                        @elseif ($dataPertanyaan->tipe_pertanyaan === 'multiple_choice')
+                        @elseif ($dataPertanyaan->tipe_pertanyaan === 'checkbox')
                             @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="jawaban[{{ $pertanyaan->id }}][]" value="{{ $opsi }}" id="opsi_{{ $pertanyaan->id }}_{{ $loop->index }}">
                                     <label class="form-check-label" for="opsi_{{ $pertanyaan->id }}_{{ $loop->index }}">
+                                        {{ $opsi }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        @elseif ($dataPertanyaan->tipe_pertanyaan === 'radio')
+                            @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="jawaban[{{ $pertanyaan->id }}]" value="{{ $opsi }}" id="radio_{{ $pertanyaan->id }}_{{ $loop->index }}">
+                                    <label class="form-check-label" for="radio_{{ $pertanyaan->id }}_{{ $loop->index }}">
                                         {{ $opsi }}
                                     </label>
                                 </div>

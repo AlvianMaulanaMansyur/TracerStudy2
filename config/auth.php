@@ -1,5 +1,4 @@
 <?php
-
 return [
 
     /*
@@ -13,10 +12,10 @@ return [
     |
     */
 
-    // 'defaults' => [
-    //     'guard' => env('AUTH_GUARD', 'web'),
-    //     'passwords' => env('AUTH_PASSWORD_BROKER', 'alumni'), // Ubah ini jika ingin menggunakan broker lain
-    // ],
+    'defaults' => [
+        'guard' => env('AUTH_GUARD', 'web'),
+        'passwords' => env('AUTH_PASSWORD_BROKER', 'alumni'), // Ubah ini jika ingin menggunakan broker lain
+    ],
 
     'guards' => [
         'alumni' => [
@@ -52,7 +51,7 @@ return [
     */
 
     'passwords' => [
-        'alumni' => [ // Pastikan ini sesuai dengan provider yang kamu gunakan
+        'alumni' => [
             'provider' => 'alumni',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_resets'),
             'expire' => 60,

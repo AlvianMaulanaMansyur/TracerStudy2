@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,17 +14,21 @@ class AuthAlumni extends Controller
 
     public function login(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'email' => 'required',
+            'nim' => 'required',
             'password' => 'required',
         ]);
 
-        if (Auth::guard('alumni')->attempt($request->only('email', 'password'))) {
+        // Coba untuk login
+        if (Auth::guard('alumni')->attempt($request->only('nim', 'password'))) {
+            // Login berhasil, redirect ke halaman yang diinginkan
             return redirect()->route('kuesioner.alumni.index');
         }
 
+        // Jika login gagal, kembali dengan pesan kesalahan
         return back()->withErrors([
-            'email' => 'NIP or password is incorrect.',
+            'nim' => 'NIP or password is incorrect.',
         ]);
     }
 }

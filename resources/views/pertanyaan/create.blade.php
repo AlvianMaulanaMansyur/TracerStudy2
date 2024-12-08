@@ -6,7 +6,7 @@
     <label for="tipe_pertanyaan">Question Type:</label>
     <select name="tipe_pertanyaan" required>
         <option value="text">Text</option>
-        <option value="multiple_choice">Multiple Choice</option>
+        <option value="checkbox">Multiple Choice</option>
     </select>
 
     <label for="opsi_jawaban">Answer Options (if multiple choice):</label>
