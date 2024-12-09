@@ -29,6 +29,10 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthAdmin::class, 'login']);
     Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
+    // Route::get('admin', function () {
+    //     return view('admin.dashboard');
+    // })->name('admin.dashboard');
+
     // Protected admin routes
     Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
