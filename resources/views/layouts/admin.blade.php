@@ -16,8 +16,8 @@
 </head>
 
 <body id="page-top">
-    @include('layouts.partials.sidebar')
     <div id="wrapper">
+        @include('layouts.partials.sidebar')
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 @include('layouts.partials.navbar')

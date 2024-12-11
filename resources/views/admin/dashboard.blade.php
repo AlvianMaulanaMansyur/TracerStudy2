@@ -14,8 +14,8 @@
     </form>
 </body>
 </html> --}}
-@extends('layouts.admin');
+@extends('layouts.admin')
 
-@include('content')
+@section('content')
 
 @endsection

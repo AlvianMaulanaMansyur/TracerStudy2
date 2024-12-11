@@ -27,7 +27,7 @@ Route::prefix('admin')->group(function () {
     // Admin authentication routes
     Route::get('/login', [AuthAdmin::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AuthAdmin::class, 'login']);
-    Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
+    Route::post('/logout', [AuthAdmin::class, 'lo   gout'])->name('admin.logout');
 
     // Route::get('admin', function () {
     //     return view('admin.dashboard');
