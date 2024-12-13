@@ -37,7 +37,7 @@
                                     required>
                                     <option value="">Pilih Tipe Pertanyaan</option>
                                     <option value="text">Teks</option>
-                                    <option value="multiple_choice">Pilihan Ganda</option>
+                                    <option value="checkbox">Pilihan Ganda</option>
                                 </select>
                             </div>
                             <div class="options-group hidden mb-4">
@@ -70,9 +70,12 @@
                                     required>
                                     <option value="text"
                                         {{ $dataPertanyaan->tipe_pertanyaan === 'text' ? 'selected' : '' }}>Teks</option>
-                                    <option value="multiple_choice"
-                                        {{ $dataPertanyaan->tipe_pertanyaan === 'multiple_choice' ? 'selected' : '' }}>
+                                    <option value="checkbox"
+                                        {{ $dataPertanyaan->tipe_pertanyaan === 'checkbox' ? 'selected' : '' }}>
                                         Pilihan Ganda</option>
+                                    <option value="radio"
+                                        {{ $dataPertanyaan->tipe_pertanyaan === 'radio' ? 'selected' : '' }}>
+                                        Radio</option>
                                 </select>
                                 <div class="options-group mb-4">
                                     @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
@@ -107,119 +110,114 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const questionSection = document.getElementById('questions-section');
-            const questionTemplate = document.getElementById('question-template').cloneNode(true);
-            questionTemplate.classList.remove('hidden');
+    <script type="module">
+        $(document).ready(function() {
+            const questionSection = $('#questions-section');
+            const questionTemplate = $('#question-template').clone().removeClass('hidden');
 
             // Fungsi untuk mengatur visibilitas opsi berdasarkan tipe pertanyaan
             function updateOptionVisibility(selectElement) {
-                const questionGroup = selectElement.closest('.question-group') || selectElement.closest(
-                    '#question-template');
-                const optionsGroup = questionGroup.querySelector('.options-group');
-                if (selectElement.value === 'multiple_choice') {
-                    optionsGroup.classList.remove('hidden');
+                const questionGroup = selectElement.closest('.question-group') || selectElement.closest('#question-template');
+                const optionsGroup = questionGroup.find('.options-group');
+                if (selectElement.val() === 'checkbox' || selectElement.val() === 'radio') {
+                    optionsGroup.removeClass('hidden');
                 } else {
-                    optionsGroup.classList.add('hidden');
+                    optionsGroup.addClass('hidden');
                 }
             }
 
             // Event listener global untuk menangani perubahan tipe pertanyaan
-            questionSection.addEventListener('change', function(event) {
-                if (event.target.classList.contains('question-type')) {
-                    updateOptionVisibility(event.target);
-                }
+            questionSection.on('change', '.question-type', function() {
+                updateOptionVisibility($(this));
             });
 
-            const questionTypes = document.querySelectorAll('.question-type');
-        questionTypes.forEach(select => {
-            updateOptionVisibility(select);
-        });
+            // Inisialisasi visibilitas opsi untuk tipe pertanyaan yang sudah ada
+            $('.question-type').each(function() {
+                updateOptionVisibility($(this));
+            });
 
-            document.getElementById('add-question').addEventListener('click', function() {
-                const newQuestion = questionTemplate.cloneNode(true);
-                newQuestion.querySelector('input[name="questions[][teks_pertanyaan]"]').value = '';
-                newQuestion.querySelector('select[name="questions[][tipe_pertanyaan]"]').value = '';
-                newQuestion.querySelector('.options-group').classList.add('hidden');
-                newQuestion.querySelectorAll('input[name="questions[][opsi_jawaban][]"]').forEach(input =>
-                    input.remove());
+            $('#add-question').on('click', function() {
+                const newQuestion = questionTemplate.clone();
+                newQuestion.find('input[name="questions[][teks_pertanyaan]"]').val('');
+                newQuestion.find('select[name="questions[][tipe_pertanyaan]"]').val('');
+                newQuestion.find('.options-group').addClass('hidden');
+                newQuestion.find('input[name="questions[][opsi_jawaban][]"]').remove();
 
-                // Event for changing question type
-                newQuestion.querySelector('.question-type').addEventListener('change', function() {
-                    const optionsGroup = newQuestion.querySelector('.options-group');
-                    optionsGroup.classList.toggle('hidden', this.value !== 'multiple_choice');
+                // Event untuk mengubah tipe pertanyaan
+                newQuestion.find('.question-type').on('change', function() {
+                    const optionsGroup = newQuestion.find('.options-group');
+                    optionsGroup.toggleClass('hidden', this.value !== 'checkbox' && this.value !==
+                        'radio');
                 });
 
-                // Event for adding options
-                newQuestion.querySelector('.add-option').addEventListener('click', function() {
-                    const optionsGroup = newQuestion.querySelector('.options-group');
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'text';
-                    optionInput.name = `questions[][opsi_jawaban][]`;
-                    optionInput.classList.add('mt-1', 'block', 'w-full', 'border',
-                        'border-gray-300', 'rounded-md', 'shadow-sm', 'mb-2');
-                    optionInput.placeholder = 'Masukkan opsi jawaban';
-                    optionsGroup.appendChild(optionInput);
+                // Event untuk menambahkan opsi
+                newQuestion.find('.add-option').on('click', function() {
+                    const optionsGroup = newQuestion.find('.options-group');
+                    const optionInput = $('<input>', {
+                        type: 'text',
+                        name: 'questions[][opsi_jawaban][]',
+                        class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm mb-2',
+                        placeholder: 'Masukkan opsi jawaban'
+                    });
+                    optionsGroup.append(optionInput);
                 });
 
-                // Event for removing question
-                newQuestion.querySelector('.remove-question').addEventListener('click', function() {
+                // Event untuk menghapus pertanyaan
+                newQuestion.find('.remove-question').on('click', function() {
                     newQuestion.remove();
                 });
 
-                questionSection.appendChild(newQuestion);
+                questionSection.append(newQuestion);
             });
 
-            questionSection.addEventListener('click', function(event) {
-                if (event.target.classList.contains('add-option')) {
-                    const optionsGroup = event.target.closest('.options-group');
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'text';
-                    optionInput.name = `questions[][opsi_jawaban][]`;
-                    optionInput.classList.add('mt-1', 'block', 'w-full', 'border', 'border-gray-300',
-                        'rounded-md', 'shadow-sm', 'mb-2');
-                    optionInput.placeholder = 'Masukkan opsi jawaban';
-                    optionsGroup.appendChild(optionInput);
+            questionSection.on('click', '.add-option', function(event) {
+                const optionsGroup = $(this).closest('.options-group');
+                const optionInput = $('<input>', {
+                    type: 'text',
+                    name: 'questions[][opsi_jawaban][]',
+                    class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm mb-2',
+                    placeholder: 'Masukkan opsi jawaban'
+                });
+                optionsGroup.append(optionInput);
+            });
+
+            questionSection.on('click', '.remove-question', function(event) {
+                const questionGroup = $(this).closest('.question-group');
+                if (questionGroup) {
+                    questionGroup.remove(); // Hapus grup pertanyaan
                 }
             });
 
-            questionSection.addEventListener('click', function(event) {
-                if (event.target.classList.contains('remove-question')) {
-                    const questionGroup = event.target.closest('.question-group');
-                    if (questionGroup) {
-                        questionGroup.remove(); // Remove the question group
-                    }
-                }
-            });
-
-            document.getElementById('kuesionerForm').addEventListener('submit', function(event) {
+            $('#kuesionerForm').on('submit', function(event) {
                 event.preventDefault(); // Mencegah pengiriman formulir default
 
                 let formData = {
-                    judul_kuesioner: document.getElementById('judul_kuesioner').value.trim(),
+                    judul_kuesioner: $('#judul_kuesioner').val().trim(),
                     questions: []
                 };
 
-                const questions = document.querySelectorAll('input[name="questions[][teks_pertanyaan]"]');
-                const types = document.querySelectorAll('select[name="questions[][tipe_pertanyaan]"]');
-                const optionsGroups = document.querySelectorAll('.options-group');
+                const questions = $('input[name="questions[][teks_pertanyaan]"]');
+                const types = $('select[name="questions[][tipe_pertanyaan]"]');
+                const optionsGroups = $('.options-group');
 
-                questions.forEach((input, index) => {
-                    if (input.value.trim()) {
+                questions.each(function(index) {
+                    const input = $(this);
+                    if (input.val().trim()) {
                         const question = {
-                            teks_pertanyaan: input.value.trim(),
-                            tipe_pertanyaan: types[index].value,
+                            teks_pertanyaan: input.val().trim(),
+                            tipe_pertanyaan: types.eq(index).val(),
                             opsi_jawaban: []
                         };
-                        const options = optionsGroups[index].querySelectorAll(
+                        const options = optionsGroups.eq(index).find(
                             'input[name="questions[][opsi_jawaban][]"]');
 
-                        if (question.tipe_pertanyaan === 'multiple_choice') {
-                            // Jika tipe pertanyaan adalah 'multiple_choice', ambil opsi jawaban
-                            options.forEach(optionInput => {
-                                if (optionInput.value.trim()) {
-                                    question.opsi_jawaban.push(optionInput.value);
+                        if (question.tipe_pertanyaan === 'checkbox' || question.tipe_pertanyaan ===
+                            'radio') {
+                            // Jika tipe pertanyaan adalah 'checkbox' atau 'radio', ambil opsi jawaban
+                            options.each(function() {
+                                const optionInput = $(this);
+                                if (optionInput.val().trim()) {
+                                    question.opsi_jawaban.push(optionInput.val());
                                 }
                             });
                         } else if (question.tipe_pertanyaan === 'text') {
@@ -234,34 +232,28 @@
                 console.log('Data yang akan dikirim:', formData); // Debugging
 
                 const kuesionerId = {{ $kuesioner->id }};
-                fetch(`/api/kuesioner/${encodeURIComponent(kuesionerId)}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'),
-                        },
-                        body: JSON.stringify(formData),
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
+                $.ajax({
+                    url: `/api/kuesioner/${encodeURIComponent(kuesionerId)}`,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    },
+                    success: function(data) {
                         if (data.message) {
                             alert(data.message);
                             // Reset form atau lakukan tindakan lain setelah berhasil
-                            document.getElementById('kuesionerForm').reset();
+                            $('#kuesionerForm')[0].reset();
                         } else {
                             console.error('Terjadi kesalahan:', data);
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(xhr, status, error) {
                         console.error('Error:', error);
                         alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
-                    });
+                    }
+                });
             });
         });
     </script>

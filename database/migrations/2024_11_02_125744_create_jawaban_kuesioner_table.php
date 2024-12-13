@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('jawaban_kuesioner', function (Blueprint $table) {
             $table->id();
             $table->string('jawaban', 255);
-            $table->foreignId('alumni_nim')->constrained('alumni');
+            $table->foreignId('alumni_id')->constrained('alumni');
             $table->foreignId('pertanyaan_id')->constrained('pertanyaan');
             $table->timestamps();
         });

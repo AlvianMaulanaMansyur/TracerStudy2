@@ -13,12 +13,13 @@ use App\Http\Controllers\AlumniController;
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
 
 // Rute untuk alumni
-Route::post('/login', [AuthAdmin::class, 'login']);
+Route::post('/login', [AuthAlumni::class, 'login']);
 Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login');
 // Protected Alumni Routes
 Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::get('/kuesioner', [KuesionerController::class, 'KuesionerForAlumni'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{id}', [KuesionerController::class, 'ShowKuesionerForAlumni'])->name('kuesioner.alumni.show');
+    Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
 });
 
 // Rute untuk admin
@@ -43,8 +44,17 @@ Route::prefix('admin')->group(function () {
     });
 });
 
-// Rute API untuk Kuesioner
-Route::prefix('api')->group(function () {
-    Route::post('/kuesioner', [KuesionerController::class, 'store']);
-    Route::put('/kuesioner/{id}', [KuesionerController::class, 'update']);
+Route::middleware([AdminMiddleware::class])->group(function () {
+    // Rute Admin API untuk Kuesioner
+    Route::prefix('api')->group(function () {
+        Route::post('/kuesioner', [KuesionerController::class, 'store']);
+        Route::put('/kuesioner/{id}', [KuesionerController::class, 'update']);
+    });
+});
+
+Route::middleware([AlumniMiddleware::class])->group(function () {
+    // Rute Alumni API untuk Kuesioner
+    Route::prefix('api')->group(function () {
+        Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('api.kuesioner.alumni.submit');
+    });
 });

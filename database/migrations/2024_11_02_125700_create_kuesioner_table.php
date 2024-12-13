@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('judul_kuesioner');
             $table->foreignId('admin_id')->constrained('admin');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -24,6 +25,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kuesioner');
+        Schema::table('kuesioner', function (Blueprint $table) {
+            $table->dropSoftDeletes(); // Menghapus kolom deleted_at
+        });
     }
 };

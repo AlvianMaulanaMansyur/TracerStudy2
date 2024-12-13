@@ -1,24 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto p-6">
-        <h1 class="text-2xl font-bold mb-4">Buat Kuesioner Baru</h1>
+<div class="container mx-auto p-6">
+    <h1 class="text-2xl font-bold mb-4">Buat Kuesioner Baru</h1>
 
-        <form id="kuesionerForm" novalidate>
-            @csrf
+    <form id="kuesionerForm" novalidate>
+        @csrf
 
-            <!-- Title of the Questionnaire -->
-            <div class="mb-4">
-                <label for="judul_kuesioner" class="block text-sm font-medium text-gray-700">Judul Kuesioner</label>
-                <input type="text" name="judul_kuesioner" id="judul_kuesioner"
-                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
-                    required>
+        <!-- Flex container for buttons and questions -->
+        <div class="flex">
+            <!-- Buttons Section -->
+            <div class="w-1/4 pr-4 sticky top-0 bg-white z-10">
+                @include('kuesioner.admin.add-question-buttons')
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mt-4">Simpan
+                    Kuesioner</button>
             </div>
 
             <!-- Questions Section -->
-            <div id="questions-section">
-                <h3 class="text-lg font-semibold mb-2">Pertanyaan</h3>
+            {{-- <div class="w-3/4 custom-scroll overflow-y-auto max-h-[79vh]">
+                <div class="flex justify-between mb-4">
+                    <h2 class="text-xl font-semibold">Halaman Kuesioner</h2>
+                    <button id="add-page" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">Tambah Halaman</button>
+                </div>
 
+                <div id="pages-section" class="mb-4">
+                    <!-- Halaman akan ditambahkan di sini -->
+                </div>
+            </div> --}}
+            <div id="questions-section" class="w-3/4 custom-scroll overflow-y-auto max-h-[79vh]">
+                <div class="mb-4">
+                    <label for="judul_kuesioner" class="block text-sm font-medium text-gray-700">Judul Kuesioner</label>
+                    <input type="text" name="judul_kuesioner" id="judul_kuesioner"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500"
+                        required>
+                </div>
                 <!-- Template for questions (dynamically added) -->
                 <div id="question-template" class="hidden">
                     <div class="mb-4">
@@ -34,13 +49,13 @@
                         <select name="questions[][tipe_pertanyaan]"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500 question-type"
                             required>
-                            <option value="">Pilih Tipe Pertanyaan</option>
                             <option value="text">Teks</option>
-                            <option value="multiple_choice">Pilihan Ganda</option>
+                            <option value="checkbox">Pilihan Ganda</option>
+                            <option value="radio">Pilihan Radio</option>
                         </select>
                     </div>
 
-                    <!-- Options for multiple choice (only show when "multiple_choice" is selected) -->
+                    <!-- Options for multiple choice (only show when "checkbox" is selected) -->
                     <div class="options-group hidden mb-4">
                         <label class="block text-sm font-medium text-gray-700">Opsi Jawaban</label>
                         <input type="text" name="questions[][opsi_jawaban][]"
@@ -57,115 +72,124 @@
                     <hr class="my-4">
                 </div>
 
-                <!-- Button to add questions -->
-                <button type="button" id="add-question"
-                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded mb-3">Tambah
-                    Pertanyaan</button>
+                <!-- Section for dynamic questions will be appended here -->
             </div>
+        </div>
+    </form>
+</div>
+    <script type="module">
+        $(document).ready(function() {
+            const $questionSection = $('#questions-section');
+            const $questionTemplate = $('#question-template').clone().removeClass('hidden');
 
-            <!-- Submit Button -->
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Simpan
-                Kuesioner</button>
-        </form>
-    </div>
+            // Fungsi untuk menambahkan pertanyaan baru
+            function addQuestion(type = '') {
+                const $newQuestion = $questionTemplate.clone();
+                $newQuestion.find('input[name="questions[][teks_pertanyaan]"]').val('');
+                $newQuestion.find('select[name="questions[][tipe_pertanyaan]"]').val(type);
+                $newQuestion.find('.options-group').toggleClass('hidden', type !== 'checkbox' && type !== 'radio');
+                $newQuestion.find('input[name="questions[][opsi_jawaban][]"]').remove();
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const questionSection = document.getElementById('questions-section');
-            const questionTemplate = document.getElementById('question-template').cloneNode(true);
-            questionTemplate.classList.remove('hidden');
-
-            // Function to add new question
-            document.getElementById('add-question').addEventListener('click', function() {
-                const newQuestion = questionTemplate.cloneNode(true);
-                newQuestion.querySelector('input[name="questions[][teks_pertanyaan]"]').value = '';
-                newQuestion.querySelector('select[name="questions[][tipe_pertanyaan]"]').value = '';
-                newQuestion.querySelector('.options-group').classList.add('hidden');
-                newQuestion.querySelectorAll('input[name="questions[][opsi_jawaban][]"]').forEach(input =>
-                    input.remove());
-
-                // Event for changing question type
-                newQuestion.querySelector('.question-type').addEventListener('change', function() {
-                    const optionsGroup = newQuestion.querySelector('.options-group');
-                    optionsGroup.classList.toggle('hidden', this.value !== 'multiple_choice');
+                // Event untuk mengubah tipe pertanyaan
+                $newQuestion.find('.question-type').on('change', function() {
+                    const $optionsGroup = $newQuestion.find('.options-group');
+                    const selectedType = $(this).val();
+                    $optionsGroup.toggleClass('hidden', !['checkbox', 'radio'].includes(selectedType));
                 });
 
-                // Event for adding options
-                newQuestion.querySelector('.add-option').addEventListener('click', function() {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.name = 'questions[][opsi_jawaban][]';
-                    input.classList.add('mt-1', 'block', 'w-full', 'border', 'border-gray-300',
-                        'rounded-md', 'shadow-sm', 'focus:ring', 'focus:ring-blue-500',
-                        'focus:border-blue-500', 'mb-2');
-                    input.placeholder = 'Masukkan opsi jawaban';
-                    newQuestion.querySelector('.options-group').insertBefore(input, this);
+                // Event untuk menambahkan opsi
+                $newQuestion.find('.add-option').on('click', function() {
+                    const $input = $('<input>', {
+                        type: 'text',
+                        name: 'questions[][opsi_jawaban][]',
+                        class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500 mb-2',
+                        placeholder: 'Masukkan opsi jawaban',
+                    });
+                    $newQuestion.find('.options-group').prepend($input);
                 });
 
-                // Event for removing question
-                newQuestion.querySelector('.remove-question').addEventListener('click', function() {
-                    newQuestion.remove();
+                // Event untuk menghapus pertanyaan
+                $newQuestion.find('.remove-question').on('click', function() {
+                    $newQuestion.remove();
                 });
 
-                questionSection.appendChild(newQuestion);
+                $questionSection.append($newQuestion);
+            }
+
+            // Event untuk tombol tambah pertanyaan berdasarkan tipe
+            $('#add-text-question').on('click', function() {
+                addQuestion('text');
             });
 
-            // Prevent form submission if there are invalid inputs
-            document.getElementById('kuesionerForm').addEventListener('submit', function(event) {
+            $('#add-checkbox-question').on('click', function() {
+                addQuestion('checkbox');
+            });
+
+            $('#add-radio-question').on('click', function() {
+                addQuestion('radio');
+            });
+
+            $('#add-question').on('click', function() {
+                addQuestion('');
+            });
+
+            // Cegah pengiriman form jika ada input yang tidak valid
+            $('#kuesionerForm').on('submit', function(event) {
                 event.preventDefault(); // Mencegah pengiriman formulir default
 
                 let formData = {
-                    judul_kuesioner: document.getElementById('judul_kuesioner').value,
-                    questions: []
+                    judul_kuesioner: $('#judul_kuesioner').val(),
+                    questions: [],
                 };
 
-                const questions = document.querySelectorAll('input[name="questions[][teks_pertanyaan]"]');
-                const types = document.querySelectorAll('select[name="questions[][tipe_pertanyaan]"]');
-                const optionsGroups = document.querySelectorAll('.options-group');
+                const $questions = $('input[name="questions[][teks_pertanyaan]"]');
+                const $types = $('select[name="questions[][tipe_pertanyaan]"]');
+                const $optionsGroups = $('.options-group');
 
-                questions.forEach((input, index) => {
-                    if (input.value.trim()) {
+                $questions.each(function(index) {
+                    const teksPertanyaan = $(this).val().trim();
+                    if (teksPertanyaan) {
                         const question = {
-                            teks_pertanyaan: input.value,
-                            tipe_pertanyaan: types[index].value,
-                            opsi_jawaban: []
+                            teks_pertanyaan: teksPertanyaan,
+                            tipe_pertanyaan: $types.eq(index).val(),
+                            opsi_jawaban: [],
                         };
 
-                        const options = optionsGroups[index].querySelectorAll(
-                            'input[name="questions[][opsi_jawaban][]"]');
-                        options.forEach(optionInput => {
-                            if (optionInput.value.trim()) {
-                                question.opsi_jawaban.push(optionInput.value);
-                            }
-                        });
+                        $optionsGroups.eq(index).find('input[name="questions[][opsi_jawaban][]"]')
+                            .each(function() {
+                                const opsiJawaban = $(this).val().trim();
+                                if (opsiJawaban) {
+                                    question.opsi_jawaban.push(opsiJawaban);
+                                }
+                            });
 
                         formData.questions.push(question);
                     }
                 });
 
                 // Kirim data ke API
-                fetch('/api/kuesioner', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'), // Jika diperlukan
-                        },
-                        body: JSON.stringify(formData),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
+                $.ajax({
+                    url: '/api/kuesioner',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                        'content'), // Jika diperlukan
+                    },
+                    data: JSON.stringify(formData),
+                    success: function(data) {
                         if (data.message) {
                             alert(data.message);
                             // Reset form atau lakukan tindakan lain setelah berhasil
-                            document.getElementById('kuesionerForm').reset();
+                            $('#kuesionerForm')[0].reset();
                         } else {
                             console.error('Terjadi kesalahan:', data);
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(error) {
                         console.error('Error:', error);
-                    });
+                    },
+                });
             });
         });
     </script>

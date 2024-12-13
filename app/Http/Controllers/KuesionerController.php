@@ -96,7 +96,7 @@ class KuesionerController extends Controller
                 'judul_kuesioner' => 'required|string|max:255',
                 'questions' => 'required|array',
                 'questions.*.teks_pertanyaan' => 'required|string',
-                'questions.*.tipe_pertanyaan' => 'required|string|in:text,multiple_choice',
+                'questions.*.tipe_pertanyaan' => 'required|string|in:text,checkbox,radio',
                 'questions.*.opsi_jawaban' => 'nullable|array',
                 'questions.*.opsi_jawaban.*' => 'nullable|string',
             ]);
@@ -127,30 +127,45 @@ class KuesionerController extends Controller
         }
     }
 
-    //     public function submit(Request $request, $kuesionerId)
-    // {
-    //     // Validasi input jawaban
-    //     $request->validate([
-    //         'jawaban' => 'required|array', // Pastikan jawaban ada dan merupakan array
-    //     ]);
+    public function destroy($id)
+    {
+        $kuesioner = Kuesioner::findOrFail($id); // Temukan kuesioner berdasarkan ID
+        $kuesioner->delete(); // Hapus kuesioner
 
-    //     // Ambil jawaban dari request
-    //     $jawaban = $request->input('jawaban');
+        return redirect()->route('kuesioner.index')->with('success', 'Kuesioner berhasil dihapus.');
+    }
 
-    //     // Proses jawaban sesuai kebutuhan, misalnya simpan ke database
-    //     // Contoh: Jawaban bisa disimpan ke tabel jawaban_kuesioner
-    //     foreach ($jawaban as $pertanyaanId => $jawabanPertanyaan) {
-    //         // Simpan jawaban ke database
-    //         // Jawaban bisa berupa string atau array (untuk multiple choice)
-    //         // Misalnya, Anda bisa menggunakan model JawabanKuesioner
-    //         Jawaban_kuesioner::create([
-    //             'kuesioner_id' => $kuesionerId,
-    //             'pertanyaan_id' => $pertanyaanId,
-    //             'jawaban' => is_array($jawabanPertanyaan) ? json_encode($jawabanPertanyaan) : $jawabanPertanyaan,
-    //         ]);
-    //     }
-
-    //     // Redirect atau tampilkan pesan sukses
-    //     return redirect()->route('kuesioner.index')->with('success', 'Jawaban berhasil dikirim.');
-    // }
+    public function submit(Request $request, $id)
+    {
+        $request->validate([
+            'jawaban' => 'required',
+            'jawaban.*' => 'required',
+        ]);
+    
+        // Ambil id alumni dari session atau input (sesuaikan dengan cara Anda menyimpan id)
+        $alumniId = Auth::guard('alumni')->user()->id; // Misalnya, jika Anda menggunakan autentikasi
+    
+        // Simpan jawaban ke dalam database
+        foreach ($request->jawaban as $pertanyaanId => $jawaban) {
+            // Jika jawaban adalah array (misalnya untuk checkbox), simpan setiap jawaban
+            if (is_array($jawaban)) {
+                foreach ($jawaban as $jawabanItem) {
+                    Jawaban_kuesioner::create([
+                        'jawaban' => $jawabanItem,
+                        'alumni_id' => $alumniId,
+                        'pertanyaan_id' => $pertanyaanId,
+                    ]);
+                }
+            } else {
+                Jawaban_kuesioner::create([
+                    'jawaban' => $jawaban,
+                    'alumni_id' => $alumniId,
+                    'pertanyaan_id' => $pertanyaanId,
+                ]);
+            }
+        }
+    
+        // Redirect atau memberikan respon setelah penyimpanan berhasil
+        return redirect()->route('kuesioner.alumni.show', $id)->with('success', 'Jawaban berhasil disimpan!');
+    }
 }
