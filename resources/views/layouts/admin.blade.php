@@ -13,6 +13,8 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <title>@yield('title')</title>
+    @vite('resources/css/app.css')
+    @vite(['resources/js/app.js'])
 </head>
 
 <body id="page-top">

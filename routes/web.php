@@ -27,7 +27,7 @@ Route::prefix('admin')->group(function () {
     // Admin authentication routes
     Route::get('/login', [AuthAdmin::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AuthAdmin::class, 'login']);
-    Route::post('/logout', [AuthAdmin::class, 'lo   gout'])->name('admin.logout');
+    Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
     // Route::get('admin', function () {
     //     return view('admin.dashboard');
@@ -35,7 +35,7 @@ Route::prefix('admin')->group(function () {
 
     // Protected admin routes
     Route::middleware([AdminMiddleware::class])->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/dashboard', [AdminController::class, 'tampilAlumni'])->name('admin.dashboard');
         Route::resource('kuesioner', KuesionerController::class);
         Route::get('/kuesioner/{id}', [KuesionerController::class, 'show'])->name('kuesioner.admin.show');
 
@@ -45,9 +45,9 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/kuesioner/{id}/edit', [KuesionerController::class, 'edit'])->name('kuesioner.admin.edit');
         Route::put('/kuesioner/{id}', [KuesionerController::class, 'update'])->name('kuesioner.admin.update');
+        // Route::get('/alumni', [AlumniController::class, 'tampilAlumni'])->name('admin.dashboard');
     });
 });
-
 Route::middleware([AdminMiddleware::class])->group(function () {
     // Rute Admin API untuk Kuesioner
     Route::prefix('api')->group(function () {
@@ -62,3 +62,4 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
         Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('api.kuesioner.alumni.submit');
     });
 });
+
