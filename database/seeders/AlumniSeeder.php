@@ -29,7 +29,7 @@ class AlumniSeeder extends Seeder
         //     'gelombang_wisuda' => 1,
         //     'alamat' => 'alamanataa',
         //     'no_telepon' => '10341034810841',
-        //     'foto_profil' => 'afjadfa', // Menghasilkan URL gambar
+        //     'foto_profil' => 'images/user.png', // Menghasilkan URL gambar
         //     'status_verifikasi' => 1,
         //     'prodi_id' => 1,
         //     'kota_id' => 1, // Sesuaikan dengan ID kota yang ada

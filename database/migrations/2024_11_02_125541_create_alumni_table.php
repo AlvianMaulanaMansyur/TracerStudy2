@@ -25,7 +25,7 @@ return new class extends Migration
             $table->tinyInteger('gelombang_wisuda');
             $table->string('alamat', 150);
             $table->string('no_telepon', 25);
-            $table->string('foto_profil', 255);
+            $table->string('foto_profil', 255)->default('images/user.png');
             $table->tinyInteger('status_verifikasi');
             $table->foreignId('prodi_id')->constrained('prodi');
             $table->foreignId('kota_id')->constrained('kota');

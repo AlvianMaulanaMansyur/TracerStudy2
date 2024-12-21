@@ -38,7 +38,7 @@ class AlumniFactory extends Factory
             'gelombang_wisuda' => $this->faker->numberBetween(1, 3),
             'alamat' => $this->faker->address,
             'no_telepon' => $this->faker->phoneNumber,
-            'foto_profil' => $this->faker->imageUrl(640, 480, 'people'), // Menghasilkan URL gambar
+            'foto_profil' => 'images/user.png', // Menghasilkan URL gambar
             'status_verifikasi' => $this->faker->numberBetween(0, 1),
             'prodi_id' => 1, // Sesuaikan dengan ID prodi yang ada
             'kota_id' => 1, // Sesuaikan dengan ID kota yang ada
