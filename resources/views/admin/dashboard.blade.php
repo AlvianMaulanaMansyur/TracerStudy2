@@ -60,12 +60,14 @@
                             <th>Foto Profile</th>
                             <th>NIM</th>
                             <th>Nama</th>
-                            <th>Email</th>
+                            {{-- <th>Email</th> --}}
                             <th>Angkatan</th>
-                            <th>Tahun Lulus</th>
-                            <th>Gelombang Wisuda</th>
-                            <th>Alamat</th>
-                            <th>No Telp</th>
+                            {{-- <th>Tahun Lulus</th> --}}
+                            {{-- <th>Gelombang Wisuda</th> --}}
+                            {{-- <th>Alamat</th> --}}
+                            {{-- <th>No Telp</th> --}}
+                            <th>action</th>
+
                         </tr>
                     </thead>
                     <tbody class="">
@@ -74,13 +76,19 @@
                                 <td><img src="{{ asset($key->foto_profil) }}" alt="foto profil" width="50"></td>
                                 <td>{{ $key->nim }}</td>
                                 <td>{{ $key->nama_alumni }}</td>
-                                <td>{{ $key->email }}</td>
+                                {{-- <td>{{ $key->email }}</td> --}}
                                 <td>{{ $key->angkatan }}</td>
-                                <td>{{ $key->tahun_lulus }}</td>
-                                <td>{{ $key->gelombang_wisuda }}</td>
-                                <td>{{ $key->alamat }}</td>
-                                <td>{{ $key->no_telepon }}</td>
+                                {{-- <td>{{ $key->tahun_lulus }}</td> --}}
+                                {{-- <td>{{ $key->gelombang_wisuda }}</td> --}}
+                                {{-- <td>{{ $key->alamat }}</td> --}}
+                                {{-- <td>{{ $key->no_telepon }}</td> --}}
+                                <td>
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal"
+                                        onclick="showModal('{{ $key->nim }}', '{{ $key->nama_alumni }}', '{{ $key->angkatan }}')">test</button>
+                                </td>
                             </tr>
+
+                            {{-- Modal --}}
                         @endforeach
                     </tbody>
                 </table>
@@ -90,4 +98,5 @@
             </div>
         </div>
     </div>
+    @include('layouts.partials.modal')
 @endsection

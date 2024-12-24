@@ -63,3 +63,5 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
     });
 });
 
+Route::put('/alumni/{nim}', [AdminController::class, 'update'])->name('alumni.update');
+// Route::post('/update-alumni', [AdminController::class, 'updateAlumni'])->name('update.alumni');
