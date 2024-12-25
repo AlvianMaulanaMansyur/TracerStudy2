@@ -13,6 +13,10 @@
         rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    {{-- sweet alert cdn --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <title>@yield('title')</title>
     @vite('resources/css/app.css')
     @vite(['resources/js/app.js'])
@@ -33,7 +37,7 @@
 
     </div>
 
-    <script src="{{ asset('admin/js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <!-- Bootstrap core JavaScript-->
     <script src="{{ asset('admin/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('admin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
@@ -52,6 +56,9 @@
     <script src="{{ asset('admin/js/demo/chart-pie-demo.js') }}"></script>
 
     <script src="{{ asset('admin/js/demo/datatables-demo.js') }}"></script>
+
+
+
 </body>
 
 </html>

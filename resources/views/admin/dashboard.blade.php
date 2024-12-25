@@ -70,7 +70,7 @@
 
                         </tr>
                     </thead>
-                    <tbody class="">
+                    <tbody>
                         @foreach ($alumni as $index => $key)
                             <tr>
                                 <td><img src="{{ asset($key->foto_profil) }}" alt="foto profil" width="50"></td>
@@ -82,9 +82,14 @@
                                 {{-- <td>{{ $key->gelombang_wisuda }}</td> --}}
                                 {{-- <td>{{ $key->alamat }}</td> --}}
                                 {{-- <td>{{ $key->no_telepon }}</td> --}}
-                                <td>
-                                    <button class="btn btn-primary" data-toggle="modal" data-target="#editModal"
-                                        onclick="showModal('{{ $key->nim }}', '{{ $key->nama_alumni }}', '{{ $key->angkatan }}')">test</button>
+                                <td class="">
+                                    <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+                                        class="block text-white bg-yellow-700 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+                                        type="button"
+                                        onclick="showModal('{{ $key->nim }}', '{{ $key->nama_alumni }}', '{{ $key->angkatan }}')">
+                                        detail
+                                    </button>
+
                                 </td>
                             </tr>
 
