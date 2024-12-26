@@ -6,6 +6,8 @@ use App\Models\Alumni;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use function Laravel\Prompts\search;
+
 class AdminController extends Controller
 {
     public function dashboard()
@@ -42,5 +44,41 @@ class AdminController extends Controller
         } else {
             return response()->json(['error' => 'Alumni tidak ditemukan'], 404);
         }
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        $alumni = Alumni::where('nama_alumni', 'like', '%' . $search . '%')->orWhere('nim', 'like', '%' . $search . '%')->paginate(10);
+        $totalAlumni = Alumni::count();
+
+
+        return view('admin.dashboard', compact('alumni', 'totalAlumni'));
+    }
+
+    public function filter(Request $request)
+    {
+        $angkatan = $request->input('angkatan');
+        $tahun_lulus = $request->input('tahun_lulus');
+        $gelombang_wisuda = $request->input('gelombang_wisuda');
+
+        $query = Alumni::query();
+
+        if ($angkatan) {
+            $query->where('angkatan', $angkatan);
+        }
+
+        if ($tahun_lulus) {
+            $query->where('tahun_lulus', $tahun_lulus);
+        }
+
+        if ($gelombang_wisuda) {
+            $query->where('gelombang_wisuda', $gelombang_wisuda);
+        }
+
+        $alumni = $query->paginate(10);
+        $totalAlumni = Alumni::count();
+
+        return view('admin.dashboard', compact('alumni', 'totalAlumni'));
     }
 }

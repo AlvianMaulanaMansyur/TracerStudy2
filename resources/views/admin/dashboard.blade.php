@@ -49,8 +49,19 @@
     </div>
 
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 flex justify-between items-center">
             <h6 class="m-0 font-weight-bold text-primary">Daftar Alumni</h6>
+            <div class="flex space-x-2">
+                <!-- Search Form -->
+                <form method="GET" action="{{ route('admin.alumni.search') }}" class="flex items-center">
+                    <input type="text" name="search" placeholder="Search Alumni" class="form-control" />
+                    <button type="submit" class="btn btn-primary ml-2">Search</button>
+                </form>
+                <!-- Filter Button -->
+                <button type="button" class="btn btn-secondary ml-2" data-toggle="modal" data-target="#filterModal">
+                    Filter
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -110,5 +121,8 @@
             </div>
         </div>
     </div>
+
+    @include('layouts.partials.modalfilter')
+
     @include('layouts.partials.modal')
 @endsection

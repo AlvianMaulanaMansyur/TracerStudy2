@@ -29,6 +29,11 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthAdmin::class, 'login']);
     Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
+    // Admin dashboard routes
+    Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
+    Route::get('/alumni/search', [AdminController::class, 'search'])->name('admin.alumni.search');
+    Route::get('/alumni/filter', [AdminController::class, 'filter'])->name('admin.alumni.filter');
+
     // Route::get('admin', function () {
     //     return view('admin.dashboard');
     // })->name('admin.dashboard');
