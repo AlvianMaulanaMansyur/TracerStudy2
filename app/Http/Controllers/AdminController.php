@@ -19,27 +19,28 @@ class AdminController extends Controller
         $alumni = Alumni::paginate(10);
         return view('admin.dashboard', compact('alumni', 'totalAlumni'));
     }
+
     public function updateAlumni(Request $request)
     {
         // Validasi data
-    $request->validate([
-        'nim' => 'required|string|max:255',
-        'nama_alumni' => 'required|string|max:255',
-        'angkatan' => 'required|string|max:255',
-    ]);
+        $request->validate([
+            'nim' => 'required|string|max:255',
+            'nama_alumni' => 'required|string|max:255',
+            'angkatan' => 'required|string|max:255',
+        ]);
 
-    // Temukan data alumni berdasarkan NIM
-    $alumni = Alumni::where('nim', $request->nim)->first();
+        // Temukan data alumni berdasarkan NIM
+        $alumni = Alumni::where('nim', $request->nim)->first();
 
-    if ($alumni) {
-        // Update data alumni
-        $alumni->nama_alumni = $request->nama_alumni;
-        $alumni->angkatan = $request->angkatan;
-        $alumni->save();
+        if ($alumni) {
+            // Update data alumni
+            $alumni->nama_alumni = $request->nama_alumni;
+            $alumni->angkatan = $request->angkatan;
+            $alumni->save();
 
-        return response()->json(['success' => 'Data alumni berhasil diperbarui']);
-    } else {
-        return response()->json(['error' => 'Alumni tidak ditemukan'], 404);
-    }
+            return response()->json(['success' => 'Data alumni berhasil diperbarui']);
+        } else {
+            return response()->json(['error' => 'Alumni tidak ditemukan'], 404);
+        }
     }
 }

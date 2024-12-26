@@ -10,13 +10,17 @@
                 </h3>
             </div>
             <!-- Modal body -->
-            <div class="p-4 md:p-5 space-y-4">
+            <div class="p-4 md:p-5 flex space-x-4">
+                <div class="w-1/3 flex justify-center items-center">
+                    <img src="" alt="Foto Profil" class="rounded-full w-32 h-32" id="profileImage">
+                </div>
                 <form id="editForm">
                     @csrf
                     @method('PUT')
-                    <div class="form-group">
+                    <div class="form-group ">
                         <label for="nim">NIM</label>
-                        <input type="text" class="form-control" id="nim" name="nim" readonly>
+                        <input type="text " class="form-control cursor-not-allowed" id="nim" name="nim"
+                            readonly>
                     </div>
                     <div class="form-group">
                         <label for="nama_alumni">Nama Alumni</label>
@@ -25,6 +29,14 @@
                     <div class="form-group">
                         <label for="angkatan">Angkatan</label>
                         <input type="text" class="form-control" id="angkatan" name="angkatan">
+                    </div>
+                    <div class="form-group">
+                        <label for="gelombang_wisuda">Gelombang Wisuda</label>
+                        <input type="text" class="form-control" id="gelombang_wisuda" name="gelombang_wisuda">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" id="email" name="email">
                     </div>
                 </form>
             </div>
@@ -50,10 +62,16 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Fungsi untuk menampilkan modal dan mengisi field dengan data yang ingin diedit
-        window.showModal = function(nim, nama, angkatan) {
+        window.showModal = function(nim, nama, angkatan, foto_profil, email, gelombang_wisuda) {
             document.getElementById('nim').value = nim;
             document.getElementById('nama_alumni').value = nama;
             document.getElementById('angkatan').value = angkatan;
+            document.getElementById('profileImage').src = foto_profil;
+            document.getElementById('email').value = email;
+            document.getElementById('gelombang_wisuda').value = gelombang_wisuda;
+            // document.getElementById('alamat').value = alamat;
+            // document.getElementById('no_telepon').value = no_telepon;
+
 
             // Menampilkan modal
             document.getElementById('default-modal').classList.remove('hidden');
@@ -84,10 +102,10 @@
                             title: "Berhasil!",
                             text: "Data Berhasil Diperbarui",
                             icon: "success",
-                            confirmButtonText: "OK"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Merefresh halaman setelah tombol OK ditekan
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            willClose: () => {
                                 location.reload();
                             }
                         });
@@ -99,10 +117,10 @@
                             title: "Gagal!",
                             text: "Data Gagal Diperbarui",
                             icon: "error",
-                            confirmButtonText: "OK"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Merefresh halaman setelah tombol OK ditekan
+                            showConfirmButton: false,
+                            timer: 1900,
+                            timerProgressBar: true,
+                            willClose: () => {
                                 location.reload();
                             }
                         });
@@ -113,10 +131,10 @@
                         title: "Gagal!",
                         text: "Data Gagal Diperbarui",
                         icon: "error",
-                        confirmButtonText: "OK"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Merefresh halaman setelah tombol OK ditekan
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        willClose: () => {
                             location.reload();
                         }
                     });
