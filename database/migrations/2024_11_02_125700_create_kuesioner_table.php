@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('kuesioner', function (Blueprint $table) {
-            $table->dropSoftDeletes(); // Menghapus kolom deleted_at
+            $table->dropSoftDeletes();
         });
     }
 };

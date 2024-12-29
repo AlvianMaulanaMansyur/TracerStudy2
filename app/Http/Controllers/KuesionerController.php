@@ -35,8 +35,8 @@ class KuesionerController extends Controller
             $request->validate([
                 'judul_kuesioner' => 'required|string|max:255',
                 'questions.*.teks_pertanyaan' => 'required|string',
-                'questions.*.tipe_pertanyaan' => 'required|string',
-                'questions.*.opsi_jawaban' => 'nullable|array',
+                // 'questions.*.tipe_pertanyaan' => 'required|string',
+                // 'questions.*.opsi_jawaban' => 'nullable|array',
                 'questions.*.opsi_jawaban.*' => 'nullable|string',
             ]);
 
@@ -52,7 +52,8 @@ class KuesionerController extends Controller
                 $data = [
                     'pertanyaan' => $question['teks_pertanyaan'],
                     'tipe_pertanyaan' => $question['tipe_pertanyaan'],
-                    'opsi_jawaban' => $question['opsi_jawaban']
+                    'opsi_jawaban' => $question['opsi_jawaban'],
+                    'halaman'=> $question['halaman']
                 ];
 
                 Pertanyaan::create([
@@ -71,12 +72,29 @@ class KuesionerController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $kuesioner = Kuesioner::with('pertanyaan')->findOrFail($id); // Mengambil kuesioner beserta pertanyaannya
-        return view('kuesioner.admin.show', compact('kuesioner'));
+        $kuesioner = Kuesioner::findOrFail($id);
+        $currentPage = $request->input('page', 1);
+    
+        // Ambil semua pertanyaan yang terkait dengan kuesioner ini
+        $pertanyaan = $kuesioner->pertanyaan()->get();
+    
+        // Hitung total halaman di semua pertanyaan
+        $totalPages = $pertanyaan->max(function ($item) {
+            $data = json_decode($item->data_pertanyaan);
+            return isset($data->halaman) ? (int) $data->halaman : 0; // Pastikan nilai default
+        });
+    
+        // Filter pertanyaan berdasarkan halaman
+        $filteredQuestions = $pertanyaan->filter(function ($item) use ($currentPage) {
+            $data = json_decode($item->data_pertanyaan);
+            return isset($data->halaman) && $data->halaman == $currentPage;
+        });
+    
+        return view('kuesioner.admin.show', compact('kuesioner', 'filteredQuestions', 'currentPage', 'totalPages'));
     }
-
+    
     public function ShowKuesionerForAlumni($id)
     {
         $kuesioner = Kuesioner::with('pertanyaan')->findOrFail($id); // Mengambil kuesioner beserta pertanyaannya
@@ -93,12 +111,12 @@ class KuesionerController extends Controller
     {
         try {
             $request->validate([
-                'judul_kuesioner' => 'required|string|max:255',
-                'questions' => 'required|array',
-                'questions.*.teks_pertanyaan' => 'required|string',
-                'questions.*.tipe_pertanyaan' => 'required|string|in:text,checkbox,radio',
-                'questions.*.opsi_jawaban' => 'nullable|array',
-                'questions.*.opsi_jawaban.*' => 'nullable|string',
+                // 'judul_kuesioner' => 'required|string|max:255',
+                // 'questions' => 'required|array',
+                // 'questions.*.teks_pertanyaan' => 'required|string',
+                // 'questions.*.tipe_pertanyaan' => 'required|string|in:text,checkbox,radio',
+                // 'questions.*.opsi_jawaban' => 'nullable|array',
+                // 'questions.*.opsi_jawaban.*' => 'nullable|string',
             ]);
 
             // Temukan kuesioner berdasarkan ID
@@ -117,6 +135,8 @@ class KuesionerController extends Controller
                     'pertanyaan' => $question['teks_pertanyaan'],
                     'tipe_pertanyaan' => $question['tipe_pertanyaan'],
                     'opsi_jawaban' => $question['opsi_jawaban'] ?? [],
+                    'halaman'=> $question['halaman']
+
                 ]);
                 $pertanyaan->save();
             }

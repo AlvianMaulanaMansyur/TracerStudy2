@@ -1,3 +1,4 @@
+/* @import 'jquery-ui/themes/base/all.css'; */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
