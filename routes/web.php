@@ -42,14 +42,21 @@ Route::prefix('admin')->group(function () {
     Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'tampilAlumni'])->name('admin.dashboard');
         Route::resource('kuesioner', KuesionerController::class);
+        Route::get('/kuesioner', [KuesionerController::class, 'index'])->name('kuesioner.index');
         Route::get('/kuesioner/{id}', [KuesionerController::class, 'show'])->name('kuesioner.admin.show');
 
         Route::resource('kuesioner.pertanyaan', PertanyaanController::class)->shallow();
+       
 
         Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('kuesioner.admin.submit');
 
         Route::get('/kuesioner/{id}/edit', [KuesionerController::class, 'edit'])->name('kuesioner.admin.edit');
         Route::put('/kuesioner/{id}', [KuesionerController::class, 'update'])->name('kuesioner.admin.update');
+
+        Route::post('kuesioner/saveChoice', [KuesionerController::class, 'saveChoice'])->name('kuesioner.saveChoice');
+
+        Route::get('/kuesioner/{id}/statistik', [KuesionerController::class, 'statistik'])->name('kuesioner.statistik');
+
         // Route::get('/alumni', [AlumniController::class, 'tampilAlumni'])->name('admin.dashboard');
     });
 });
@@ -70,3 +77,6 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
 
 // Route::put('/alumni/{nim}', [AdminController::class, 'update'])->name('alumni.update');
 Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->name('admin.update-alumni');
+
+Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
+

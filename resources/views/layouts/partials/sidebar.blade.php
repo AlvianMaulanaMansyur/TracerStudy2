@@ -16,6 +16,12 @@
         <a class="nav-link" href="{{ route('admin.dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Dashboard</span></a>
+    </li> 
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('kuesioner.index') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Kuesioner</span></a>
     </li>
     <hr class="sidebar-divider my-0">
     <li class="nav-item active">

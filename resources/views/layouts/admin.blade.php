@@ -13,13 +13,21 @@
         rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('admin/css/kuesioner.css') }}" rel="stylesheet">
 
     {{-- sweet alert cdn --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <title>@yield('title')</title>
     @vite('resources/css/app.css')
-    @vite(['resources/js/app.js'])
+    {{-- @vite(['resources/js/app.js']) --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    
 </head>
 
 <body id="page-top">
@@ -39,7 +47,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
     <!-- Bootstrap core JavaScript-->
-    <script src="{{ asset('admin/vendor/jquery/jquery.min.js') }}"></script>
+    {{-- <script src="{{ asset('admin/vendor/jquery/jquery.min.js') }}"></script> --}}
     <script src="{{ asset('admin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Core plugin JavaScript-->

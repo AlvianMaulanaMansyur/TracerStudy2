@@ -1,0 +1,121 @@
+        .sticky {
+        position: sticky;
+        top: 0; /* Jarak dari atas saat di-scroll */
+        z-index: 10;
+        /* background-color: black; */
+        }
+    
+        .modal-logic {
+        display: block; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 5000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    
+    .hidden {
+        display: none; /* Class to hide the modal */
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+    
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .highlight {
+        /* border: 2px dashed #4AAE9B; Change the border color to indicate a valid drop zone */
+        background-color: rgb(198, 198, 255); 
+    }
+    .question-container {
+        padding: 10px; /* Padding awal */
+        border: 2px solid transparent; /* Border transparan untuk menghindari pergeseran */
+        transition: border-color 0.13s; /* Menambahkan transisi untuk efek halus */
+    }
+    
+    .question-container:hover {
+        border-color: #3b82f6; /* Mengubah warna border saat hover */
+    }
+      .question-container {
+          position: relative;
+      }
+    
+      .question-container:hover .buttons-container {
+          display: block; /* Tampilkan tombol hapus saat hover */
+      }
+    
+      .editing {
+        border-color: #3b82f6; /* Change border color when editing */
+    }
+    
+    .editing .buttons-container {
+        display: block; /* Show buttons container when editing */
+    }
+
+    /* Gaya untuk scrollbar */
+#page-buttons {
+    scrollbar-width: thin; /* Untuk Firefox */
+    scrollbar-color: #4a5568 #edf2f7; /* Warna scrollbar dan latar belakang */
+}
+
+/* Gaya untuk scrollbar di Webkit (Chrome, Safari) */
+#page-buttons::-webkit-scrollbar {
+    width: 8px; /* Lebar scrollbar */
+}
+
+#page-buttons::-webkit-scrollbar-track {
+    background: #edf2f7; /* Latar belakang track scrollbar */
+}
+
+#page-buttons::-webkit-scrollbar-thumb {
+    background-color: #4a5568; /* Warna scrollbar */
+    border-radius: 10px; /* Sudut membulat scrollbar */
+}
+
+#page-buttons::-webkit-scrollbar-thumb:hover {
+    background-color: #2d3748; /* Warna scrollbar saat hover */
+}
+
+.page-button {
+    min-width: 120px; /* Atur lebar minimum tombol */
+    white-space: nowrap; /* Mencegah teks membungkus ke baris baru */
+}
+
+.questions-container {
+    position: relative; /* Pastikan posisi relatif untuk elemen anak */
+}
+
+.drop-area {
+    border: 2px dashed #bbb;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    text-align: center;
+    /* font: 21pt bold arial; */
+    color: #bbb;
+}
+
+.drop-area span {
+    font-size: 1.25rem; /* Ukuran font */
+    font-weight: bold; /* Tebal */
+}

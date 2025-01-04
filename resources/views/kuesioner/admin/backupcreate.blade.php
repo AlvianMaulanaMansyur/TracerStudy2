@@ -1,3 +1,10 @@
+<button type="button" id="add-page"
+class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">Tambah
+Halaman</button>
+<button type="submit"
+class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mt-4">Simpan
+Kuesioner</button>
+
 @extends('layouts.app')
 
 @section('content')
@@ -15,6 +22,7 @@
                         <div class="question-types">
                             <div class="question-type" draggable="true" id="add-text-question">Tambah Teks</div>
                             <div class="question-type" draggable="true" id="add-checkbox-question">Tambah Checkbox</div>
+                            <div class="question-type" draggable="true" id="add-radio-question">Tambah Radio</div>
                             <div class="question-type" draggable="true" id="add-radio-question">Tambah Radio</div>
                         </div>
                         <button type="button" id="add-page"

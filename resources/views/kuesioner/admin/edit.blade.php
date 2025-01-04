@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="container mx-auto p-6">
@@ -9,13 +9,27 @@
 
             <div class="flex">
                 <!-- Buttons Section -->
-                <div class="w-1/4 pr-4 sticky top-0 bg-white z-10">
-                    <div class="sticky top-0 bg-white z-10 p-4">
+                <div class="w-1/4 pr-4 sticky">
+                    <div class="sticky p-4">
                         <h3 class="text-lg font-semibold mb-2">Tambahkan Pertanyaan</h3>
                         <div class="question-types">
-                            <div class="question-type" draggable="true" id="add-text-question">Tambah Teks</div>
-                            <div class="question-type" draggable="true" id="add-checkbox-question">Tambah Checkbox</div>
-                            <div class="question-type" draggable="true" id="add-radio-question">Tambah Radio</div>
+                            <div class="space-y-2">
+                                <div class="question-type flex items-center justify-between px-4 py-2 bg-blue-100 text-blue-700 rounded-lg shadow hover:bg-blue-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                     draggable="true" id="add-text-question">
+                                    <span>Tambah Teks</span>
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div class="question-type flex items-center justify-between px-4 py-2 bg-green-100 text-green-700 rounded-lg shadow hover:bg-green-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                     draggable="true" id="add-checkbox-question">
+                                    <span>Tambah Checkbox</span>
+                                    <i class="fas fa-check-square"></i>
+                                </div>
+                                <div class="question-type flex items-center justify-between px-4 py-2 bg-purple-100 text-purple-700 rounded-lg shadow hover:bg-purple-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                     draggable="true" id="add-radio-question">
+                                    <span>Tambah Radio</span>
+                                    <i class="fas fa-dot-circle"></i>
+                                </div>
+                            </div>
                         </div>
                         <button type="button" id="add-page"
                             class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded mt-4">Tambah
@@ -36,7 +50,7 @@
 
                     <div id="kuesioner" data-id="{{ $kuesioner->id_kuesioner }}"></div>
 
-                    <div id="page-buttons" class="mb-4 flex sticky top-0 bg-white z-10 p-4"></div>
+                    <div id="page-buttons" class="mb-4 flex sticky p-4"></div>
 
                     <div id="page-template" class="hidden">
                         <div class="page-block mb-4">
@@ -83,6 +97,14 @@
                             <div>
                                 <button type="button" class="mt-2 btn btn-secondary add-option bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded hidden">Tambah Opsi</button>
                             </div>
+                            <div id="pageSelectModal" class="modal-logic hidden">
+                                <div class="modal-content">
+                                    <span class="close-button">&times;</span>
+                                    <h2>Atur Halaman Tujuan</h2>
+                                    <div class="dynamic-options-container"></div>
+                                    <button type="button" class="savePageSelection" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Simpan</button>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- <div class="mb-4">
@@ -105,53 +127,54 @@
 
              // Hapus elemen template dari DOM
              $pageTemplate.remove();
+            let savedChoices = {};
+
              let questionCount = 0;
              let $currentEditingQuestion = null; // Variabel untuk menyimpan pertanyaan yang sedang diedit
              let $currentPage; // Variable to store the currently active page
 
 
-           // Mengambil data pertanyaan dari database
-    const existingQuestions = @json($kuesioner->pertanyaan->map(function($pertanyaan) {
-        return json_decode($pertanyaan->data_pertanyaan);
-    }));
+             const existingQuestions = @json($kuesioner->pertanyaan->map(function($pertanyaan) {
+    return json_decode($pertanyaan->data_pertanyaan);
+}));
 
+// Kelompokkan pertanyaan berdasarkan halaman
+const questionsByPage = {};
 
-    // Kelompokkan pertanyaan berdasarkan halaman
-    const questionsByPage = {};
+existingQuestions.forEach(question => {
+    const page = question.halaman;
+    // Jika halaman belum ada, buat array baru untuk halaman tersebut
+    if (!questionsByPage[page]) {
+        questionsByPage[page] = [];
+    }
 
-    existingQuestions.forEach(question => {
-        const page = question.halaman;
-        // Jika halaman belum ada, buat array baru untuk halaman tersebut
-        if (!questionsByPage[page]) {
-            questionsByPage[page] = [];
-        }
+    // Tambahkan pertanyaan ke halaman yang sesuai
+    questionsByPage[page].push({
+        tipe_pertanyaan: question.tipe_pertanyaan,
+        pertanyaan: question.pertanyaan,
+        opsi_jawaban: question.opsi_jawaban.map(opsi => opsi.nilai), // Ambil nilai dari opsi_jawaban
+        logika: question.logika // Ambil logika
+    });
+});
 
-        // Tambahkan pertanyaan ke halaman yang sesuai
-        questionsByPage[page].push({
-            tipe_pertanyaan: question.tipe_pertanyaan,
+// Tambahkan halaman dan pertanyaan ke dalam form
+Object.keys(questionsByPage).forEach(page => {
+    // Tambahkan halaman baru
+    addPage(questionsByPage[page]); // Pastikan fungsi addPage() sudah ada dan berfungsi
+
+    // Ambil halaman yang baru ditambahkan
+    const $currentPage = $('.page-block').last(); // Ambil halaman terakhir yang ditambahkan
+
+    // Tambahkan pertanyaan ke halaman yang sesuai
+    questionsByPage[page].forEach(question => {
+        addQuestion($currentPage.find('.questions-container'), question.tipe_pertanyaan, {
+            halaman: page,
             pertanyaan: question.pertanyaan,
-            opsi_jawaban: question.opsi_jawaban
-        });
-
-    });
-
-    // Tambahkan halaman dan pertanyaan ke dalam form
-    Object.keys(questionsByPage).forEach(page => {
-        // Tambahkan halaman baru
-        addPage(questionsByPage[page]);// Pastikan fungsi addPage() sudah ada dan berfungsi
-
-        // Ambil halaman yang baru ditambahkan
-        const $currentPage = $('.page-block').last(); // Ambil halaman terakhir yang ditambahkan
-
-        // Tambahkan pertanyaan ke halaman yang sesuai
-        questionsByPage[page].forEach(question => {
-            addQuestion($currentPage.find('.questions-container'), question.tipe_pertanyaan, {
-                halaman: page,
-                pertanyaan: question.pertanyaan,
-                opsi_jawaban: question.opsi_jawaban
-            });
+            opsi_jawaban: question.opsi_jawaban,
+            logika: question.logika // Sertakan logika di sini
         });
     });
+});
              
             function updateCurrentPage() {
                 $('.page-block').each(function() {
@@ -394,6 +417,19 @@ $newQuestion.find('.question-type').on('change', function() {
 
             // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
             $optionContainer.append($input).append($textInput);
+            // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
+     const $removeOptionButton = $('<button>', {
+                    type: 'button',
+                    class: 'remove-option-button text-red-500 ml-2',
+                    text: 'Hapus',
+                });
+
+                $optionContainer.append($textInput, $removeOptionButton);
+
+                // Event listener untuk tombol "Hapus Opsi"
+                $removeOptionButton.on('click', function () {
+                    $optionContainer.remove();
+                });
             $optionsGroup.find('.option-group').append($optionContainer);
         });
     } else {
@@ -402,6 +438,285 @@ $newQuestion.find('.question-type').on('change', function() {
         $optionsGroup.find('.add-option').addClass('hidden'); // Sembunyikan tombol "Tambah Opsi"
     }
 });
+// Variabel untuk menyimpan pilihan halaman
+
+// function updatePageSelect() {
+//     const $modal = $newQuestion.closest('.question-container').find('.modal-locic');
+//     if (!$modal.length) {
+//         console.error('Modal tidak ditemukan!');
+//         return;
+//     }
+
+//     const $dynamicOptionsContainer = $modal.find('.dynamic-options-container');
+//     $dynamicOptionsContainer.empty();
+
+//     // Ambil nilai maksimum halaman dari existingData
+//     let maxPage = 0; // Deklarasi variabel maxPage di sini
+//     if (existingData) {
+//         maxPage = Math.max(...existingQuestions.map(question => parseInt(question.halaman, 10)));
+//         console.log('maxPage', maxPage);
+//     }
+
+//     // Tambahkan dropdown untuk setiap opsi jawaban
+//     $newQuestion.find('.option-container').each(function () {
+//         const $textInput = $(this).find('input[type="text"]');
+//         const optionValue = $textInput.val();
+//         console.log('text input', $textInput);
+//         console.log('option value', optionValue);
+
+//         if (optionValue) {
+//             const $label = $('<label>').text(`Halaman untuk "${optionValue}":`);
+//             const $pageSelect = $('<select>', {
+//                 class: 'page-select w-full border border-gray-300 rounded-lg mb-4',
+//             });
+
+//             // Tambahkan opsi halaman ke dropdown hingga maxPage
+//             for (let i = 1; i <= maxPage; i++) {
+//                 $pageSelect.append($('<option>', {
+//                     value: i,
+//                     text: `Halaman ${i}`,
+//                 }));
+//             }
+
+//             // Set nilai dropdown jika ada pilihan yang tersimpan
+//             if (savedChoices[optionValue]) {
+//                 $pageSelect.val(savedChoices[optionValue]); // Set nilai dropdown jika ada
+//             } else if (existingData) {
+//                 const existingLogic = (existingData.logika || []).find(log => log.opsi === optionValue);
+//                 if (existingLogic) {
+//                     $pageSelect.val(existingLogic.halaman);
+//                 }
+//             }
+
+//             $dynamicOptionsContainer.append($label, $pageSelect);
+//             console.log($dynamicOptionsContainer);
+//         }
+//     });
+// }
+
+// if (type === 'radio' || type === 'checkbox') {
+//     // Jika logika sudah ada, terapkan saat halaman dimuat
+//     console.log('existing data', existingData);
+    
+//     // Variabel untuk menyimpan pilihan halaman
+
+//     if (existingData) {
+//         updatePageSelect();
+//     }
+
+//     // Tambahkan tombol logika
+//     const $logicButton = $('<button>', {
+//         type: 'button',
+//         class: 'select-page-button bg-blue-500 text-white px-4 py-2 rounded-lg mt-2',
+//         text: 'Atur Halaman Tujuan',
+//     });
+//     $newQuestion.append($logicButton);
+
+//     // Event listener untuk tombol logika
+//     $logicButton.on('click', function () {
+//         const $modal = $(this).closest('.question-container').find('.modal-logic');
+//         if (!$modal.length) {
+//             console.error('Modal tidak ditemukan!');
+//             return;
+//         }
+
+//         const $dynamicOptionsContainer = $modal.find('.dynamic-options-container');
+//         $dynamicOptionsContainer.empty();
+
+//         // Tambahkan dropdown untuk setiap opsi jawaban
+//         $newQuestion.find('.option-container').each(function () {
+//             const $textInput = $(this).find('input[type="text"]');
+//             const optionValue = $textInput.val();
+
+//             if (optionValue) {
+//                 const $label = $('<label>').text(`Halaman untuk "${optionValue}":`);
+//                 const $pageSelect = $('<select>', {
+//                     class: 'page-select w-full border border-gray-300 rounded-lg mb-4',
+//                 });
+
+//                 // Tambahkan opsi halaman ke dropdown
+//                 $('.page-block').each(function () {
+//                     const pageNumber = $(this).find('.page-number').text();
+//                     $pageSelect.append($('<option>', {
+//                         value: pageNumber,
+//                         text: `Halaman ${pageNumber}`,
+//                     }));
+//                 });
+
+//                 // Set nilai dropdown jika ada pilihan yang tersimpan
+//                 if (savedChoices[optionValue]) {
+//                     $pageSelect.val(savedChoices[optionValue]); // Set nilai dropdown jika ada
+//                 } else if (existingData) {
+//                     const existingLogic = (existingData.logika || []).find(log => log.opsi === optionValue);
+//                     if (existingLogic) {
+//                         $pageSelect.val(existingLogic.halaman); // Set nilai dari existingData jika ada
+//                     }
+//                 }
+
+//                 // Tambahkan label dan dropdown ke kontainer dinamis
+//                 $dynamicOptionsContainer.append($label, $pageSelect);
+
+//                  // Tombol simpan
+//         $modal.find('.savePageSelection').off('click').on('click', function () {
+//             console.log('simpan');
+//                     const selectedPage = $pageSelect.val(); // Ambil nilai yang dipilih dari dropdown
+//                     if (selectedPage) {
+//                         savedChoices[optionValue] = selectedPage; // Simpan pilihan ke dalam savedChoices
+//                     }
+
+//             // Menutup modal setelah menyimpan
+//             $modal.addClass('hidden');
+//         });
+//             }
+
+            
+//         });
+
+//         // Tampilkan modal
+//         $modal.removeClass('hidden');
+
+       
+
+//         // Tombol tutup
+//         $modal.find('.close-button').off('click').on('click', function () {
+//             $modal.addClass('hidden'); // Menutup modal
+//         });
+//     });
+// }
+
+if (type === 'radio' || type === 'checkbox') {
+    // Tambahkan tombol logika
+    const $logicButton = $('<button>', {
+        type: 'button',
+        class: 'select-page-button bg-blue-500 text-white px-4 py-2 rounded-lg mt-2',
+        text: 'Atur Logika Pertanyaan',
+    });
+    $newQuestion.append($logicButton);
+
+    // Event listener untuk tombol logika
+    $logicButton.on('click', function () {
+        const $modal = $(this).closest('.question-container').find('.modal-logic'); // Temukan modal di dalam question-container
+        if (!$modal.length) {
+            console.error('Modal tidak ditemukan!');
+            return;
+        }
+
+        // Kosongkan kontainer dinamis sebelum menambahkan elemen
+        const $dynamicOptionsContainer = $modal.find('.dynamic-options-container');
+        $dynamicOptionsContainer.empty();
+
+        // Tambahkan dropdown untuk setiap opsi jawaban
+        $newQuestion.find('.option-container').each(function () {
+            const $textInput = $(this).find('input[type="text"]');
+            const optionValue = $textInput.val(); // Ambil nilai dari input teks
+
+            if (optionValue) {
+                const $label = $('<label>').text(`Pertanyaan untuk "${optionValue}":`);
+                const $typeSelect = $('<select>', {
+                    class: 'question-type-select w-full border border-gray-300 rounded-lg mb-2',
+                });
+
+                // Tambahkan opsi tipe pertanyaan
+                const questionTypes = ['text', 'radio', 'checkbox'];
+                questionTypes.forEach(type => {
+                    $typeSelect.append($('<option>', {
+                        value: type,
+                        text: type.charAt(0).toUpperCase() + type.slice(1),
+                    }));
+                });
+
+                // Input untuk pertanyaan tambahan
+                const $questionInput = $('<input>', {
+                    type: 'text',
+                    class: 'additional-question-input w-full border border-gray-300 rounded-lg mb-4',
+                    placeholder: 'Masukkan pertanyaan tambahan...',
+                });
+
+                // Tambahkan elemen ke dalam kontainer dinamis
+                $dynamicOptionsContainer.append($label, $typeSelect, $questionInput);
+            }
+
+            // Event listener untuk tombol "Simpan"
+        $modal.find('.savePageSelection').off('click').on('click', function () {
+            const additionalQuestions = [];
+            $dynamicOptionsContainer.find('.additional-question-input').each(function () {
+                const questionText = $(this).val();
+                const questionType = $(this).prev('.question-type-select').val();
+                if (questionText) {
+                    additionalQuestions.push({
+                        text: questionText,
+                        type: questionType,
+                    });
+                }
+            });
+
+            // Ambil opsi jawaban baru yang ditambahkan
+            const newOptions = [];
+            $dynamicOptionsContainer.find('.new-option-input').each(function () {
+                const newOptionText = $(this).val();
+                if (newOptionText) {
+                    newOptions.push(newOptionText);
+                }
+            });
+
+            // Simpan data logika
+            const logicData = {
+                opsi: optionValue,
+                pertanyaan: additionalQuestions,
+                opsiBaru: newOptions,
+            };
+            console.log('Logika yang disimpan:', logicData);
+
+            $modal.addClass('hidden'); // Tutup modal
+        });
+        });
+
+        // if (type === 'radio' || type === 'checkbox') {
+            const $addOptionButton = $('<button>', {
+                type: 'button',
+                class: 'add-option-button bg-green-500 text-white px-4 py-2 rounded-lg mt-4',
+                text: 'Tambah Opsi Jawaban',
+            });
+
+            $dynamicOptionsContainer.append($addOptionButton);
+
+            // Event listener untuk tombol "Tambah Opsi Jawaban"
+            $addOptionButton.on('click', function () {
+                const $newOptionContainer = $('<div>', {
+                    class: 'new-option-container flex items-center mt-2',
+                });
+
+                const $optionInput = $('<input>', {
+                    type: 'text',
+                    class: 'new-option-input w-full border border-gray-300 rounded-lg py-2 px-4',
+                    placeholder: 'Masukkan opsi jawaban baru...',
+                });
+
+                const $removeOptionButton = $('<button>', {
+                    type: 'button',
+                    class: 'remove-option-button text-red-500 ml-2',
+                    text: 'Hapus',
+                });
+
+                $newOptionContainer.append($optionInput, $removeOptionButton);
+                $dynamicOptionsContainer.append($newOptionContainer);
+
+                // Event listener untuk tombol "Hapus Opsi"
+                $removeOptionButton.on('click', function () {
+                    $newOptionContainer.remove();
+                });
+            });
+        // }
+
+        // Tampilkan modal
+        $modal.removeClass('hidden');
+        // Event listener untuk tombol tutup
+        $modal.find('.close-button').off('click').on('click', function () {
+            $modal.addClass('hidden'); // Tutup modal
+        });
+    });
+}
+
 // Event untuk menambahkan opsi
 $newQuestion.find('.add-option').on('click', function() {
     const selectedType = $newQuestion.find('.question-type').val(); // Ambil tipe pertanyaan yang dipilih
@@ -424,6 +739,19 @@ $newQuestion.find('.add-option').on('click', function() {
 
     // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
     $optionContainer.append($input).append($textInput);
+    // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
+    const $removeOptionButton = $('<button>', {
+                    type: 'button',
+                    class: 'remove-option-button text-red-500 ml-2',
+                    text: 'Hapus',
+                });
+
+                $optionContainer.append($textInput, $removeOptionButton);
+
+                // Event listener untuk tombol "Hapus Opsi"
+                $removeOptionButton.on('click', function () {
+                    $optionContainer.remove();
+                });
 
     // Tambahkan kontainer opsi ke dalam grup opsi
     $newQuestion.find('.option-group').append($optionContainer);
@@ -436,15 +764,13 @@ $newQuestion.find('.add-option').on('click', function() {
                     questionCount--;
 
                 });
-
     // Tambahkan pertanyaan baru ke dalam kontainer
+    function updateQuestionNumbers() {
+    $('.question-container').each(function(index) {
+        $(this).find('.question-number').text(`Q${index}`); // Update the question number, starting from 1
+    });
+}
 
-    updateQuestionNumbers(); // Update question numbers after moving
-
-function updateQuestionNumbers() {
-$('.question-container').each(function(index) {
-    $(this).find('.question-number').text(`Q${index}`); // Update the question number
-});
     if(existingData) {
         pageContainer.append($newQuestion);
         pageContainer.find('.question-type').hide();
@@ -452,9 +778,7 @@ $('.question-container').each(function(index) {
         pageContainer.find('.questions-container').append($newQuestion);
         $newQuestion.find('.add-option').trigger('click')
     }
-
-   
-}
+    updateQuestionNumbers()
 
 }
     let pageCount = 0; // Counter untuk nomor halaman
@@ -502,6 +826,7 @@ function addPage(existingQuestions = []) {
 
     $newPage.appendTo($questionSection);
     updatePageButtons(); // Perbarui tombol navigasi setelah menambahkan halaman
+
 
     $newPage.show();
 }
@@ -578,18 +903,71 @@ function addPage(existingQuestions = []) {
                 const question = {
                     teks_pertanyaan: teksPertanyaan,
                     tipe_pertanyaan: $types.eq(index).val(),
-                    opsi_jawaban: [], // Tetap kosong jika tidak ingin menghitung checkbox
-                    halaman: pageNumber
+                    opsi_jawaban: [],
+                    halaman: pageNumber,
+                    logika: [] // Menyimpan logika jika ada
                 };
 
-                // Mengumpulkan nilai dari input teks dalam options-group
-                $optionsGroups.eq(index).find('input[type="text"]').each(function() {
-                    const opsiJawaban = $(this).val().trim();
+               // Ambil opsi jawaban
+$optionsGroups.eq(index).find('.option-group').each(function() {
+    const $optionContainer = $(this);
+    // Hanya ambil input teks dari option-container yang relevan
+    $optionContainer.find('input[type="text"]').each(function() {
+         // Ambil opsi jawaban
+         const opsiJawaban = $(this).val().trim();
                     if (opsiJawaban) {
-                        question.opsi_jawaban.push(opsiJawaban);
+                        question.opsi_jawaban.push({ nilai: opsiJawaban });
                     }
-                });
+    });
+   
+});
 
+               // Misalkan ini adalah bagian dari loop yang mengiterasi setiap pertanyaan
+$optionsGroups.eq(index).find('.dynamic-options-container').each(function() {
+    const $dynamicOptionsContainer = $(this); // Ambil kontainer dinamis untuk pertanyaan ini
+    console.log('Dynamic Options Container:', $dynamicOptionsContainer); // Debugging
+
+    // Ambil label opsi
+    const optionLabel = $dynamicOptionsContainer.find('label').text(); // Ambil label opsi
+    const regex = /Pertanyaan untuk "(.*?)"/; // Regex untuk menangkap teks di dalam tanda kutip
+    const match = optionLabel.match(regex);
+    const opsi = match ? match[1] : null; // Ambil hasil yang cocok
+
+    // Ambil tipe pertanyaan
+    const selectedType = $dynamicOptionsContainer.find('.question-type-select').val(); // Ambil tipe pertanyaan yang dipilih
+
+    // Ambil pertanyaan tambahan
+    const questionText = $dynamicOptionsContainer.find('.additional-question-input').val(); // Ambil nilai dari input pertanyaan tambahan
+
+    // Siapkan data untuk disimpan
+    const additionalQuestions = [];
+    if (questionText) {
+        additionalQuestions.push({
+            text: questionText,
+            type: selectedType,
+        });
+    }
+
+    // Ambil opsi jawaban baru yang ditambahkan
+    const newOptions = [];
+    $dynamicOptionsContainer.find('.new-option-container').each(function() {
+        const newOptionText = $(this).find('.new-option-input').val(); // Ambil nilai dari input opsi baru
+        if (newOptionText) {
+            newOptions.push(newOptionText);
+        }
+    });
+
+    console.log(newOptions);
+    // Simpan data logika
+        question.logika.push({
+            opsi: opsi,
+            pertanyaan: additionalQuestions,
+            opsiBaru: newOptions,
+        })
+
+    // console.log('Logika yang disimpan:', logicData); // Debugging
+    // Lakukan sesuatu dengan logicData, misalnya simpan ke dalam array atau objek
+});
                 formData.questions.push(question);
             }
         });
