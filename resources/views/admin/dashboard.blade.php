@@ -55,11 +55,11 @@
                 <!-- Search Form -->
                 <form method="GET" action="{{ route('admin.alumni.search') }}" class="flex items-center">
                     <input type="text" name="search" placeholder="Search Alumni" class="form-control" />
-                    <button type="submit" class="btn btn-primary ml-2">Search</button>
+                    <button type="submit" class="btn btn-primary ml-2"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
                 </form>
                 <!-- Filter Button -->
                 <button type="button" class="btn btn-secondary ml-2" data-toggle="modal" data-target="#filterModal">
-                    Filter
+                    <i class="fa-solid fa-sliders" style="color: #ffffff;"></i>
                 </button>
             </div>
         </div>
