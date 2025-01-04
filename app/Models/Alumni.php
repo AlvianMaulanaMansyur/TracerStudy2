@@ -11,7 +11,7 @@ class Alumni extends Authenticatable
 
     protected $table = 'alumni';
 
-    protected $fillable = 
+    protected $fillable =
     [
         'nim',
         'nama_alumni',
@@ -30,7 +30,7 @@ class Alumni extends Authenticatable
         'prodi_id',
         'kota_id',
     ];
-    
+
     public function prodi(){
         return $this->belongsTo(Prodi::class);
     }
@@ -38,4 +38,10 @@ class Alumni extends Authenticatable
     public function kota(){
         return $this->belongsTo(Kota::class, 'kota_id');
     }
+
+    public function getFotoProfileAttribute($value)
+    {
+        return $value ?: 'images/user.png';
+    }
 }
+

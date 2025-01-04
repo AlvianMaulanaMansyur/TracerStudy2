@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\AlumniMiddleware;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\KuesionerController;
@@ -12,9 +11,6 @@ use App\Http\Controllers\AuthAlumni;
 use App\Http\Controllers\AlumniController;
 
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
-Route::get('/faq', [AlumniController::class, 'faq'])->name('alumni.faq');
-Route::get('/statistik', [AlumniController::class, 'statistik'])->name('alumni.statistik');
-
 
 // Rute untuk alumni
 Route::post('/login', [AuthAlumni::class, 'login']);
@@ -33,21 +29,37 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthAdmin::class, 'login']);
     Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
+    // Admin dashboard routes
+    Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
+    Route::get('/alumni/search', [AdminController::class, 'search'])->name('admin.alumni.search');
+    Route::get('/alumni/filter', [AdminController::class, 'filter'])->name('admin.alumni.filter');
+
+    // Route::get('admin', function () {
+    //     return view('admin.dashboard');
+    // })->name('admin.dashboard');
+
     // Protected admin routes
     Route::middleware([AdminMiddleware::class])->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/dashboard', [AdminController::class, 'tampilAlumni'])->name('admin.dashboard');
         Route::resource('kuesioner', KuesionerController::class);
+        Route::get('/kuesioner', [KuesionerController::class, 'index'])->name('kuesioner.index');
         Route::get('/kuesioner/{id}', [KuesionerController::class, 'show'])->name('kuesioner.admin.show');
 
         Route::resource('kuesioner.pertanyaan', PertanyaanController::class)->shallow();
+       
 
         Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('kuesioner.admin.submit');
 
         Route::get('/kuesioner/{id}/edit', [KuesionerController::class, 'edit'])->name('kuesioner.admin.edit');
         Route::put('/kuesioner/{id}', [KuesionerController::class, 'update'])->name('kuesioner.admin.update');
+
+        Route::post('kuesioner/saveChoice', [KuesionerController::class, 'saveChoice'])->name('kuesioner.saveChoice');
+
+        Route::get('/kuesioner/{id}/statistik', [KuesionerController::class, 'statistik'])->name('kuesioner.statistik');
+
+        // Route::get('/alumni', [AlumniController::class, 'tampilAlumni'])->name('admin.dashboard');
     });
 });
-
 Route::middleware([AdminMiddleware::class])->group(function () {
     // Rute Admin API untuk Kuesioner
     Route::prefix('api')->group(function () {
@@ -62,21 +74,8 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
         Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('api.kuesioner.alumni.submit');
     });
 });
-=======
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::put('/alumni/{nim}', [AdminController::class, 'update'])->name('alumni.update');
+Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->name('admin.update-alumni');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-require __DIR__.'/auth.php';
->>>>>>> e0ac125d2f2d19f460f11a7f9502c54c5a07d17a
+Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
