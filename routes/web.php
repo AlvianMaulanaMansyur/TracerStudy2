@@ -11,6 +11,8 @@ use App\Http\Controllers\AuthAlumni;
 use App\Http\Controllers\AlumniController;
 
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
+Route::get('/statistik', [AlumniController::class, 'statistik'])->name('alumni.statistik');
+Route::get('/faq', [AlumniController::class, 'faq'])->name('alumni.faq');
 
 // Rute untuk alumni
 Route::post('/login', [AuthAlumni::class, 'login']);
