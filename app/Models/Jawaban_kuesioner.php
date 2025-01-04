@@ -13,7 +13,7 @@ class Jawaban_kuesioner extends Model
 
     protected $fillable = [
         'jawaban',
-        'alumni_nim',
+        'alumni_id',
         'pertanyaan_id',
     ];
 

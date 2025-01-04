@@ -36,11 +36,12 @@
                             required>
                             <option value="">Pilih Tipe Pertanyaan</option>
                             <option value="text">Teks</option>
-                            <option value="multiple_choice">Pilihan Ganda</option>
+                            <option value="checkbox">Pilihan Ganda</option>
+                            <option value="radio">Pilihan Radio</option>
                         </select>
                     </div>
 
-                    <!-- Options for multiple choice (only show when "multiple_choice" is selected) -->
+                    <!-- Options for multiple choice (only show when "checkbox" is selected) -->
                     <div class="options-group hidden mb-4">
                         <label class="block text-sm font-medium text-gray-700">Opsi Jawaban</label>
                         <input type="text" name="questions[][opsi_jawaban][]"
@@ -69,103 +70,102 @@
         </form>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const questionSection = document.getElementById('questions-section');
-            const questionTemplate = document.getElementById('question-template').cloneNode(true);
-            questionTemplate.classList.remove('hidden');
+    <script type="module">
+        $(document).ready(function() {
+            const $questionSection = $('#questions-section');
+            const $questionTemplate = $('#question-template').clone().removeClass('hidden');
 
-            // Function to add new question
-            document.getElementById('add-question').addEventListener('click', function() {
-                const newQuestion = questionTemplate.cloneNode(true);
-                newQuestion.querySelector('input[name="questions[][teks_pertanyaan]"]').value = '';
-                newQuestion.querySelector('select[name="questions[][tipe_pertanyaan]"]').value = '';
-                newQuestion.querySelector('.options-group').classList.add('hidden');
-                newQuestion.querySelectorAll('input[name="questions[][opsi_jawaban][]"]').forEach(input =>
-                    input.remove());
+            // Fungsi untuk menambahkan pertanyaan baru
+            $('#add-question').on('click', function() {
+                const $newQuestion = $questionTemplate.clone();
+                $newQuestion.find('input[name="questions[][teks_pertanyaan]"]').val('');
+                $newQuestion.find('select[name="questions[][tipe_pertanyaan]"]').val('');
+                $newQuestion.find('.options-group').addClass('hidden');
+                $newQuestion.find('input[name="questions[][opsi_jawaban][]"]').remove();
 
-                // Event for changing question type
-                newQuestion.querySelector('.question-type').addEventListener('change', function() {
-                    const optionsGroup = newQuestion.querySelector('.options-group');
-                    optionsGroup.classList.toggle('hidden', this.value !== 'multiple_choice');
+                // Event untuk mengubah tipe pertanyaan
+                $newQuestion.find('.question-type').on('change', function() {
+                    const $optionsGroup = $newQuestion.find('.options-group');
+                    $optionsGroup.toggleClass('hidden', !['checkbox', 'radio'].includes($(this)
+                    .val()));
                 });
 
-                // Event for adding options
-                newQuestion.querySelector('.add-option').addEventListener('click', function() {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.name = 'questions[][opsi_jawaban][]';
-                    input.classList.add('mt-1', 'block', 'w-full', 'border', 'border-gray-300',
-                        'rounded-md', 'shadow-sm', 'focus:ring', 'focus:ring-blue-500',
-                        'focus:border-blue-500', 'mb-2');
-                    input.placeholder = 'Masukkan opsi jawaban';
-                    newQuestion.querySelector('.options-group').insertBefore(input, this);
+                // Event untuk menambahkan opsi
+                $newQuestion.find('.add-option').on('click', function() {
+                    const $input = $('<input>', {
+                        type: 'text',
+                        name: 'questions[][opsi_jawaban][]',
+                        class: 'mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:border-blue-500 mb-2',
+                        placeholder: 'Masukkan opsi jawaban'
+                    });
+                    $newQuestion.find('.options-group').prepend($input);
                 });
 
-                // Event for removing question
-                newQuestion.querySelector('.remove-question').addEventListener('click', function() {
-                    newQuestion.remove();
+                // Event untuk menghapus pertanyaan
+                $newQuestion.find('.remove-question').on('click', function() {
+                    $newQuestion.remove();
                 });
 
-                questionSection.appendChild(newQuestion);
+                $questionSection.append($newQuestion);
             });
 
-            // Prevent form submission if there are invalid inputs
-            document.getElementById('kuesionerForm').addEventListener('submit', function(event) {
+            // Cegah pengiriman form jika ada input yang tidak valid
+            $('#kuesionerForm').on('submit', function(event) {
                 event.preventDefault(); // Mencegah pengiriman formulir default
 
                 let formData = {
-                    judul_kuesioner: document.getElementById('judul_kuesioner').value,
+                    judul_kuesioner: $('#judul_kuesioner').val(),
                     questions: []
                 };
 
-                const questions = document.querySelectorAll('input[name="questions[][teks_pertanyaan]"]');
-                const types = document.querySelectorAll('select[name="questions[][tipe_pertanyaan]"]');
-                const optionsGroups = document.querySelectorAll('.options-group');
+                const $questions = $('input[name="questions[][teks_pertanyaan]"]');
+                const $types = $('select[name="questions[][tipe_pertanyaan]"]');
+                const $optionsGroups = $('.options-group');
 
-                questions.forEach((input, index) => {
-                    if (input.value.trim()) {
+                $questions.each(function(index) {
+                    const teksPertanyaan = $(this).val().trim();
+                    if (teksPertanyaan) {
                         const question = {
-                            teks_pertanyaan: input.value,
-                            tipe_pertanyaan: types[index].value,
+                            teks_pertanyaan: teksPertanyaan,
+                            tipe_pertanyaan: $types.eq(index).val(),
                             opsi_jawaban: []
                         };
 
-                        const options = optionsGroups[index].querySelectorAll(
-                            'input[name="questions[][opsi_jawaban][]"]');
-                        options.forEach(optionInput => {
-                            if (optionInput.value.trim()) {
-                                question.opsi_jawaban.push(optionInput.value);
-                            }
-                        });
+                        $optionsGroups.eq(index).find('input[name="questions[][opsi_jawaban][]"]')
+                            .each(function() {
+                                const opsiJawaban = $(this).val().trim();
+                                if (opsiJawaban) {
+                                    question.opsi_jawaban.push(opsiJawaban);
+                                }
+                            });
 
                         formData.questions.push(question);
                     }
                 });
 
                 // Kirim data ke API
-                fetch('/api/kuesioner', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'), // Jika diperlukan
-                        },
-                        body: JSON.stringify(formData),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
+                $.ajax({
+                    url: '/api/kuesioner',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                            'content') // Jika diperlukan
+                    },
+                    data: JSON.stringify(formData),
+                    success: function(data) {
                         if (data.message) {
                             alert(data.message);
                             // Reset form atau lakukan tindakan lain setelah berhasil
-                            document.getElementById('kuesionerForm').reset();
+                            $('#kuesionerForm')[0].reset();
                         } else {
                             console.error('Terjadi kesalahan:', data);
                         }
-                    })
-                    .catch(error => {
+                    },
+                    error: function(error) {
                         console.error('Error:', error);
-                    });
+                    }
+                });
             });
         });
     </script>
