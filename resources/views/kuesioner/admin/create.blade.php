@@ -29,6 +29,17 @@
                                     <span>Tambah Radio</span>
                                     <i class="fas fa-dot-circle"></i>
                                 </div>
+                                <div class="question-type flex items-center justify-between px-4 py-2 bg-red-100 text-red-700 rounded-lg shadow hover:bg-red-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                     draggable="true" id="add-dropdown-question">
+                                    <span>Tambah Dropdown</span>
+                                    <i class="fa-solid fa-caret-down"></i>
+                                </div>
+
+                                <div class="question-type flex items-center justify-between px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg shadow hover:bg-yellow-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                     draggable="true" id="add-rating-question">
+                                    <span>Tambah Dropdown</span>
+                                    <i class="fa-regular fa-star"></i>
+                                </div>
                             </div>
                         </div>
                         <button type="button" id="add-page"
@@ -93,6 +104,8 @@
                                         <option value="text">Teks</option>
                                         <option value="checkbox">Pilihan Ganda</option>
                                         <option value="radio">Pilihan Radio</option>
+                                        <option value="dropdown">Pilihan Dropdown</option>
+                                        <option value="rating">Pilihan Rating</option>
                                     </select>
                                 </div>
                             </div>
@@ -230,7 +243,7 @@
                 $newQuestion.attr('id', 'question-' + questionCount);
                 $newQuestion.find('input[name="questions[][teks_pertanyaan]"]').val('');
                 $newQuestion.find('select[name="questions[][tipe_pertanyaan]"]').val(type);
-                $newQuestion.find('.options-group').toggleClass('hidden', type !== 'checkbox' && type !== 'radio');
+                $newQuestion.find('.options-group').toggleClass('hidden', type !== 'checkbox' && type !== 'radio' && type !== 'dropdown' && type !== 'rating');
 
                 // Update the question number display
     $newQuestion.find('.question-number').text(`Q${questionCount}`);
@@ -301,7 +314,9 @@ function editQuestion($questionContainer) {
 
     // Mengaktifkan input untuk opsi jawaban
     $questionContainer.find('.option-group input').prop('disabled', false);
+    $questionContainer.find('.remove-option-button').show();
 
+    
     // Menampilkan pilihan tipe pertanyaan dan opsi jawaban
     $questionContainer.find('.question-type').show();
     $questionContainer.find('.add-option').show();
@@ -322,6 +337,8 @@ function saveQuestion($questionContainer) {
         // Menyembunyikan pilihan tipe pertanyaan dan opsi jawaban
         $questionContainer.find('.question-type').hide();
         $questionContainer.find('.add-option').hide();
+        $questionContainer.find('.remove-option-button').hide();
+
         $questionContainer.removeClass('editing');
 
         // Reset referensi pertanyaan yang sedang diedit
@@ -346,7 +363,7 @@ $newQuestion.find('.question-type').on('change', function() {
     });
 
     // Hapus semua opsi yang ada hanya jika tipe yang dipilih adalah checkbox atau radio
-    if (['checkbox', 'radio'].includes(selectedType)) {
+    if (['checkbox', 'radio', 'dropdown'].includes(selectedType)) {
         $optionsGroup.find('.option-group').empty();
     }
 
@@ -390,6 +407,41 @@ $newQuestion.find('.question-type').on('change', function() {
                 });
             $optionsGroup.find('.option-group').append($optionContainer);
         });
+    } else if(['dropdown'].includes(selectedType)){
+        $optionsGroup.removeClass('hidden');
+
+        // Tampilkan tombol "Tambah Opsi"
+        $optionsGroup.find('.add-option').removeClass('hidden');
+
+        // Tambahkan opsi berdasarkan nilai yang disimpan
+        existingOptions.forEach(function(optionValue) {
+            const $optionContainer = $('<div class="option-container flex items-center mt-2"></div>');
+          
+            const $textInput = $('<input>', {
+                type: 'text',
+                name: 'questions[][opsi_jawaban][]',
+                class: 'h-10 border rounded-sm border-gray-300 w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-black',
+                placeholder: 'Masukkan opsi jawaban',
+                value: optionValue // Set nilai yang disimpan
+            });
+
+            // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
+            $optionContainer.append($textInput);
+
+            const $removeOptionButton = $('<button>', {
+                    type: 'button',
+                    class: 'remove-option-button text-red-500 ml-2',
+                    text: 'Hapus',
+                });
+
+                $optionContainer.append($textInput, $removeOptionButton);
+
+                // Event listener untuk tombol "Hapus Opsi"
+                $removeOptionButton.on('click', function () {
+                    $optionContainer.remove();
+                });
+            $optionsGroup.find('.option-group').append($optionContainer);
+        });
     } else {
         // Jika tipe yang dipilih adalah teks, sembunyikan opsi dan tombol "Tambah Opsi"
         $optionsGroup.addClass('hidden'); // Sembunyikan grup opsi
@@ -397,9 +449,10 @@ $newQuestion.find('.question-type').on('change', function() {
     }
 });
 
-if (type === 'radio' || type === 'checkbox') {
+if (type === 'radio' || type === 'checkbox' || type === 'dropdown') {
 
     const $select = $newQuestion.find('.select-page-button');
+    console.log('adfadfa');
     $select.on('click', function () {
         console.log('adfafajdfadf');
         const $modal = $(this).closest('.question-container').find('.modal-logic'); // Temukan modal di dalam question-container
@@ -530,13 +583,6 @@ $newQuestion.find('.add-option').on('click', function() {
     const selectedType = $newQuestion.find('.question-type').val(); // Ambil tipe pertanyaan yang dipilih
     const $optionContainer = $('<div class="option-container flex items-center mt-2"></div>'); // Kontainer untuk opsi
 
-    // Buat input radio atau checkbox
-    const $input = $('<input>', {
-        type: selectedType, // Tipe input berdasarkan pilihan
-        name: 'questions[][opsi_jawaban][]', // Pastikan nama input sesuai
-        class: 'mr-2', // Tambahkan margin kanan untuk jarak
-    });
-
     // Buat input teks untuk opsi jawaban
     const $textInput = $('<input>', {
         type: 'text',
@@ -544,9 +590,32 @@ $newQuestion.find('.add-option').on('click', function() {
         class: 'h-10 border rounded-sm border-gray-300 w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-black',
         placeholder: 'Masukkan opsi jawaban',
     });
+    // Buat input radio atau checkbox
+    if (selectedType == 'radio' || selectedType == 'checkbox') { 
+    const $input = $('<input>', {
+        type: selectedType, // Tipe input berdasarkan pilihan
+        name: 'questions[][opsi_jawaban][]', // Pastikan nama input sesuai
+        class: 'mr-2', // Tambahkan margin kanan untuk jarak
+    });
 
-   
     $optionContainer.append($input).append($textInput);
+
+    } else if (selectedType == 'dropdown') {
+
+    $optionContainer.append($textInput);
+
+    } else if (selectedType == 'rating') {
+        console.log(selectedType);
+        console.log('ratingigng');
+        const $ratingContainer = $('<div class="rating-container"></div>');
+            for (let i = 1; i <= 5; i++) { // Misalnya, 5 bintang
+                const $star = $('<span class="star" data-value="' + i + '">&#9733;</span>'); // Bintang
+                $ratingContainer.append($star);
+            }
+            console.log('rating container : ',$ratingContainer);
+            $optionContainer.append($ratingContainer); // Kosongkan dan tambahkan bintang
+    }
+   
      // Tambahkan input radio/checkbox dan input teks ke dalam kontainer opsi
      const $removeOptionButton = $('<button>', {
                     type: 'button',
@@ -592,6 +661,9 @@ $newQuestion.find('.add-option').on('click', function() {
                 const $inputPertanyaan = $newQuestion.find('input[name="questions[][teks_pertanyaan]"]');
                 $inputPertanyaan.focus(); // Fokus pada input
 
+                if (type == 'radio' ||type == 'checkbox' ||type == 'dropdown') {
+                    $newQuestion.find('.add-option').trigger('click')
+                }
                 $newQuestion.find('.add-option').trigger('click')
                 // Simulasikan klik tombol edit untuk masuk ke mode edit
                 $newQuestion.trigger('click');
@@ -697,6 +769,14 @@ function updatePageButtons() {
 
             $('#add-radio-question').on('click', function() {
                 addQuestion($currentPage, 'radio');
+            });
+
+            $('#add-dropdown-question').on('click', function() {
+                addQuestion($currentPage, 'dropdown');
+            });
+
+            $('#add-rating-question').on('click', function() {
+                addQuestion($currentPage, 'rating');
             });
 
             $('#add-page').on('click', function() {
