@@ -4,10 +4,10 @@ import jQuery from 'jquery';
 window.$ = jQuery;
 
 
-import Alpine from 'alpinejs';
+// import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
+// window.Alpine = Alpine;
 
-Alpine.start();
+// Alpine.start();
 
 

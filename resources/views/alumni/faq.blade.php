@@ -5,7 +5,7 @@
 <div class="relative h-screen">
     <!-- Konten Gambar -->
     <img id="beranda" src="{{ asset('images/foto_login.jpg') }}" alt="Tracer Study" class="w-full h-full object-cover">
-    <div class="absolute inset-0 flex justify-center items-center text-white bg-black/50 p-4 z-10">
+    <div class="absolute inset-0 flex justify-center items-center text-white bg-black/50 p-4 z-10 animate__animated animate__fadeIn">
         <!-- Wrapper untuk Konten -->
         <div class="flex justify-between items-center w-4/5">
             <!-- Teks di Kiri -->
@@ -17,7 +17,7 @@
                     Untuk pertanyaan lainnya <br>
                     dapat dikirim melalui Email dibawah.</p>
                 <a href="https://mail.google.com/mail/?view=cm&fs=1&to=admin@example.com&su=Pertanyaan%20Tracer%20Study&body=Halo%20Admin,%20saya%20mempunyai%20pertanyaan%20tentang%20Tracer%20Study."
-                    class="bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded shadow mt-4 transition duration-200">
+                    class="bg-yellow-500 hover:bg-yellow-600 text-black py-2 px-4 rounded shadow mt-4 transition duration-200 hover:underline">
                     Kirim Pertanyaan
                 </a>
             </div>
