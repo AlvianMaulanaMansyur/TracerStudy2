@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('jawaban', 255);
             $table->foreignId('alumni_id')->constrained('alumni');
-            $table->foreignId('pertanyaan_id')->constrained('pertanyaan');
+            $table->string(column: 'pertanyaan_id'); // Ubah ini menjadi string
+            $table->foreign('pertanyaan_id')->references('id')->on('pertanyaan'); // Definisikan foreign key secara manual
             $table->timestamps();
         });
     }

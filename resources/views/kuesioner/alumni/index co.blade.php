@@ -6,6 +6,7 @@
     
     <a href="{{ route('kuesioner.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg mb-3 inline-block">Buat Kuesioner Baru</a>
     
+    
     @if ($kuesioners->isEmpty())
         <div class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg p-4 mb-4">
             Tidak ada kuesioner yang tersedia.

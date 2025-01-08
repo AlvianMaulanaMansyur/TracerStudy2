@@ -1,13 +1,17 @@
+// resources/js/app.js
+
 import './bootstrap';
 
+// Impor jQuery
 import jQuery from 'jquery';
-window.$ = jQuery;
 
+// Atur jQuery di jendela global
+window.$ = window.jQuery = jQuery;
 
-import Alpine from 'alpinejs';
+// Impor CSS jQuery UI
+import 'jquery-ui/themes/base/all.css';
 
-window.Alpine = Alpine;
-
-Alpine.start();
-
-
+// Impor jQuery UI widgets yang Anda butuhkan
+import 'jquery-ui/ui/widgets/autocomplete'; // Contoh mengimpor widget autocomplete
+import 'jquery-ui/ui/widgets/draggable'; // Contoh mengimpor widget draggable
+import 'jquery-ui/ui/widgets/droppable'; // Contoh mengimpor widget droppable

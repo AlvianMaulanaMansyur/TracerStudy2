@@ -1,35 +1,37 @@
-<!-- resources/views/kuesioner/index.blade.php -->
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
-<div class="container">
-    <h1>Daftar Kuesioner</h1>
-    
-    <a href="{{ route('kuesioner.create') }}" class="btn btn-primary mb-3">Buat Kuesioner Baru</a>
-    
-    @if ($kuesioner->isEmpty())
-        <p>Tidak ada kuesioner yang tersedia.</p>
-    @else
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Judul Kuesioner</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($kuesioner as $kuesioners)
-                    <tr>
-                        <td>{{ $kuesioners->id }}</td>
-                        <td>{{ $kuesioners->judul_kuesioner }}</td>
-                        <td>
-                            <a href="{{ route('kuesioner.alumni.show', $kuesioners->id) }}" class="btn btn-info btn-sm">Lihat</a>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
-</div>
+    <div class="container mx-auto mt-5 px-4">
+        <h1 class="text-2xl font-bold mb-4">Daftar Kuesioner</h1>
+
+        @if ($kuesioners->isEmpty())
+            <div class="bg-yellow-100 text-yellow-800 border border-yellow-300 rounded-lg p-4 mb-4">
+                Tidak ada kuesioner yang tersedia.
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="py-2 px-4 border-b text-center">Judul Kuesioner</th>
+                            <th class="py-2 px-4 border-b text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($kuesioners as $kuesioner)
+                            <tr class="hover:bg-gray-100">
+                                <td class="py-2 px-4 border-b text-center">{{ $kuesioner->judul_kuesioner }}</td>
+                                <td class="py-2 px-4 border-b text-center">
+                                    @if (isset($halamanPertamaIds[$kuesioner->id]))
+                                        <a href="{{ route('kuesioner.alumni.page', ['slug' => $kuesioner->slug, 'halamanId' => $halamanPertamaIds[$kuesioner->id]]) }}"
+                                            class="bg-green-500 text-white px-2 py-1 rounded-lg">Isi Kuesioner</a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 @endsection

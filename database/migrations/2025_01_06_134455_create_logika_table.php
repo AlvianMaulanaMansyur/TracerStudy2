@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kuesioner', function (Blueprint $table) {
+        Schema::create('logika', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('judul_kuesioner');
-            $table->string('slug')->unique(); // Menambahkan kolom slug
-            $table->foreignId('admin_id')->constrained('admin');
-            $table->softDeletes();
+            $table->json('data_pertanyaan');     
+            $table->string(column: 'pertanyaan_id'); // Ubah ini menjadi string
+            $table->foreign('pertanyaan_id')->references('id')->on('pertanyaan'); // Definisikan foreign key secara manual   
             $table->timestamps();
         });
     }
@@ -26,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('kuesioner', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
+        Schema::dropIfExists('logika');
     }
 };

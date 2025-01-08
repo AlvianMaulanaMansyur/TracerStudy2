@@ -18,8 +18,10 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "amqplib": "^0.10.5",
         "jquery": "^3.7.1",
         "sweetalert2": "^11.6.13",
-        "tailwind": "^4.0.0"
+        "tailwind": "^4.0.0",
+        "uuid": "^11.0.4"
     }
 }
