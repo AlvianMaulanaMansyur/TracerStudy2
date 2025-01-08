@@ -54,12 +54,12 @@
             <div class="flex space-x-2">
                 <!-- Search Form -->
                 <form method="GET" action="{{ route('admin.alumni.search') }}" class="flex items-center">
-                    <input type="text" name="search" placeholder="Search Alumni" class="form-control" />
-                    <button type="submit" class="btn btn-primary ml-2">Search</button>
+                    <input type="text" name="search" placeholder="Cari Alumni" class="form-control rounded" />
+                    <button type="submit" class="btn btn-primary ml-2"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
                 </form>
                 <!-- Filter Button -->
                 <button type="button" class="btn btn-secondary ml-2" data-toggle="modal" data-target="#filterModal">
-                    Filter
+                    <i class="fa-solid fa-sliders" style="color: #ffffff;"></i>
                 </button>
             </div>
         </div>
@@ -72,30 +72,32 @@
                             <th width="50">Foto Profile</th>
                             <th>Nama</th>
                             {{-- <th>Email</th> --}}
-                            <th width="50">Angkatan</th>
-                            <th width="50">Tahun Lulus</th>
+                            <th width="50">Prodi</th>
+                            {{-- <th width="50">Jurusan</th> --}}
                             {{-- <th>Gelombang Wisuda</th> --}}
                             {{-- <th>Alamat</th> --}}
                             {{-- <th>No Telp</th> --}}
-                            <th width="50">action</th>
+                            <th width="50">detail</th>
 
                         </tr>
                     </thead>
                     <tbody>
+                        
                         @foreach ($alumni as $index => $key)
                             <tr>
                                 <td>{{ $key->nim }}</td>
                                 <td><img src="{{ asset($key->foto_profil) }}" alt="foto profil" width="50"></td>
                                 <td>{{ $key->nama_alumni }}</td>
                                 {{-- <td>{{ $key->email }}</td> --}}
-                                <td>{{ $key->angkatan }}</td>
-                                <td>{{ $key->tahun_lulus }}</td>
+                                <td>{{ $key->prodi->nama_prodi }}</td>
+                                {{-- <td>{{ $key->prodi->jurusan->nama_jurusan }}</td> --}}
+                                
                                 {{-- <td>{{ $key->gelombang_wisuda }}</td> --}}
                                 {{-- <td>{{ $key->alamat }}</td> --}}
                                 {{-- <td>{{ $key->no_telepon }}</td> --}}
                                 <td class="">
                                     <button data-modal-target="default-modal" data-modal-toggle="default-modal"
-                                        class="block text-white bg-yellow-700 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+                                        class="block text-white bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-500 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
                                         type="button"
                                         onclick="showModal(
                                             '{{ $key->nim }}',
@@ -105,12 +107,12 @@
                                             '{{ $key->email }}',
                                             '{{ $key->gelombang_wisuda }}'
                                         )">
-                                        detail
+                                        <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
                                     </button>
 
                                 </td>
                             </tr>
-
+                            
                             {{-- Modal --}}
                         @endforeach
                     </tbody>
