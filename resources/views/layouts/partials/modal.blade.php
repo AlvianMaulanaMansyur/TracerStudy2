@@ -12,7 +12,7 @@
             <!-- Modal body -->
             <div class="p-4 md:p-5 flex space-x-4">
                 <div class="w-1/3 flex justify-center items-center">
-                    <img src="" alt="Foto Profil" class="rounded-full w-32 h-32" id="profileImage">
+                    <img src="" alt="Foto Profil" class="rounded w-32 h-32" id="profileImage">
                 </div>
                 <form id="editForm">
                     @csrf

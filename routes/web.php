@@ -29,7 +29,7 @@ Route::prefix('admin')->group(function () {
     // Admin authentication routes
     Route::get('/login', [AuthAdmin::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AuthAdmin::class, 'login']);
-    Route::post('/logout', [AuthAdmin::class, 'logou    t'])->name('admin.logout');
+    // Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
     // Admin dashboard routes
     Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
@@ -81,3 +81,5 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
 Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->name('admin.update-alumni');
 
 Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
+
+Route::post('/logout', [AuthAdmin::class, 'logout'])->name('logout');

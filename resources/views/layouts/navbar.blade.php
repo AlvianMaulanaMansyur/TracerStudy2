@@ -4,7 +4,7 @@
             <!-- Logo dan Teks -->
             <div class="flex items-center">
                 <img src="{{ asset('images/logo_pnb.png') }}" alt="Tracer Study" class="w-20 h-auto mr-2">
-                <a href="#" class="text-lg font-bold">PNB X SITIKUS</a>
+                <a href="#" class="text-lg font-bold">PNB X SITIKA</a>
             </div>
             <!-- Menu -->
             <ul class="hidden md:flex space-x-6">
