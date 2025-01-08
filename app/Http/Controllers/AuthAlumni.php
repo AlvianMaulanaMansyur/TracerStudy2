@@ -28,7 +28,7 @@ class AuthAlumni extends Controller
 
         // Jika login gagal, kembali dengan pesan kesalahan
         return back()->withErrors([
-            'nim' => 'NIP or password is incorrect.',
+            'nim' => 'NIM or password is incorrect.',
         ]);
     }
 }

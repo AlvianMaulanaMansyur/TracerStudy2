@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import path from 'path'
+import path from 'path';
 
 export default defineConfig({
     plugins: [
@@ -11,8 +11,8 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '$': 'jQuery',
-            // 'jquery-ui': `${path.resolve(__dirname, 'node_modules/jquery-ui')}`
+            '$': 'jquery', // Pastikan alias ini mengarah ke jQuery
+            // 'jquery-ui': `${path.resolve(__dirname, 'node_modules/jquery-ui')}` // Jika Anda ingin menggunakan alias untuk jQuery UI
         },
     },
 });

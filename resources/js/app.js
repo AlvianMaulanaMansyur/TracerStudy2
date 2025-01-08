@@ -1,8 +1,12 @@
+// resources/js/app.js
+
 import './bootstrap';
 
+// Impor jQuery
 import jQuery from 'jquery';
-window.$ = jQuery;
 
+// Atur jQuery di jendela global
+window.$ = window.jQuery = jQuery;
 
 // import Alpine from 'alpinejs';
 
@@ -10,4 +14,4 @@ window.$ = jQuery;
 
 // Alpine.start();
 
-
+import 'preline'

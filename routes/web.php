@@ -19,9 +19,10 @@ Route::post('/login', [AuthAlumni::class, 'login']);
 Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login');
 // Protected Alumni Routes
 Route::middleware([AlumniMiddleware::class])->group(function () {
-    Route::get('/kuesioner', [KuesionerController::class, 'KuesionerForAlumni'])->name('kuesioner.alumni.index');
-    Route::get('/kuesioner/{id}', [KuesionerController::class, 'ShowKuesionerForAlumni'])->name('kuesioner.alumni.show');
-    Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
+    Route::resource('kuesioner', KuesionerController::class);
+    Route::get('/kuesioner', [KuesionerController::class, 'AlumniKuesioner'])->name('kuesioner.alumni.index');
+    Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'AlumniKuesionerPage'])->name('kuesioner.alumni.page');
+    Route::post('/kuesioner/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
 });
 
 // Rute untuk admin
@@ -29,22 +30,21 @@ Route::prefix('admin')->group(function () {
     // Admin authentication routes
     Route::get('/login', [AuthAdmin::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AuthAdmin::class, 'login']);
-    Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
+    // Route::post('/logout', [AuthAdmin::class, 'logout'])->name('admin.logout');
 
     // Admin dashboard routes
     Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
     Route::get('/alumni/search', [AdminController::class, 'search'])->name('admin.alumni.search');
     Route::get('/alumni/filter', [AdminController::class, 'filter'])->name('admin.alumni.filter');
 
-    // Route::get('admin', function () {
-    //     return view('admin.dashboard');
-    // })->name('admin.dashboard');
-
     // Protected admin routes
     Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'tampilAlumni'])->name('admin.dashboard');
         Route::resource('kuesioner', KuesionerController::class);
         Route::get('/kuesioner', [KuesionerController::class, 'index'])->name('kuesioner.index');
+        // Route::get('/kuesioner/page/{id}', [KuesionerController::class, 'showPage'])->name('kuesioner.page');
+        Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'showPage'])->name('kuesioner.page');
+        Route::get('/alldata', [KuesionerController::class, 'allData'])->name('kuesioner.admin.alldata');
         Route::get('/kuesioner/{id}', [KuesionerController::class, 'show'])->name('kuesioner.admin.show');
 
         Route::resource('kuesioner.pertanyaan', PertanyaanController::class)->shallow();
@@ -81,3 +81,5 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
 Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->name('admin.update-alumni');
 
 Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
+
+Route::post('/logout', [AuthAdmin::class, 'logout'])->name('logout');
