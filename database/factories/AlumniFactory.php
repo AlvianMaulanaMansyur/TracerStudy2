@@ -40,7 +40,7 @@ class AlumniFactory extends Factory
             'no_telepon' => $this->faker->phoneNumber,
             'foto_profil' => 'images/user.png', // Menghasilkan URL gambar
             'status_verifikasi' => $this->faker->numberBetween(0, 1),
-            'prodi_id' => 1, // Sesuaikan dengan ID prodi yang ada
+            'prodi_id' =>  $this->faker->numberBetween(1, 6), // Sesuaikan dengan ID prodi yang ada
             // 'kota_id' => 1, // Sesuaikan dengan ID kota yang ada
         ];
     }
