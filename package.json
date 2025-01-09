@@ -18,8 +18,8 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "amqplib": "^0.10.5",
         "alpine": "^0.2.1",
+        "amqplib": "^0.10.5",
         "jquery": "^3.7.1",
         "js": "^0.1.0",
         "lodash": "^4.17.21",
