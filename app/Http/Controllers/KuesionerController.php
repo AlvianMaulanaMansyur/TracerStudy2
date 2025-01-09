@@ -365,7 +365,7 @@ class KuesionerController extends Controller
             if ($pertanyaanId === 'logika') {
                 continue; // Lewati logika untuk proses terpisah
             }
-            
+
             $pertanyaan = Pertanyaan::find($pertanyaanId);
         
             if (!$pertanyaan) {
@@ -404,6 +404,7 @@ class KuesionerController extends Controller
         
                 Jawaban_logika::create([
                     'logika_id' => $logika->id,
+                    'alumni_id' => $alumniId,
                     'jawaban' => $logikaJawaban,
                 ]);
             }
