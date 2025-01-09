@@ -30,4 +30,8 @@ class AlumniController extends Controller
 
         return view('alumni.faq'); // Mengembalikan tampilan home alumni
     }
+    public function getdata_alumni()
+    {
+        
+    }
 }
