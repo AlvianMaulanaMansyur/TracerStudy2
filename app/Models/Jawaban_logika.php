@@ -13,6 +13,7 @@ class Jawaban_logika extends Model
 
     protected $fillable = [
         'jawaban',
+        'alumni_id',
         'logika_id',
     ];
 

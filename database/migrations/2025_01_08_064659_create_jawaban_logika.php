@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('jawaban_logika', function (Blueprint $table) {
             $table->id();
             // $table->foreignId('jawaban_kuesioner_id')->constrained('jawaban_kuesioner')->onDelete('cascade'); // Relasi ke jawaban_kuesioner
+            $table->foreignId('alumni_id')->constrained('alumni');
             $table->string('logika_id'); // ID logika
             $table->text('jawaban'); // Jawaban untuk logika
             $table->timestamps();
