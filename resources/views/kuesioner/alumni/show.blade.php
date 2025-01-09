@@ -143,11 +143,11 @@
                 if (alumniKuesionerAnswers[pertanyaanId]) {
                     if (input.type === 'radio' && input.value === alumniKuesionerAnswers[pertanyaanId]) {
                         input.checked = true;
-                    } else if (input.type === 'checkbox') {
+                    } else if (input.type === 'checkbox' && input.value === alumniKuesionerAnswers[pertanyaanId]) {
                         if (alumniKuesionerAnswers[pertanyaanId].includes(input.value)) {
                             input.checked = true;
                         }
-                    } else if (input.tagName === 'SELECT') {
+                    } else if (input.tagName === 'SELECT' && input.value === alumniKuesionerAnswers[pertanyaanId]) {
                         input.value = alumniKuesionerAnswers[pertanyaanId];
                     }
                 }
