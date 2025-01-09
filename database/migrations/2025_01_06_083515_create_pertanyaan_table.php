@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pertanyaan', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
             $table->json('data_pertanyaan');
-            $table->foreignId('kuesioner_id')->constrained('kuesioner');
+            $table->string('kuesioner_id'); // Ubah ini menjadi string
+            $table->string('halaman_id'); // Ubah ini menjadi string
+            $table->foreign('kuesioner_id')->references('id')->on('kuesioner'); // Definisikan foreign key secara manual
+            $table->foreign('halaman_id')->references('id')->on('halaman'); // Definisikan foreign key secara manual
+        
             $table->timestamps();
         });
     }

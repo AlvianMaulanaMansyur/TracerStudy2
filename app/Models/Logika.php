@@ -4,26 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Str;
 
-class Kuesioner extends Model
+class Logika extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
+    protected $table = 'logika';
     public $incrementing = false; // Kolom id bukan auto-increment
     protected $keyType = 'string'; // Jika tipe datanya string
-    protected $table = 'kuesioner';
     protected $fillable = [
         'id',
-        'judul_kuesioner',
-        'slug',
-        'admin_id'
+        'pertanyaan_id',
+        'data_pertanyaan',
     ];
 
-    public function pertanyaan() {
-        return $this->hasMany(Pertanyaan::class);
+    public function pertanyaan()
+    {
+        return $this->belongsTo(Pertanyaan::class, 'pertanyaan_id');
     }
-
-    
 }
