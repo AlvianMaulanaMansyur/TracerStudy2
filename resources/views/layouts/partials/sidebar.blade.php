@@ -27,8 +27,8 @@
         </a>
     </li>
 
-    <li class="nav-item ">
-        <a class="nav-link" href="{{ route('admin.dashboard') }}">
+    <li class="nav-item {{ request()->routeIs('rekap.index') ? 'active' : '' }} ">
+        <a class="nav-link" href="{{ route('rekap.index') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Data responden</span>
         </a>
