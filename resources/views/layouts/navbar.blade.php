@@ -7,16 +7,6 @@
                 <a href="#" class="text-lg font-bold">PNB X SITIKA</a>
             </div>
             <!-- Menu -->
-<<<<<<< HEAD
-            <ul class="hidden md:flex space-x-6">
-                <li><a href="{{ route('alumni.index') }}" class="font-medium hover:text-gray-500 hover:underline">Beranda</a></li>
-                <li><a href="{{ route('alumni.statistik') }}" class="hover:text-gray-500 hover:underline">Statistik</a></li>
-                <li><a href="{{ route('alumni.faq') }}" class="hover:text-gray-500 hover:underline">FAQ</a></li>
-                <li><a href="{{ route('kuesioner.alumni.index') }}" class="hover:text-gray-500 hover:underline">Kuesioner</a></li>
-                <li>
-    <a href="{{ route('alumni.profil') }}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded hover:underline">Profil</a></li>
-                <li><a href="{{ route('alumni.login') }}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded hover:underline">Login</a></li>
-=======
             <ul class="hidden md:flex items-center space-x-6">
                 <li>
                     <a href="{{ route('alumni.index') }}" class="font-medium hover:text-gray-500 {{ request()->routeIs('alumni.index') ? 'text-yellow-500 ' : 'text-gray-800' }}">
@@ -69,7 +59,6 @@
                         @endif
                     </div>
                 </li>
->>>>>>> 9d494bb6b20f497a595f3acb181c846358f4ab16
             </ul>
 
 
