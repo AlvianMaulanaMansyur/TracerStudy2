@@ -35,6 +35,6 @@ class AlumniSeeder extends Seeder
         //     'kota_id' => 1, // Sesuaikan dengan ID kota yang ada
         // ]);
 
-        Alumni::factory()->count(10)->create();
+        // Alumni::factory()->count(50)->create();
     }
 }

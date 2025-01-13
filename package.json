@@ -18,8 +18,14 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "alpine": "^0.2.1",
+        "amqplib": "^0.10.5",
         "jquery": "^3.7.1",
+        "js": "^0.1.0",
+        "lodash": "^4.17.21",
+        "preline": "^2.7.0",
         "sweetalert2": "^11.6.13",
-        "tailwind": "^4.0.0"
+        "tailwind": "^4.0.0",
+        "uuid": "^11.0.4"
     }
 }

@@ -33,4 +33,17 @@ class PertanyaanController extends Controller
     
         return redirect()->route('kuesioner.admin.show', $kuesioner);
     }
+
+    public function tampilkanPertanyaan($halamanId, Request $request)
+{
+    $currentPage = $request->input('page', 1); // Halaman saat ini
+    $pertanyaanPerHalaman = 1; // Jumlah pertanyaan per halaman (ubah sesuai kebutuhan)
+
+    // Ambil pertanyaan berdasarkan halaman_id
+    $pertanyaan = Pertanyaan::with(['halaman', 'logika'])
+        ->where('halaman_id', $halamanId)
+        ->paginate($pertanyaanPerHalaman); // Menggunakan pagination
+
+    return view('pertanyaan.index', compact('pertanyaan', 'currentPage'));
+}
 }

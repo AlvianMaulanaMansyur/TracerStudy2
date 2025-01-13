@@ -29,10 +29,16 @@ class AuthAdmin extends Controller
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
-        return redirect()->route('admin.login');
+        Auth::logout();
+
+        // Invalidate session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to login or home page
+        return redirect('/admin/login'); // Ganti dengan URL login Anda
     }
 
     
