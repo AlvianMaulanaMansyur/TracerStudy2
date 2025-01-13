@@ -18,11 +18,16 @@
 <div class="container mx-auto">
 
     <h2 id="Statistik" class="mt-36 text-3xl font-bold">Statistik Tracer Study</h2>
-    <p class="mt-3">Berikut ini adalah statistik lulusan dari jurusan teknologi informasi</p>
+    <p class="mt-3">Berikut ini adalah statistik dari jurusan teknologi informasi</p>
     <div class="flex justify-center mt-4">
         <div class="flex flex-col items-center list-none mx-12">
             <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
-            <li id="jumlahAlumni" class="text-2xl font-semibold">{{ $totalAlumni }}</li>
+            <li id="jumlahMahasiswa" class="text-2xl font-semibold">{{ $totalMahasiswaAktif}}li>
+            <li class="text-sm text-2xl">Jumlah Mahasiswa Aktif</li>
+        </div>
+        <div class="flex flex-col items-center list-none mx-12">
+            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
+            <li id="jumlahAlumni" class="text-2xl font-semibold">{{ $totalAlumni}}</li>
             <li class="text-sm text-2xl">Jumlah Alumni</li>
         </div>
         <div class="flex flex-col items-center list-none mx-12">
@@ -36,14 +41,25 @@
             <li class="text-sm text-2xl">Belum Bekerja</li>
         </div>
     </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const counters = [{
-                    element: document.getElementById('jumlahAlumni'),endValue: @json($totalAlumni)},
-                    {
-                        element: document.getElementById('sudahBekerja'),endValue: 70},
-                    {
-                        element: document.getElementById('belumBekerja'),endValue: 30}
+                    element: document.getElementById('jumlahMahasiswa'),
+                    endValue: @json($totalMahasiswaAktif)
+                },
+                {
+                    element: document.getElementById('jumlahAlumni'),
+                    endValue: @json($totalAlumni)
+                },
+                {
+                    element: document.getElementById('sudahBekerja'),
+                    endValue: 70
+                },
+                {
+                    element: document.getElementById('belumBekerja'),
+                    endValue: 30
+                }
             ];
 
             let hasAnimated = false;
@@ -94,15 +110,15 @@
 
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg mt-36 mb-4 border border-gray-200">
         <h2 class="text-3xl font-bold text-gray-800">Chart Statistik</h2>
-        <p class="mt-3 text-gray-600">Berikut ini adalah Chart Statistik lulusan dari jurusan teknologi informasi</p>
+        <p class="mt-3 text-gray-600">Berikut ini adalah Chart Statistik dari jurusan teknologi informasi</p>
 
         <!-- Div untuk tombol -->
         <div class="mt-4 space-x-4">
             <a id="show-pie-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 1</a>
-            <a id="show-bar-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 2</a>
-            <a id="show-line-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 3</a>
+            <a id="show-line-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 2</a>
+            <a id="show-bar-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 3</a>
+            <a id="show-lineMahasiswa-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 4</a>
         </div>
-
         <!-- Canvas untuk Chart -->
         <div class="mt-10 mb-20">
             <!-- <h1 class="text-3xl font-bold mb-4 text-gray-800">ApexChart dengan Laravel dan Tailwind CSS</h1> -->
@@ -130,41 +146,71 @@
         };
 
         // Opsi Grafik
-        // Mengonversi data angkatanPerJurusan ke format JavaScript
-        const angkatanData = @json($angkatanPerJurusan);
+         // linechart alumni
+         const resultArray = @json($angkatanPerTahunLulus);
 
-        // Menjumlahkan total alumni berdasarkan angkatan
-        const totalPerAngkatan = angkatanData.reduce((acc, item) => {
-            // Jika angkatan sudah ada di accumulator, tambahkan totalnya
-            if (acc[item.angkatan]) {
-                acc[item.angkatan].total += item.total;
-            } else {
-                // Jika belum ada, buat entry baru
-                acc[item.angkatan] = {
-                    angkatan: item.angkatan,
-                    total: item.total
-                };
+// Menyiapkan kategori dan data
+const categories = resultArray.map(item => item.tahun_lulus); // Mengambil tahun lulus sebagai kategori
+const data = resultArray.map(item => item.total); // Mengambil total alumni sebagai data
+
+console.log(resultArray); // Menampilkan hasil di console
+console.log(categories); // Menampilkan kategori di console
+console.log(data); // Menampilkan data di console
+
+// Opsi Grafik
+const lineOptions = {
+        series: [{
+            name: 'Jumlah Alumni',
+            data: data // Mengambil total alumni
+        }],
+        chart: {
+            height: 350,
+            type: 'line'
+        },
+        title: {
+            text: 'Jumlah Alumni per Tahun Lulus', // Judul chart
+            align: 'center', // Posisi judul
+            style: {
+                fontSize: '15px', // Ukuran font
+                fontWeight: 'bold' // Ketebalan font
             }
-            return acc;
-        }, {});
+        },
+            xaxis: {
+                categories: categories // Mengambil tahun lulus sebagai kategori
+            }
+        };
 
-        // Mengubah object menjadi array
-        const resultArray = Object.values(totalPerAngkatan);
+        // linechart pertumbuhan Mahasiswa
+        const resultarray = @json($angkatanPerTahun);
 
-        console.log(resultArray); // Menampilkan hasil di console
+        // Menyiapkan kategori dan data
+        const categorie = resultarray.map(item => item.angkatan); // Mengambil tahun lulus sebagai kategori
+        const datas = resultarray.map(item => item.total); // Mengambil total alumni sebagai data
+
+        console.log(resultarray); // Menampilkan hasil di console
+        console.log(categorie); // Menampilkan kategori di console
+        console.log(datas); // Menampilkan data di console
 
         // Opsi Grafik
-        const lineOptions = {
+        const lineMahasiswaOptions = {
             series: [{
-                name: 'Jumlah Alumni',
-                data: resultArray.map(item => item.total) // Mengambil total alumni
+                name: 'Jumlah Mahasiswa',
+                data: datas // Mengambil total mahasiswa
             }],
             chart: {
                 height: 350,
                 type: 'line'
             },
+            title: {
+            text: 'Jumlah Mahasiswa per Tahun Angkatan', // Judul chart
+            align: 'center', // Posisi judul
+            style: {
+                fontSize: '15px', // Ukuran font
+                fontWeight: 'bold' // Ketebalan font
+            }
+        },
             xaxis: {
-                categories: resultArray.map(item => item.angkatan) // Mengambil angkatan sebagai kategori
+                categories: categorie // Mengambil angkatan sebagai kategori
             }
         };
 
@@ -200,6 +246,7 @@
 
         // Mengonversi data jumlahAlumni ke format JavaScript
         const jumlahAlumni = @json($jumlahAlumni);
+        console.log(jumlahAlumni)
 
         // Mengambil total dari setiap prodi
         const seriesData = jumlahAlumni.map(item => item.total);
@@ -211,9 +258,9 @@
                 height: 350
             },
             series: seriesData, // Menggunakan data yang telah diproses
-            labels: ['TRPL', 'MI', 'AJK'], // Pastikan label sesuai dengan prodi_id
+            labels: ['MI', 'TRPL', 'AJK'], // Pastikan label sesuai dengan prodi_id
             title: {
-                text: 'Mahasiswa Jurusan Teknologi Informasi',
+                text: 'Alumni Jurusan Teknologi Informasi',
                 align: 'center'
             },
             responsive: [{
@@ -244,10 +291,14 @@
             event.preventDefault();
             renderChart(lineOptions);
         });
+        document.getElementById('show-lineMahasiswa-chart').addEventListener('click', function(event) {
+            event.preventDefault();
+            renderChart(lineMahasiswaOptions);
+        });
 
         // Render grafik pie secara default
         renderChart(pieOptions);
-    </script>
+</script>
 </div>
 
 @endsection

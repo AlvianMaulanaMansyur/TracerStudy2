@@ -27,32 +27,48 @@
 
 
     <h2 id="Statistik" class=" mt-32 text-center text-3xl font-bold">Statistik Tracer Study</h2>
-    <p class="text-center mt-3">Berikut ini adalah statistik lulusan dari jurusan teknologi informasi</p>
+    <p class="text-center mt-3">Berikut ini adalah statistik dari jurusan teknologi informasi</p>
     <div class="flex justify-center mt-4"> <!-- Memusatkan elemen -->
-        <div class="flex flex-col items-center list-none mx-12"> <!-- Mengubah margin horizontal menjadi mx-4 -->
-            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1"> <!-- Mengurangi margin bawah -->
-            <li id="jumlahAlumni" class="text-2xl font-semibold">{{ $totalAlumni }}</li>
+        <div class="flex flex-col items-center list-none mx-12">
+            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
+            <li id="jumlahMahasiswa" class="text-2xl font-semibold">{{ $totalMahasiswaAktif}}li>
+            <li class="text-sm text-2xl">Jumlah Mahasiswa Aktif</li>
+        </div>
+        <div class="flex flex-col items-center list-none mx-12">
+            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
+            <li id="jumlahAlumni" class="text-2xl font-semibold">{{ $totalAlumni}}</li>
             <li class="text-sm text-2xl">Jumlah Alumni</li>
         </div>
-        <div class="flex flex-col items-center list-none mx-12"> <!-- Mengubah margin horizontal menjadi mx-4 -->
-            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1"> <!-- Mengurangi margin bawah -->
+        <div class="flex flex-col items-center list-none mx-12">
+            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
             <li id="sudahBekerja" class="text-2xl font-semibold">0</li>
             <li class="text-sm text-2xl">Sudah Bekerja</li>
         </div>
-        <div class="flex flex-col items-center list-none mx-12"> <!-- Mengubah margin horizontal menjadi mx-4 -->
-            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1"> <!-- Mengurangi margin bawah -->
+        <div class="flex flex-col items-center list-none mx-12">
+            <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
             <li id="belumBekerja" class="text-2xl font-semibold">0</li>
-            <li class="text-sm text-2xl">Belum Bekerja</li> <!-- Mengubah teks untuk variasi -->
+            <li class="text-sm text-2xl">Belum Bekerja</li>
         </div>
     </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const counters = [{
-                    element: document.getElementById('jumlahAlumni'),endValue: @json($totalAlumni)},
-                    {
-                        element: document.getElementById('sudahBekerja'),endValue: 70},
-                    {
-                        element: document.getElementById('belumBekerja'),endValue: 30}
+                    element: document.getElementById('jumlahMahasiswa'),
+                    endValue: @json($totalMahasiswaAktif)
+                },
+                {
+                    element: document.getElementById('jumlahAlumni'),
+                    endValue: @json($totalAlumni)
+                },
+                {
+                    element: document.getElementById('sudahBekerja'),
+                    endValue: 70
+                },
+                {
+                    element: document.getElementById('belumBekerja'),
+                    endValue: 30
+                }
             ];
 
             let hasAnimated = false;
@@ -101,12 +117,13 @@
 
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg mt-36 mb-4 border border-gray-200 max-w-6xl"> <!-- Box wrapper -->
         <h2 class="text-center text-3xl font-bold">Chart Statistik</h2>
-        <p class="text-center mt-3">Berikut ini adalah Chart Statistik lulusan dari jurusan teknologi informasi</p>
+        <p class="text-center mt-3">Berikut ini adalah Chart Statistik dari jurusan teknologi informasi</p>
         <!-- Div untuk tombol -->
         <div class="flex justify-center mt-4 space-x-4">
             <a id="show-pie-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 1</a>
-            <a id="show-bar-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 2</a>
-            <a id="show-line-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 3</a>
+            <a id="show-line-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 2</a>
+            <a id="show-bar-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 3</a>
+            <a id="show-lineMahasiswa-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 4</a>
         </div>
 
         <!-- Canvas untuk Chart -->
@@ -133,123 +150,158 @@
         };
 
         // Opsi Grafik
-        // Mengonversi data angkatanPerJurusan ke format JavaScript
-        const angkatanData = @json($angkatanPerJurusan);
+        // linechart alumni
+        const resultArray = @json($angkatanPerTahunLulus);
 
-        // Menjumlahkan total alumni berdasarkan angkatan
-        const totalPerAngkatan = angkatanData.reduce((acc, item) => {
-            // Jika angkatan sudah ada di accumulator, tambahkan totalnya
-            if (acc[item.angkatan]) {
-                acc[item.angkatan].total += item.total;
-            } else {
-                // Jika belum ada, buat entry baru
-                acc[item.angkatan] = {
-                    angkatan: item.angkatan,
-                    total: item.total
-                };
-            }
-            return acc;
-        }, {});
-
-        // Mengubah object menjadi array
-        const resultArray = Object.values(totalPerAngkatan);
+        // Menyiapkan kategori dan data
+        const categories = resultArray.map(item => item.tahun_lulus); // Mengambil tahun lulus sebagai kategori
+        const data = resultArray.map(item => item.total); // Mengambil total alumni sebagai data
 
         console.log(resultArray); // Menampilkan hasil di console
+        console.log(categories); // Menampilkan kategori di console
+        console.log(data); // Menampilkan data di console
 
         // Opsi Grafik
         const lineOptions = {
-            series: [{
-                name: 'Jumlah Alumni',
-                data: resultArray.map(item => item.total) // Mengambil total alumni
-            }],
-            chart: {
-                height: 350,
-                type: 'line'
-            },
-            xaxis: {
-                categories: resultArray.map(item => item.angkatan) // Mengambil angkatan sebagai kategori
-            }
-        };
-
-        const barOptions = {
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    endingShape: 'rounded'
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            series: [{
-                name: 'Sales',
-                data: [30, 40]
-            }],
-            xaxis: {
-                categories: ['Sudah Bekerja', 'Belum Bekerja']
-            },
-            fill: {
-                opacity: 1
-            },
-            title: {
-                text: 'Grafik Mahasiswa Jurusan Teknologi Informasi',
-                align: 'center'
-            }
-        };
-
-        // Mengonversi data jumlahAlumni ke format JavaScript
-        const jumlahAlumni = @json($jumlahAlumni);
-
-        // Mengambil total dari setiap prodi
-        const seriesData = jumlahAlumni.map(item => item.total);
-
-        // Menggunakan seriesData dalam pieOptions
-        const pieOptions = {
-            chart: {
-                type: 'pie',
-                height: 350
-            },
-            series: seriesData, // Menggunakan data yang telah diproses
-            labels: ['TRPL', 'MI', 'AJK'], // Pastikan label sesuai dengan prodi_id
-            title: {
-                text: 'Mahasiswa Jurusan Teknologi Informasi',
-                align: 'center'
-            },
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
-                    },
-                    legend: {
-                        position: 'bottom'
+                series: [{
+                    name: 'Jumlah Alumni',
+                    data: data // Mengambil total alumni
+                }],
+                chart: {
+                    height: 350,
+                    type: 'line'
+                },
+                title: {
+                    text: 'Jumlah Alumni per Tahun Lulus', // Judul chart
+                    align: 'center', // Posisi judul
+                    style: {
+                        fontSize: '15px', // Ukuran font
+                        fontWeight: 'bold' // Ketebalan font
                     }
-                }
-            }]
-        };
+                },
+                    xaxis: {
+                        categories: categories // Mengambil tahun lulus sebagai kategori
+                    }
+                };
 
-        // Event Listener untuk tombol
-        document.getElementById('show-pie-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(pieOptions);
-        });
+                // linechart pertumbuhan Mahasiswa
+                const resultarray = @json($angkatanPerTahun);
 
-        document.getElementById('show-bar-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(barOptions);
-        });
+                // Menyiapkan kategori dan data
+                const categorie = resultarray.map(item => item.angkatan); // Mengambil tahun lulus sebagai kategori
+                const datas = resultarray.map(item => item.total); // Mengambil total alumni sebagai data
 
-        document.getElementById('show-line-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(lineOptions);
-        });
+                console.log(resultarray); // Menampilkan hasil di console
+                console.log(categorie); // Menampilkan kategori di console
+                console.log(datas); // Menampilkan data di console
 
-        // Render grafik pie secara default
-        renderChart(pieOptions);
+                // Opsi Grafik
+                const lineMahasiswaOptions = {
+                    series: [{
+                        name: 'Jumlah Mahasiswa',
+                        data: datas // Mengambil total mahasiswa
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'line'
+                    },
+                    title: {
+                    text: 'Jumlah Mahasiswa per Tahun Angkatan', // Judul chart
+                    align: 'center', // Posisi judul
+                    style: {
+                        fontSize: '15px', // Ukuran font
+                        fontWeight: 'bold' // Ketebalan font
+                    }
+                },
+                    xaxis: {
+                        categories: categorie // Mengambil angkatan sebagai kategori
+                    }
+                };
+
+                const barOptions = {
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            endingShape: 'rounded'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: 'Sales',
+                        data: [30, 40]
+                    }],
+                    xaxis: {
+                        categories: ['Sudah Bekerja', 'Belum Bekerja']
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    title: {
+                        text: 'Grafik Mahasiswa Jurusan Teknologi Informasi',
+                        align: 'center'
+                    }
+                };
+
+                // Mengonversi data jumlahAlumni ke format JavaScript
+                const jumlahAlumni = @json($jumlahAlumni);
+                console.log(jumlahAlumni)
+
+                // Mengambil total dari setiap prodi
+                const seriesData = jumlahAlumni.map(item => item.total);
+
+                // Menggunakan seriesData dalam pieOptions
+                const pieOptions = {
+                    chart: {
+                        type: 'pie',
+                        height: 350
+                    },
+                    series: seriesData, // Menggunakan data yang telah diproses
+                    labels: ['MI', 'TRPL', 'AJK'], // Pastikan label sesuai dengan prodi_id
+                    title: {
+                        text: 'Alumni Jurusan Teknologi Informasi',
+                        align: 'center'
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 200
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }]
+                };
+
+                // Event Listener untuk tombol
+                document.getElementById('show-pie-chart').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    renderChart(pieOptions);
+                });
+
+                document.getElementById('show-bar-chart').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    renderChart(barOptions);
+                });
+
+                document.getElementById('show-line-chart').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    renderChart(lineOptions);
+                });
+                document.getElementById('show-lineMahasiswa-chart').addEventListener('click', function(event) {
+                    event.preventDefault();
+                    renderChart(lineMahasiswaOptions);
+                });
+
+                // Render grafik pie secara default
+                renderChart(pieOptions);
     </script>
 </div>
 

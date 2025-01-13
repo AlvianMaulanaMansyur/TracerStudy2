@@ -29,6 +29,7 @@ class Alumni extends Authenticatable
         'status_verifikasi',
         'prodi_id',
         'kota_id',
+        'jenjang',
     ];
 
     public function jawaban_kuesioner()

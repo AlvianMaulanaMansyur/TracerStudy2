@@ -18,6 +18,7 @@ Route::get('/faq', [AlumniController::class, 'faq'])->name('alumni.faq');
 // Rute untuk alumni
 Route::post('/login', [AuthAlumni::class, 'login']);
 Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login');
+Route::post('/logoutalumni', [AuthAlumni::class, 'logout'])->name('alumni.logout');
 // Protected Alumni Routes
 Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::resource('kuesioner', KuesionerController::class);

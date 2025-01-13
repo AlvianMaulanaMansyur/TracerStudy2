@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('foto_profil', 255)->default('images/user.png');
             // $table->tinyInteger('status_responden');
             $table->tinyInteger('status_verifikasi');
+            $table->string('jenjang', 5);
             $table->foreignId('prodi_id')->constrained('prodi');
             // $table->foreignId('kota_id')->constrained('kota');
             $table->timestamps();
