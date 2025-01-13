@@ -12,6 +12,8 @@
                 <li><a href="{{ route('alumni.statistik') }}" class="hover:text-gray-500 hover:underline">Statistik</a></li>
                 <li><a href="{{ route('alumni.faq') }}" class="hover:text-gray-500 hover:underline">FAQ</a></li>
                 <li><a href="{{ route('kuesioner.alumni.index') }}" class="hover:text-gray-500 hover:underline">Kuesioner</a></li>
+                <li>
+    <a href="{{ route('alumni.profil') }}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded hover:underline">Profil</a></li>
                 <li><a href="{{ route('alumni.login') }}" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded hover:underline">Login</a></li>
             </ul>
 

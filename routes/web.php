@@ -9,17 +9,24 @@ use App\Http\Controllers\PertanyaanController;
 use App\Http\Controllers\AuthAdmin;
 use App\Http\Controllers\AuthAlumni;
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\ProfileController;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
+Route::get('/statistik', [AlumniController::class, 'statistik'])->name('alumni.statistik');
+Route::get('/faq', [AlumniController::class, 'faq'])->name('alumni.faq');
 
 // Rute untuk alumni
 Route::post('/login', [AuthAlumni::class, 'login']);
 Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login');
 // Protected Alumni Routes
 Route::middleware([AlumniMiddleware::class])->group(function () {
+    Route::get('/profil', [ProfileController::class, 'show'])->name('alumni.profil');
     Route::get('/kuesioner', [KuesionerController::class, 'KuesionerForAlumni'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{id}', [KuesionerController::class, 'ShowKuesionerForAlumni'])->name('kuesioner.alumni.show');
     Route::post('/kuesioner/{id}/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
+    Route::get('/profil/edit', [ProfileController::class, 'editProfil'])->name('alumni.profil.edit');
+    Route::post('/profil/update', [ProfileController::class, 'updateProfil'])->name('alumni.profil.update');
 });
 
 // Rute untuk admin
