@@ -113,6 +113,6 @@ class AlumniController extends Controller
         // $alumni = Alumni::all(); // Contoh pengambilan data alumni
 
         return view('alumni.faq'); // Mengembalikan tampilan home alumni
-    }
- 
+    } 
+    
 }
