@@ -29,10 +29,16 @@ class Alumni extends Authenticatable
         'status_verifikasi',
         'prodi_id',
         'kota_id',
+        'jenjang',
     ];
 
+    public function jawaban_kuesioner()
+    {
+        return $this->hasMany(Jawaban_kuesioner::class, 'alumni_id', 'id');
+    }
+    
     public function prodi(){
-        return $this->belongsTo(Prodi::class);
+        return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
     public function kota(){

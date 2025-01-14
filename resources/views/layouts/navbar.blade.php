@@ -9,22 +9,22 @@
             <!-- Menu -->
             <ul class="hidden md:flex items-center space-x-6">
                 <li>
-                    <a href="{{ route('alumni.index') }}" class="font-medium hover:text-gray-500 hover:underline">
+                    <a href="{{ route('alumni.index') }}" class="font-medium hover:text-gray-500 {{ request()->routeIs('alumni.index') ? 'text-yellow-500 ' : 'text-gray-800' }}">
                         Beranda
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('alumni.statistik') }}" class="hover:text-gray-500 hover:underline">
+                    <a href="{{ route('alumni.statistik') }}" class="hover:text-gray-500 {{ request()->routeIs('alumni.statistik') ? 'text-yellow-500 ' : 'text-gray-800' }}">
                         Statistik
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('alumni.faq') }}" class="hover:text-gray-500 hover:underline">
+                    <a href="{{ route('alumni.faq') }}" class="hover:text-gray-500 {{ request()->routeIs('alumni.faq') ? 'text-yellow-500 ' : 'text-gray-800' }}">
                         FAQ
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('kuesioner.alumni.index') }}" class="hover:text-gray-500 hover:underline">
+                    <a href="{{ route('kuesioner.alumni.index') }}" class="hover:text-gray-500 {{ request()->routeIs('kuesioner.alumni.index') ? 'text-yellow-500 ' : 'text-gray-800' }}">
                         Kuesioner
                     </a>
                 </li>
@@ -41,12 +41,28 @@
                         <a href="#" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200">
                             Edit Profile
                         </a>
-                        <a href="#" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200">
+                        @php
+                        $alumniId = session('alumniId');
+                        @endphp
+                        @if(!$alumniId)
+                        <a href="{{ route('alumni.login') }}" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200">
+                            Login
+                        </a>
+                        @else
+                        <form action="{{ route('alumni.logout') }}" method="POST" id="logout-form" style="display: none;">
+                            @csrf
+                        </form>
+
+                        <a href="#" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             Logout
                         </a>
+                        @endif
                     </div>
                 </li>
             </ul>
+
+
+
 
             <!-- Mobile Menu Button -->
             <button id="menu-btn" class="md:hidden focus:outline-none">
@@ -98,8 +114,8 @@
 
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) { // Ganti 50 dengan nilai yang sesuai
-            navbar.classList.remove('bg-white');
-            navbar.classList.add('bg-transparent');
+            navbar.classList.remove('bg-transparent');
+            navbar.classList.add('bg-white');
         } else {
             navbar.classList.add('bg-white');
             navbar.classList.remove('bg-transparent');

@@ -464,7 +464,12 @@ let logikaData = [];
 
 // Fungsi untuk menangani logika
 if (type === 'radio' || type === 'checkbox' || type === 'dropdown') {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 9d494bb6b20f497a595f3acb181c846358f4ab16
     const $select = $newQuestion.find('.select-page-button');
+    console.log('adfadfa');
     $select.on('click', function () {
         const $modal = $(this).closest('.question-container').find('.modal-logic');
         if (!$modal.length) {
