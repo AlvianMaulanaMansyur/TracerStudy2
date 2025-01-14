@@ -18,8 +18,12 @@ class RekapController extends Controller
     public function show(Request $request)
     {
         $kuesionerId = $request->query('kuesioner_id');
+        $prodiFilter = $request->query('prodi', null); // Filter Prodi
         $kuesioner = Kuesioner::find($kuesionerId);
 
+        if (!$kuesionerId) {
+            abort(400, 'Judul kuesioner harus dipilih.');
+        }
         if (!$kuesioner) {
             abort(404, 'Kuesioner tidak ditemukan');
         }
@@ -38,16 +42,6 @@ class RekapController extends Controller
                     $query->whereHas('pertanyaan', function ($subQuery) use ($kuesionerId) {
                         $subQuery->where('kuesioner_id', $kuesionerId);
                     });
-                })
-                ->select('id', 'nim', 'nama_alumni', 'prodi_id')
-                ->get()
-                ->map(function ($alumni) {
-                    return [
-                        'nim' => $alumni->nim,
-                        'nama' => $alumni->nama_alumni,
-                        'prodi' => $alumni->prodi ? $alumni->prodi->nama : '-',
-                        'status' => 'sudah',
-                    ];
                 });
 
             // Query untuk alumni yang belum menjawab
@@ -56,34 +50,62 @@ class RekapController extends Controller
                     $query->whereHas('pertanyaan', function ($subQuery) use ($kuesionerId) {
                         $subQuery->where('kuesioner_id', $kuesionerId);
                     });
-                })
-                ->select('id', 'nim', 'nama_alumni', 'prodi_id')
-                ->get()
-                ->map(function ($alumni) {
-                    return [
-                        'nim' => $alumni->nim,
-                        'nama' => $alumni->nama_alumni,
-                        'prodi' => $alumni->prodi ? $alumni->prodi->nama : '-',
-                        'status' => 'belum',
-                    ];
                 });
+
+            // Terapkan filter Prodi jika ada
+            if ($prodiFilter) {
+                $sudah->whereHas('prodi', function ($query) use ($prodiFilter) {
+                    $query->where('nama_prodi', $prodiFilter);
+                });
+
+                $belum->whereHas('prodi', function ($query) use ($prodiFilter) {
+                    $query->where('nama_prodi', $prodiFilter);
+                });
+            }
+
+            $sudah = $sudah->select('id', 'nim', 'nama_alumni', 'prodi_id')->get()->map(function ($alumni) {
+                return [
+                    'nim' => $alumni->nim,
+                    'nama' => $alumni->nama_alumni,
+                    'prodi' => $alumni->prodi ? $alumni->prodi->nama_prodi : '-',
+                    'status' => 'sudah',
+                ];
+            });
+
+            $belum = $belum->select('id', 'nim', 'nama_alumni', 'prodi_id')->get()->map(function ($alumni) {
+                return [
+                    'nim' => $alumni->nim,
+                    'nama' => $alumni->nama_alumni,
+                    'prodi' => $alumni->prodi ? $alumni->prodi->nama_prodi : '-',
+                    'status' => 'belum',
+                ];
+            });
 
             // Gabungkan data alumni sudah dan belum menjawab
             $combined = $sudah->merge($belum);
         } else {
             // Jika tidak ada yang menjawab, tampilkan seluruh alumni dengan status "belum"
             $combined = Alumni::with('prodi')
-                ->select('id', 'nim', 'nama_alumni', 'prodi_id')
-                ->get()
-                ->map(function ($alumni) {
-                    return [
-                        'nim' => $alumni->nim,
-                        'nama' => $alumni->nama_alumni,
-                        'prodi' => $alumni->prodi ? $alumni->prodi->nama : '-',
-                        'status' => 'belum',
-                    ];
+                ->select('id', 'nim', 'nama_alumni', 'prodi_id');
+
+            // Terapkan filter Prodi jika ada
+            if ($prodiFilter) {
+                $combined->whereHas('prodi', function ($query) use ($prodiFilter) {
+                    $query->where('nama_prodi', $prodiFilter);
                 });
+            }
+
+            $combined = $combined->get()->map(function ($alumni) {
+                return [
+                    'nim' => $alumni->nim,
+                    'nama' => $alumni->nama_alumni,
+                    'prodi' => $alumni->prodi ? $alumni->prodi->nama_prodi : '-',
+                    'status' => 'belum',
+                ];
+            });
         }
+
+        // Pagination manual
         $perPage = 10;
         $currentPage = $request->query('page', 1);
         $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -103,6 +125,7 @@ class RekapController extends Controller
 
         $kuesioners = Kuesioner::all();
 
-        return view('kuesioner.admin.rekap', compact('kuesioners', 'paginated', 'kuesionerId'));
+        // dd($prodiFilter);
+        return view('kuesioner.admin.rekap', compact('kuesioners', 'paginated', 'kuesionerId', 'prodiFilter'));
     }
 }
