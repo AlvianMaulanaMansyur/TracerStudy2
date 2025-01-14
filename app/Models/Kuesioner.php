@@ -21,6 +21,11 @@ class Kuesioner extends Model
         'admin_id'
     ];
 
+    public function halaman()
+    {
+        return $this->hasMany(Halaman::class, 'kuesioner_id'); // Sesuaikan dengan relasi yang benar
+    }
+
     public function pertanyaan() {
         return $this->hasMany(Pertanyaan::class);
     }

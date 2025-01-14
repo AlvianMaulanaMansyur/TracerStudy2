@@ -249,27 +249,6 @@ class KuesionerController extends Controller
         return view('pertanyaan.index', compact('pertanyaan', 'currentPage'));
     }
 
-
-    public function saveChoice(Request $request)
-    {
-        $request->validate([
-            'choice' => 'required|string',
-        ]);
-
-        // Simpan pilihan di session
-        session(['user_choice' => $request->choice]);
-
-        return response()->json(['success' => true]);
-    }
-
-    public function destroySession()
-    {
-        session()->forget('user_choice'); // Menghapus session tertentu
-        session()->forget('history'); // Menghapus session tertentu
-
-        return redirect()->back()->with('success', 'Sesi berhasil dihapus.');
-    }
-
     public function ShowKuesionerForAlumni($id, Request $request)
     {
         $kuesioner = Kuesioner::findOrFail($id);
@@ -294,11 +273,35 @@ class KuesionerController extends Controller
     }
 
     public function edit($id)
-    {
-        $kuesioner = Kuesioner::with('pertanyaan')->findOrFail($id);
-        return view('kuesioner.admin.edit', compact('kuesioner'));
-    }
+{
+    $kuesioner = Kuesioner::with(['pertanyaan' => function($query) {
+        $query->with('logika'); // Ambil logika yang terkait dengan pertanyaan
+    }])->findOrFail($id);
 
+    // Ambil semua halaman yang terkait dengan pertanyaan
+    $halamanIds = $kuesioner->pertanyaan->pluck('halaman_id')->unique();
+    $halaman = Halaman::whereIn('id', $halamanIds)->get();
+
+    // Siapkan data untuk JavaScript
+    $existingQuestions = $kuesioner->pertanyaan->map(function($pertanyaan) {
+        $dataPertanyaan = json_decode($pertanyaan->data_pertanyaan);
+        $dataLogika = $pertanyaan->logika->map(function($logika) {
+            return json_decode($logika->data_pertanyaan);
+        });
+
+        return [
+            'tipe_pertanyaan' => $dataPertanyaan->tipe_pertanyaan,
+            'pertanyaan' => $dataPertanyaan->teks_pertanyaan, // Mengambil teks_pertanyaan
+            'opsi_jawaban' => array_map(function($opsi) {
+                return $opsi->opsiJawaban; // Mengambil opsiJawaban dari opsi_jawaban
+            }, $dataPertanyaan->opsi_jawaban),
+            'logika' => $dataLogika, // Ambil logika dari relasi
+            'halaman_id' => $pertanyaan->halaman_id // Ambil halaman_id
+        ];
+    });
+
+    return view('kuesioner.admin.edit', compact('kuesioner', 'halaman', 'existingQuestions'));
+}
     public function update(Request $request, $id)
     {
         try {
@@ -348,101 +351,91 @@ class KuesionerController extends Controller
     }
 
     public function submit(Request $request)
-{
-    try {
-        $request->validate([
-            'jawaban' => 'required|array',
-            'jawaban.*' => 'nullable',
-            'jawaban.logika' => 'nullable|array',
-            'jawaban.logika.*' => 'nullable',
-        ]);
-        
-
-        $alumniId = Auth::guard('alumni')->user()->id;
-
-        foreach ($request->jawaban as $pertanyaanId => $jawaban) {
-            // Cek apakah $pertanyaanId valid
-            if ($pertanyaanId === 'logika') {
-                continue; // Lewati logika untuk proses terpisah
-            }
-
-            $pertanyaan = Pertanyaan::find($pertanyaanId);
-        
-            if (!$pertanyaan) {
-                return response()->json([
-                    'error' => "Pertanyaan ID '$pertanyaanId' tidak valid."
-                ], 422);
-            }
-        
-            if (is_array($jawaban)) {
-                foreach ($jawaban as $jawabanItem) {
-                    Jawaban_kuesioner::create([
-                        'jawaban' => $jawabanItem,
-                        'alumni_id' => $alumniId,
-                        'pertanyaan_id' => $pertanyaan->id,
-                    ]);
+    {
+        try {
+            $request->validate([
+                'jawaban' => 'required|array',
+                'jawaban.*' => 'nullable',
+                'jawaban.logika' => 'nullable|array',
+                'jawaban.logika.*' => 'nullable',
+            ]);
+    
+            $alumniId = Auth::guard('alumni')->user()->id;
+    
+            // Proses jawaban pertanyaan
+            foreach ($request->jawaban as $halamanId => $jawabanHalaman) {
+                // Proses jawaban pertanyaan
+                if (isset($jawabanHalaman['pertanyaan'])) {
+                    foreach ($jawabanHalaman['pertanyaan'] as $pertanyaanId => $jawaban) {
+                        // Cek apakah $pertanyaanId valid
+                        $pertanyaan = Pertanyaan::find($pertanyaanId);
+                    
+                        if (!$pertanyaan) {
+                            return response()->json([
+                                'error' => "Pertanyaan ID '$pertanyaanId' tidak valid."
+                            ], 422);
+                        }
+    
+                        // Simpan jawaban
+                        Jawaban_kuesioner::create([
+                            'jawaban' => $jawaban,
+                            'alumni_id' => $alumniId,
+                            'pertanyaan_id' => $pertanyaan->id,
+                        ]);
+                    }
                 }
-            } else {
-                Jawaban_kuesioner::create([
-                    'jawaban' => $jawaban,
-                    'alumni_id' => $alumniId,
-                    'pertanyaan_id' => $pertanyaan->id,
-                ]);
-            }
-        }
-        
-        if (isset($request->jawaban['logika'])) {
-            foreach ($request->jawaban['logika'] as $logikaId => $logikaJawaban) {
-                // Validasi logika_id
-                $logika = Logika::find($logikaId);
-        
-                if (!$logika) {
-                    return response()->json([
-                        'error' => "Logika ID '$logikaId' tidak valid."
-                    ], 422);
+    
+                // Proses jawaban logika
+                if (isset($jawabanHalaman['logika'])) {
+                    foreach ($jawabanHalaman['logika'] as $logikaId => $logikaJawaban) {
+                        // Validasi logika_id
+                        $logika = Logika::find($logikaId);
+                
+                        if (!$logika) {
+                            return response()->json([
+                                'error' => "Logika ID '$logikaId' tidak valid."
+                            ], 422);
+                        }
+                
+                        Jawaban_logika::create([
+                            'logika_id' => $logika->id,
+                            'alumni_id' => $alumniId,
+                            'jawaban' => $logikaJawaban,
+                        ]);
+                    }
                 }
-        
-                Jawaban_logika::create([
-                    'logika_id' => $logika->id,
-                    'alumni_id' => $alumniId,
-                    'jawaban' => $logikaJawaban,
-                ]);
             }
+    
+            return response()->json(['success' => 'Jawaban berhasil disimpan!']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validasi gagal.',
+                'details' => $e->errors(),
+            ], 422);
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Database error', [
+                'message' => $e->getMessage(),
+                'sql' => $e->getSql(),
+                'bindings' => $e->getBindings(),
+            ]);
+    
+            return response()->json([
+                'error' => 'Terjadi kesalahan pada database.',
+                'details' => $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Error saving answers', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+    
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat menyimpan jawaban.',
+                'details' => $e->getMessage(),
+            ], 500);
         }
-        
-
-        return response()->json(['success' => 'Jawaban berhasil disimpan!']);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'error' => 'Validasi gagal.',
-            'details' => $e->errors(),
-        ], 422);
-    } catch (\Illuminate\Database\QueryException $e) {
-        \Log::error('Database error', [
-            'message' => $e->getMessage(),
-            'sql' => $e->getSql(),
-            'bindings' => $e->getBindings(),
-        ]);
-
-        return response()->json([
-            'error' => 'Terjadi kesalahan pada database.',
-            'details' => $e->getMessage(),
-        ], 500);
-    } catch (\Exception $e) {
-        \Log::error('Error saving answers', [
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
-
-        return response()->json([
-            'error' => 'Terjadi kesalahan saat menyimpan jawaban.',
-            'details' => $e->getMessage(),
-        ], 500);
     }
-}
-
-
 
     public function statistik($kuesionerId)
     {

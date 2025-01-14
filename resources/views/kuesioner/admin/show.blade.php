@@ -31,6 +31,12 @@
                             @endphp
 
                             @switch($dataPertanyaan->tipe_pertanyaan)
+                                @case('text')
+                                    <p class="text-gray-600 mb-2">Jawaban:</p>
+                                    <input type="text" name="jawaban[{{ $pertanyaanItem->id }}]"
+                                        class="border rounded p-2 w-full" placeholder="Masukkan jawaban Anda">
+                                @break
+
                                 @case('radio')
                                     <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
                                     @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
@@ -92,7 +98,8 @@
             </div>
 
             <div class="nav-button">
-                <button class="simpan inline-block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">Simpan</button>
+                <button
+                    class="simpan inline-block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">Simpan</button>
                 @if ($prevPage)
                     <a href="{{ route('kuesioner.page', ['slug' => $kuesioner->slug, 'halamanId' => $prevPage->id]) }}"
                         class="inline-block px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 prev-page">
@@ -121,34 +128,34 @@
                 localStorage.clear();
                 alert('Jawaban telah direset.');
             });
-    
+
             const inputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"], select');
-    
+
             const logikas = @json(
                 $pertanyaan->map(function ($pertanyaan) {
                     return json_decode($pertanyaan->logika);
                 }));
-    
+
             // console.log(logikas);
-    
+
             // Memuat data yang sudah disimpan dari Local Storage
             const savedAnswers = JSON.parse(localStorage.getItem('kuesionerAnswers')) || {};
             const halamanananan = JSON.parse(localStorage.getItem('JawabanHalamanKuesioner')) || {};
 
             console.log(savedAnswers);
-            console.log('halamananana: ',halamanananan);
-    
+            console.log('halamananana: ', halamanananan);
+
             // Mengisi input dengan data yang sudah disimpan
             inputs.forEach(input => {
                 const pertanyaanDiv = input.closest('.pertanyaan');
                 const pertanyaanId = pertanyaanDiv.dataset.pertanyaanId;
-    
+
                 console.log(savedAnswers[pertanyaanId]);
 
-                 // Pastikan savedAnswers[pertanyaanId] ada dan tidak kosong
-    if (!savedAnswers[pertanyaanId]) {
-        savedAnswers[pertanyaanId] = {}; // Inisialisasi dengan objek kosong jika belum ada
-    }
+                // Pastikan savedAnswers[pertanyaanId] ada dan tidak kosong
+                if (!savedAnswers[pertanyaanId]) {
+                    savedAnswers[pertanyaanId] = {}; // Inisialisasi dengan objek kosong jika belum ada
+                }
                 // Mengisi jawaban yang sudah disimpan
                 if (savedAnswers[pertanyaanId]) {
                     if (input.type === 'radio' && input.value === savedAnswers[pertanyaanId]) {
@@ -161,21 +168,21 @@
                         input.value = savedAnswers[pertanyaanId];
                     }
                 }
-    
+
                 if (input.value) { // Pastikan nilai tidak kosong
                     displayLogic(pertanyaanDiv, input.value);
                 }
-    
+
                 input.addEventListener('change', function() {
                     // Simpan jawaban ke Local Storage
                     const pertanyaanDiv = this.closest('.pertanyaan');
                     const pertanyaanId = pertanyaanDiv.dataset.pertanyaanId;
-    
+
                     const savedAnswers = JSON.parse(localStorage.getItem('kuesionerAnswers')) || {};
                     // if (!savedAnswers[pertanyaanId]) {
                     //     savedAnswers[pertanyaanId] = {};
                     // }
-    
+
                     // Simpan jawaban berdasarkan tipe input
                     if (this.type === 'radio' || this.tagName === 'SELECT') {
                         savedAnswers[pertanyaanId] = this.value; // Simpan langsung nilai
@@ -191,67 +198,72 @@
                         }
                         savedAnswers[pertanyaanId] = checkboxValues; // Simpan array checkbox
                     }
-    
+
                     // Simpan kembali ke Local Storage
                     localStorage.setItem('kuesionerAnswers', JSON.stringify(savedAnswers));
-    
+
                     // Display logic based on the current input value
                     displayLogic(pertanyaanDiv, this.value);
                 });
             });
-    
+
             // Function to display logic based on the selected value
             function displayLogic(pertanyaanDiv, selectedValue) {
 
                 // Hapus semua elemen logika yang ada
-                console.log('selected value atas',selectedValue);
-                
+                console.log('selected value atas', selectedValue);
+
                 const existingLogikas = pertanyaanDiv.querySelectorAll('.logika');
                 existingLogikas.forEach(logika => logika.remove());
-    
+
                 // Temukan semua logika yang sesuai dengan nilai opsi yang dipilih
                 const pertanyaanLogika = logikas.flatMap(logikaArray =>
                     logikaArray.filter(logika => {
                         const dataPertanyaan = JSON.parse(logika.data_pertanyaan);
-                        return dataPertanyaan.option_name === selectedValue; // Bandingkan dengan option_name
+                        return dataPertanyaan.option_name ===
+                        selectedValue; // Bandingkan dengan option_name
                     })
                 );
-    
+
                 console.log('selected value:', selectedValue);
                 console.log(pertanyaanLogika);
-    
+
                 // Gunakan pertanyaanLogika untuk membuat elemen input
                 if (pertanyaanLogika.length > 0) {
 
                     pertanyaanLogika.forEach(logika => {
                         console.log(logika.id);
-                        const dataPertanyaan = JSON.parse(logika.data_pertanyaan); // Mengurai data_pertanyaan
+                        const dataPertanyaan = JSON.parse(logika
+                        .data_pertanyaan); // Mengurai data_pertanyaan
                         const logikaDiv = document.createElement('div');
-                        logikaDiv.classList.add('logika', 'mt-3', 'p-2', 'border', 'border-blue-300', 'rounded');
-                         // Menambahkan atribut data-logika-id
-                        logikaDiv.setAttribute('data-logika-id', logika.id); 
-    
+                        logikaDiv.classList.add('logika', 'mt-3', 'p-2', 'border', 'border-blue-300',
+                            'rounded');
+                        // Menambahkan atribut data-logika-id
+                        logikaDiv.setAttribute('data-logika-id', logika.id);
+
                         // Memeriksa tipe pertanyaan
                         switch (dataPertanyaan.tipe_pertanyaan) {
                             case 'text':
-                                const savedTextAnswer = JSON.parse(localStorage.getItem(`logika_jawaban_${logika.id}`)) || {};
+                                const savedTextAnswer = JSON.parse(localStorage.getItem(
+                                    `logika_jawaban_${logika.id}`)) || {};
                                 console.log(savedTextAnswer);
-                                const inputValue = savedTextAnswer.value || ''; // Get the saved value or default to an empty string
+                                const inputValue = savedTextAnswer.value ||
+                                ''; // Get the saved value or default to an empty string
                                 // console.log(savedTextAnswer.pertanyaanId)
-                                
+
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
                                     <input type="text" name="logika_jawaban[${logika.id}]" placeholder="Masukkan jawaban" class="w-full p-2 border border-gray-300 rounded" value="${inputValue}" />
                                 `;
                                 break;
-    
+
                             case 'textarea':
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
                                     <textarea name="logika_jawaban[${pertanyaanId}]" placeholder="Masukkan jawaban" class="w-full p-2 border border-gray-300 rounded"></textarea>
                                 `;
                                 break;
-    
+
                             case 'dropdown':
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
@@ -261,91 +273,101 @@
                                     </select>
                                 `;
                                 break;
-    
+
                             case 'radio':
-                                const savedRadioAnswer = JSON.parse(localStorage.getItem(`logika_jawaban_${logika.id}`)) || {};
-                                const radioValue = savedRadioAnswer.value || ''; // Ambil nilai yang disimpan atau default ke string kosong
+                                const savedRadioAnswer = JSON.parse(localStorage.getItem(
+                                    `logika_jawaban_${logika.id}`)) || {};
+                                const radioValue = savedRadioAnswer.value ||
+                                ''; // Ambil nilai yang disimpan atau default ke string kosong
 
-                                console.log('savedRadioAnswer',savedRadioAnswer);
+                                console.log('savedRadioAnswer', savedRadioAnswer);
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
                                     ${dataPertanyaan.opsi_jawaban.map(opsi => `
-                                        <label class="flex items-center mb-2">
-                                            <input type="radio" name="logika_jawaban[${logika.id}]" value="${opsi}" class="mr-2" ${opsi === radioValue ? 'checked' : ''}>
-                                            ${opsi}
-                                        </label>
-                                    `).join('')}
+                                            <label class="flex items-center mb-2">
+                                                <input type="radio" name="logika_jawaban[${logika.id}]" value="${opsi}" class="mr-2" ${opsi === radioValue ? 'checked' : ''}>
+                                                ${opsi}
+                                            </label>
+                                        `).join('')}
                                 `;
 
                                 break;
-    
+
                             case 'checkbox':
-                              // Ambil nilai yang disimpan dari localStorage
-                                const savedCheckboxAnswer = JSON.parse(localStorage.getItem(`logika_jawaban_${logika.id}`)) || {};
-                                const checkboxValues = savedCheckboxAnswer.value || []; // Ambil nilai yang disimpan atau default ke array kosong
+                                // Ambil nilai yang disimpan dari localStorage
+                                const savedCheckboxAnswer = JSON.parse(localStorage.getItem(
+                                    `logika_jawaban_${logika.id}`)) || {};
+                                const checkboxValues = savedCheckboxAnswer.value ||
+                            []; // Ambil nilai yang disimpan atau default ke array kosong
 
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
                                     ${dataPertanyaan.opsi_jawaban.map(opsi => `
-                                        <label class="flex items-center mb-2">
-                                            <input type="checkbox" name="logika_jawaban[${logika.id}][]" value="${opsi}" class="mr-2" ${checkboxValues.includes(opsi) ? 'checked' : ''}>
-                                            ${opsi}
-                                        </label>
-                                    `).join('')}
+                                            <label class="flex items-center mb-2">
+                                                <input type="checkbox" name="logika_jawaban[${logika.id}][]" value="${opsi}" class="mr-2" ${checkboxValues.includes(opsi) ? 'checked' : ''}>
+                                                ${opsi}
+                                            </label>
+                                        `).join('')}
                                 `;
                                 break;
-    
+
                             default:
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">Tipe pertanyaan tidak dikenali.</h4>
                                 `;
                                 break;
                         }
-    
-                       // Tambahkan logikaDiv ke dalam pertanyaanDiv
-const input = logikaDiv.querySelector('input[type="text"], textarea, select');
-const inputRadio = logikaDiv.querySelectorAll(`input[type="radio"][name="logika_jawaban[${logika.id}]"]`);
-const inputCheckboxes = logikaDiv.querySelectorAll('input[type="checkbox"][name="logika_jawaban[${logika.id}]"]');
 
-if (input) {
-    input.addEventListener('change', function() {
-        const logikaJawaban = {
-            logikaId: logika.id,
-            pertanyaanId: logika.id,
-            value: this.value
-        };
-        localStorage.setItem(`logika_jawaban_${logika.id}`, JSON.stringify(logikaJawaban));
-    });
-} 
+                        // Tambahkan logikaDiv ke dalam pertanyaanDiv
+                        const input = logikaDiv.querySelector('input[type="text"], textarea, select');
+                        const inputRadio = logikaDiv.querySelectorAll(
+                            `input[type="radio"][name="logika_jawaban[${logika.id}]"]`);
+                        const inputCheckboxes = logikaDiv.querySelectorAll(
+                            'input[type="checkbox"][name="logika_jawaban[${logika.id}]"]');
 
-if (inputRadio) {
-   inputRadio.forEach(radio => {
-        radio.addEventListener('change', function() {
-            console.log('ajjjaa');
-            const logikaJawaban = {
-                logikaId: logika.id,
-                pertanyaanId: logika.id,
-                value: this.value // Simpan nilai yang dipilih
-            };
-            localStorage.setItem(`logika_jawaban_${logika.id}`, JSON.stringify(logikaJawaban));
-        });
-         });
-}
+                        if (input) {
+                            input.addEventListener('change', function() {
+                                const logikaJawaban = {
+                                    logikaId: logika.id,
+                                    pertanyaanId: logika.id,
+                                    value: this.value
+                                };
+                                localStorage.setItem(`logika_jawaban_${logika.id}`, JSON.stringify(
+                                    logikaJawaban));
+                            });
+                        }
 
-if (inputCheckboxes.length > 0) {
-    inputCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const logikaJawaban = {
-                logikaId: logika.id,
-                pertanyaanId: logika.id,
-                value: Array.from(inputCheckboxes)
-                    .filter(i => i.checked)
-                    .map(i => i.value) // Ambil semua nilai checkbox yang tercentang
-            };
-            localStorage.setItem(`logika_jawaban_${logika.id}`, JSON.stringify(logikaJawaban));
-        });
-    });
-}
+                        if (inputRadio) {
+                            inputRadio.forEach(radio => {
+                                radio.addEventListener('change', function() {
+                                    console.log('ajjjaa');
+                                    const logikaJawaban = {
+                                        logikaId: logika.id,
+                                        pertanyaanId: logika.id,
+                                        value: this.value // Simpan nilai yang dipilih
+                                    };
+                                    localStorage.setItem(`logika_jawaban_${logika.id}`, JSON
+                                        .stringify(logikaJawaban));
+                                });
+                            });
+                        }
+
+                        if (inputCheckboxes.length > 0) {
+                            inputCheckboxes.forEach(checkbox => {
+                                checkbox.addEventListener('change', function() {
+                                    const logikaJawaban = {
+                                        logikaId: logika.id,
+                                        pertanyaanId: logika.id,
+                                        value: Array.from(inputCheckboxes)
+                                            .filter(i => i.checked)
+                                            .map(i => i
+                                            .value) // Ambil semua nilai checkbox yang tercentang
+                                    };
+                                    localStorage.setItem(`logika_jawaban_${logika.id}`, JSON
+                                        .stringify(logikaJawaban));
+                                });
+                            });
+                        }
 
                         pertanyaanDiv.appendChild(logikaDiv);
                     });
@@ -354,89 +376,94 @@ if (inputCheckboxes.length > 0) {
                     const noLogikaDiv = document.createElement('div');
                     noLogikaDiv.classList.add('logika');
                     pertanyaanDiv.appendChild(noLogikaDiv);
-                    
+
                 }
             }
-    
+
             // Load saved logic answers
-        Object.keys(savedAnswers).forEach(pertanyaanId => {
-            const pertanyaanDiv = document.querySelector (`[data-pertanyaan-id="${pertanyaanId}"]`);
-            if (pertanyaanDiv) {
-                const selectedValue = savedAnswers[pertanyaanId];
-                displayLogic(pertanyaanDiv, selectedValue);
+            Object.keys(savedAnswers).forEach(pertanyaanId => {
+                const pertanyaanDiv = document.querySelector(`[data-pertanyaan-id="${pertanyaanId}"]`);
+                if (pertanyaanDiv) {
+                    const selectedValue = savedAnswers[pertanyaanId];
+                    displayLogic(pertanyaanDiv, selectedValue);
+                }
+            });
+
+            // Fungsi untuk menyimpan jawaban yang terlihat ke localStorage
+            function saveVisibleAnswers() {
+                const visibleInputs = $(
+                '.pertanyaan input:visible, .pertanyaan select:visible'); // Mengambil semua input dan select yang terlihat
+                const visibleLogicInputs = $(
+                '.logika input:visible, .logika select:visible'); // Mengambil semua input dan select yang terlihat
+                const answers = {};
+                const logicAnswers = {}; // Objek untuk menyimpan jawaban logika
+
+                // Mengambil jawaban dari pertanyaan
+                visibleInputs.each(function() {
+                    const pertanyaanId = $(this).closest('.pertanyaan').data(
+                    'pertanyaan-id'); // Mengambil ID pertanyaan
+
+                    if ($(this).is(':radio')) {
+                        if ($(this).is(':checked')) {
+                            answers[pertanyaanId] = $(this).val(); // Simpan nilai radio yang terpilih
+                        }
+                    } else if ($(this).is(':checkbox')) {
+                        if (!answers[pertanyaanId]) {
+                            answers[pertanyaanId] = [];
+                        }
+                        if ($(this).is(':checked')) {
+                            answers[pertanyaanId].push($(this)
+                        .val()); // Simpan nilai checkbox yang tercentang
+                        }
+                    } else {
+                        answers[pertanyaanId] = $(this).val(); // Simpan nilai input lainnya
+                    }
+                });
+
+                // Mengambil jawaban dari logika
+                visibleLogicInputs.each(function() {
+                    const logikaId = $(this).closest('.logika').data('logika-id'); // Mengambil ID logika
+
+                    if ($(this).is(':radio')) {
+                        if ($(this).is(':checked')) {
+                            logicAnswers[logikaId] = $(this).val(); // Simpan nilai radio yang terpilih
+                        }
+                    } else if ($(this).is(':checkbox')) {
+                        if (!logicAnswers[logikaId]) {
+                            logicAnswers[logikaId] = [];
+                        }
+                        if ($(this).is(':checked')) {
+                            logicAnswers[logikaId].push($(this)
+                        .val()); // Simpan nilai checkbox yang tercentang
+                        }
+                    } else {
+                        logicAnswers[logikaId] = $(this).val(); // Simpan nilai input lainnya
+                    }
+                });
+
+                // Ambil data yang sudah ada di localStorage
+                const existingHalamanAnswers = JSON.parse(localStorage.getItem('JawabanHalamanKuesioner')) || {};
+
+                // Gabungkan jawaban baru dengan jawaban yang sudah ada
+                Object.assign(existingHalamanAnswers, answers);
+                existingHalamanAnswers['logika'] = logicAnswers; // Menyimpan jawaban logika terpisah
+
+                // Simpan kembali ke localStorage
+                localStorage.setItem('JawabanHalamanKuesioner', JSON.stringify(existingHalamanAnswers));
             }
-        });
+            // Event listener untuk tombol Next
+            $('.nav-button .simpan').on('click', function(event) {
+                saveVisibleAnswers();
+            });
+            // Event listener untuk tombol Next
+            $('.nav-button .next-page').on('click', function(event) {
+                saveVisibleAnswers();
+            });
 
-        // Fungsi untuk menyimpan jawaban yang terlihat ke localStorage
-function saveVisibleAnswers() {
-    const visibleInputs = $('.pertanyaan input:visible, .pertanyaan select:visible'); // Mengambil semua input dan select yang terlihat
-    const visibleLogicInputs = $('.logika input:visible, .logika select:visible'); // Mengambil semua input dan select yang terlihat
-    const answers = {};
-    const logicAnswers = {}; // Objek untuk menyimpan jawaban logika
-
-    // Mengambil jawaban dari pertanyaan
-    visibleInputs.each(function() {
-        const pertanyaanId = $(this).closest('.pertanyaan').data('pertanyaan-id'); // Mengambil ID pertanyaan
-
-        if ($(this).is(':radio')) {
-            if ($(this).is(':checked')) {
-                answers[pertanyaanId] = $(this).val(); // Simpan nilai radio yang terpilih
-            }
-        } else if ($(this).is(':checkbox')) {
-            if (!answers[pertanyaanId]) {
-                answers[pertanyaanId] = [];
-            }
-            if ($(this).is(':checked')) {
-                answers[pertanyaanId].push($(this).val()); // Simpan nilai checkbox yang tercentang
-            }
-        } else {
-            answers[pertanyaanId] = $(this).val(); // Simpan nilai input lainnya
-        }
-    });
-
-    // Mengambil jawaban dari logika
-    visibleLogicInputs.each(function() {
-        const logikaId = $(this).closest('.logika').data('logika-id'); // Mengambil ID logika
-
-        if ($(this).is(':radio')) {
-            if ($(this).is(':checked')) {
-                logicAnswers[logikaId] = $(this).val(); // Simpan nilai radio yang terpilih
-            }
-        } else if ($(this).is(':checkbox')) {
-            if (!logicAnswers[logikaId]) {
-                logicAnswers[logikaId] = [];
-            }
-            if ($(this).is(':checked')) {
-                logicAnswers[logikaId].push($(this).val()); // Simpan nilai checkbox yang tercentang
-            }
-        } else {
-            logicAnswers[logikaId] = $(this).val(); // Simpan nilai input lainnya
-        }
-    });
-
-    // Ambil data yang sudah ada di localStorage
-    const existingHalamanAnswers = JSON.parse(localStorage.getItem('JawabanHalamanKuesioner')) || {};
-
-    // Gabungkan jawaban baru dengan jawaban yang sudah ada
-    Object.assign(existingHalamanAnswers, answers);
-    existingHalamanAnswers['logika'] = logicAnswers; // Menyimpan jawaban logika terpisah
-
-    // Simpan kembali ke localStorage
-    localStorage.setItem('JawabanHalamanKuesioner', JSON.stringify(existingHalamanAnswers));
-}
-    // Event listener untuk tombol Next
-    $('.nav-button .simpan').on('click', function(event) {
-        saveVisibleAnswers();
-    });
-    // Event listener untuk tombol Next
-    $('.nav-button .next-page').on('click', function(event) {
-        saveVisibleAnswers();
-    });
-
-    // Event listener untuk tombol Kembali
-    $('.nav-button .prev-page').on('click', function(event) {
-        saveVisibleAnswers();
-    });
+            // Event listener untuk tombol Kembali
+            $('.nav-button .prev-page').on('click', function(event) {
+                saveVisibleAnswers();
+            });
         });
     </script>
 @endsection
