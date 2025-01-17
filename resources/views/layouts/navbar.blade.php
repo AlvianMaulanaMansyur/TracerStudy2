@@ -38,7 +38,7 @@
                         </svg>
                     </button>
                     <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 backdrop-blur-md rounded-md shadow-lg z-10">
-                        <a href="#" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200">
+                        <a href="{{ route('alumni.profil') }}" class="text-center block px-4 py-2 text-gray-800 hover:bg-gray-200">
                             Edit Profile
                         </a>
                         @php

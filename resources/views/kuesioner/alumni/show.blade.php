@@ -6,7 +6,7 @@
             <a href="{{ route('kuesioner.alumni.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg">Kembali ke
                 Kuesioner</a>
         </div>
-        {{ $kuesioner }}
+        {{-- {{ $kuesioner }} --}}
         <div class="bg-white shadow rounded-lg p-6 mb-6" id="halaman-{{ $halaman->id }}">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Halaman: {{ $halaman->judul_halaman }}</h2>
 
@@ -185,21 +185,40 @@
                     }
     
                     // Simpan jawaban berdasarkan tipe input
-                    if (this.type === 'radio' || this.tagName === 'SELECT') {
-                        alumniKuesionerAnswers[pertanyaanId] = this.value; // Simpan langsung nilai
-                    } else if (this.type === 'checkbox') {
-                        const checkboxValues = alumniKuesionerAnswers[pertanyaanId] || [];
-                        if (this.checked) {
-                            checkboxValues.push(this.value);
-                        } else {
-                            const index = checkboxValues.indexOf(this.value);
-                            if (index > -1) {
-                                checkboxValues.splice(index, 1);
-                            }
-                        }
-                        alumniKuesionerAnswers[pertanyaanId] = checkboxValues; // Simpan array checkbox
-                    }
-    
+if (!this || !this.type || !this.tagName) {
+    console.error('Elemen input tidak valid:', this);
+    return;
+}
+
+if (this.type === 'radio' || this.tagName === 'SELECT') {
+    alumniKuesionerAnswers[pertanyaanId] = this.value; // Simpan langsung nilai
+} else if (this.type === 'checkbox') {
+    // Jika nilai sebelumnya adalah objek, ubah menjadi array kosong
+    let checkboxValues = alumniKuesionerAnswers[pertanyaanId];
+
+    if (!Array.isArray(checkboxValues)) {
+        console.warn(`Nilai sebelumnya bukan array. Mengatur ulang menjadi array kosong.`, checkboxValues);
+        checkboxValues = []; // Inisialisasi ulang sebagai array
+    }
+
+    console.log('Checkbox values sebelum:', checkboxValues);
+
+    // Tambahkan atau hapus nilai berdasarkan apakah checkbox dicentang
+    if (this.checked && !checkboxValues.includes(this.value)) {
+        checkboxValues.push(this.value);
+    } else if (!this.checked) {
+        const index = checkboxValues.indexOf(this.value);
+        if (index > -1) {
+            checkboxValues.splice(index, 1);
+        }
+    }
+
+    console.log('Checkbox values setelah:', checkboxValues);
+
+    // Simpan kembali nilai sebagai array
+    alumniKuesionerAnswers[pertanyaanId] = checkboxValues;
+}
+
                     // Simpan kembali ke Local Storage
                     localStorage.setItem('AlumniKuesionerAnswers', JSON.stringify(alumniKuesionerAnswers));
     
@@ -315,7 +334,7 @@
                        // Tambahkan logikaDiv ke dalam pertanyaanDiv
 const input = logikaDiv.querySelector('input[type="text"], textarea, select');
 const inputRadio = logikaDiv.querySelectorAll(`input[type="radio"][name="logika_jawaban[${logika.id}]"]`);
-const inputCheckboxes = logikaDiv.querySelectorAll('input[type="checkbox"][name="logika_jawaban[${logika.id}]"]');
+const inputCheckboxes = logikaDiv.querySelectorAll(`input[type="checkbox"][name="logika_jawaban[${logika.id}]\\[\\]"]`);
 
 if (input) {
     input.addEventListener('change', function() {
@@ -343,6 +362,9 @@ if (inputRadio) {
         });
     });
 }
+
+console.log('halololo',inputCheckboxes.length);
+console.log(document.body.innerHTML);
 
 if (inputCheckboxes.length > 0) {
     inputCheckboxes.forEach(checkbox => {

@@ -18,6 +18,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- {{ $kuesioners }} --}}
                         @foreach ($kuesioners as $kuesioner)
                             <tr class="hover:bg-gray-100">
                                 <td class="py-2 px-4 border-b text-center">{{ $kuesioner->judul_kuesioner }}</td>
