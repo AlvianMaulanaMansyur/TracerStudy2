@@ -28,7 +28,7 @@ class AdminController extends Controller
         $request->validate([
             'nim' => 'required|string|max:255',
             'nama_alumni' => 'required|string|max:255',
-            'angkatan' => 'required|string|max:255',
+            // 'angkatan' => 'required|string|max:255',
         ]);
 
         // Temukan data alumni berdasarkan NIM
@@ -38,6 +38,7 @@ class AdminController extends Controller
             // Update data alumni
             $alumni->nama_alumni = $request->nama_alumni;
             $alumni->angkatan = $request->angkatan;
+            $alumni->gelombang_wisuda = $request->gelombang_wisuda;
             $alumni->save();
 
             return response()->json(['success' => 'Data alumni berhasil diperbarui']);
@@ -82,5 +83,5 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('alumni', 'totalAlumni'));
     }
 
-   
+
 }
