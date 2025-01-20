@@ -9,6 +9,7 @@ use App\Models\Jawaban_logika;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Prodi;
+use App\Models\Status;
 use Illuminate\Support\Facades\DB;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -29,7 +30,7 @@ class AlumniController extends Controller
         $request->session()->regenerateToken();
 
         // Redirect to login or home page
-        return redirect('/login'); 
+        return redirect('/login');
     }
 
     public function index()
@@ -78,7 +79,7 @@ class AlumniController extends Controller
             ->groupBy('angkatan')
             ->get();
 
-            $datastatusalumni = $this->getstatusalumni();
+        $datastatusalumni = $this->getstatusalumni();
 
         return view('alumni.home', compact('jumlahAlumni', 'totalAlumni', 'angkatanPerJurusan', 'jumlahMahasiswaAktif', 'totalMahasiswaAktif', 'angkatanPerTahunLulus', 'angkatanPerTahun', 'datastatusalumni')); // Mengembalikan tampilan home alumni
     }
@@ -128,27 +129,66 @@ class AlumniController extends Controller
             ->groupBy('angkatan')
             ->get();
 
-            $charts = $this->getAllCharts();
-            $datastatusalumni = $this->getstatusalumni();
+        $charts = $this->getAllCharts();
+        $datastatusalumni = $this->getstatusalumni();
 
-            return view('alumni.statistik', compact('jumlahAlumni', 'totalAlumni', 'angkatanPerJurusan', 'jumlahMahasiswaAktif', 'totalMahasiswaAktif', 'angkatanPerTahunLulus', 'angkatanPerTahun', 'charts', 'datastatusalumni')); // Mengembalikan tampilan home alumni
+        return view('alumni.statistik', compact('jumlahAlumni', 'totalAlumni', 'angkatanPerJurusan', 'jumlahMahasiswaAktif', 'totalMahasiswaAktif', 'angkatanPerTahunLulus', 'angkatanPerTahun', 'charts', 'datastatusalumni')); // Mengembalikan tampilan home alumni
     }
 
     public function getstatusalumni()
     {
-        // Ambil semua jawaban untuk pertanyaan tertentu
-        $jawabanAlumni = Jawaban_kuesioner::where('pertanyaan_id', 'Q006')->get();
-    
-        // Hitung jumlah jawaban "sudah" dan "belum"
-        $jumlahSudah = $jawabanAlumni->where('jawaban', 'sudah bekerja')->count();
-        $jumlahBelum = $jawabanAlumni->where('jawaban', 'belum bekerja')->count();
-    
-        // Kembalikan hasil dalam bentuk array atau objek
-        return [
-            'jumlah_sudah' => $jumlahSudah,
-            'jumlah_belum' => $jumlahBelum,
+
+        // Ambil semua data status
+        $statusRecords = Status::all();
+
+        // Inisialisasi jumlah untuk status bekerja
+        $counts = [
+            'jumlah_sudah' => 0,
+            'jumlah_belum' => 0,
         ];
+
+        foreach ($statusRecords as $record) {
+            $dataStatus = json_decode($record->data_status, true);
+
+            // Ambil opsi jawaban
+            $opsiJawaban = $dataStatus['opsi_jawaban'];
+            $type = $dataStatus['type']; // Ambil type dari data_status
+
+            if (!empty($opsiJawaban)) {
+                if ($type === 'pertanyaan') {
+                    // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_kuesioner
+                    foreach ($opsiJawaban as $opsi) {
+                        // Ambil jawaban dari tabel jawaban_logika
+                        $jawabanKuesioner = Jawaban_kuesioner::where('pertanyaan_id', $dataStatus['id'])->get();
+                        $jawabanCount = $jawabanKuesioner->where('jawaban', $opsi)->count();
+    
+                        if (strtolower($opsi) === 'sudah bekerja') {
+                            $counts['jumlah_sudah']+= $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
+                        } elseif (strtolower($opsi) === 'belum bekerja') {
+                            $counts['jumlah_belum']+= $jawabanCount; // Tambah jumlah untuk 'Belum Bekerja'
+                        }
+                    }
+                } elseif ($type === 'logika') {
+                    // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_logika
+                    foreach ($opsiJawaban as $opsi) {
+                        // Ambil jawaban dari tabel jawaban_logika
+                        $jawabanLogika = Jawaban_logika::where('logika_id', $dataStatus['id'])->get();
+                        $jawabanCount = $jawabanLogika->where('jawaban', $opsi)->count();
+    
+                        if (strtolower($opsi) === 'sudah bekerja') {
+                            $counts['jumlah_sudah']+= $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
+                        } elseif (strtolower($opsi) === 'belum bekerja') {
+                            $counts['jumlah_belum']+= $jawabanCount; // Tambah jumlah untuk 'Belum Bekerja'
+                        }
+                    }
+                }
+            }
+        }
+
+        // Kembalikan jumlah alumni yang sudah dan belum bekerja
+        return $counts;
     }
+
 
     public function getAllCharts()
     {
@@ -258,5 +298,4 @@ class AlumniController extends Controller
 
         return view('alumni.faq'); // Mengembalikan tampilan home alumni
     }
-
 }

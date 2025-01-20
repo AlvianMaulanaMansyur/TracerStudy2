@@ -32,12 +32,12 @@
         </div>
         <div class="flex flex-col items-center list-none mx-12">
             <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
-            <li id="sudahBekerja" class="text-2xl font-semibold">0</li>
+            <li id="sudahBekerja" class="text-2xl font-semibold"></li>
             <li class="text-sm text-2xl">Sudah Bekerja</li>
         </div>
         <div class="flex flex-col items-center list-none mx-12">
             <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
-            <li id="belumBekerja" class="text-2xl font-semibold">0</li>
+            <li id="belumBekerja" class="text-2xl font-semibold"></li>
             <li class="text-sm text-2xl">Belum Bekerja</li>
         </div>
     </div>
@@ -59,9 +59,11 @@
                 {
                     element: document.getElementById('belumBekerja'),
                     endValue: @json($datastatusalumni['jumlah_belum'])
+                    
                 }
             ];
 
+            console.log(@json($datastatusalumni['jumlah_belum']))
             let hasAnimated = false;
 
             const options = {
