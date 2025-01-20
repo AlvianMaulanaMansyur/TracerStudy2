@@ -32,6 +32,7 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::get('/kuesioner', [KuesionerController::class, 'AlumniKuesioner'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'AlumniKuesionerPage'])->name('kuesioner.alumni.page');
     Route::post('/kuesioner/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
+    Route::get('/dashboard', [AlumniController::class, 'dashboard'])->name('alumni.dashboard');
 });
 
 // Rute untuk admin
@@ -94,3 +95,5 @@ Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->na
 Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
 
 Route::post('/logout', [AuthAdmin::class, 'logout'])->name('logout');
+
+Route::post('/logoutAlumni', [AuthAlumni::class, 'logoutSession'])->name('logoutAlumni');

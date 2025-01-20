@@ -1,11 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.alumniDashboard')
 
 @section('content')
 
-<div class="container mx-auto my-10 px-4">
-    <div class="bg-white shadow-md rounded px-6 pt-6 pb-6 mb-6"> <!-- Mengubah padding atas menjadi 6 -->
-        <h1 class="text-3xl font-bold mb-4 text-center">EDIT PROFIL</h1> <!-- Mengubah margin bawah menjadi 4 -->
-    </div>
+<div class="container">
 
     @if (session('success'))
         <div class="bg-green-500 text-white p-4 rounded mb-6">
@@ -21,9 +18,12 @@
             @endforeach
         </ul>
     </div>
-    @endif  
+    @endif
 
-    <form action="{{ route('alumni.profil.update') }}" method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded px-6 pt-6 pb-6 mb-6 max-w-md mx-auto"> <!-- Mengubah padding atas dan bawah menjadi 6 -->
+    <form action="{{ route('alumni.profil.update') }}" method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded px-6 pt-6 pb-6 mb-6 mx-auto"> <!-- Mengubah padding atas dan bawah menjadi 6 -->
+        <div class="text-2xl mb-3">
+            <h2>Edit Profile</h2>
+        </div>
         @csrf
 
         <div class="mb-4">
@@ -37,11 +37,6 @@
         </div>
 
         <div class="mb-4">
-            <label for="alamat" class="block text-gray-700 text-sm font-bold mb-1">Alamat:</label>
-            <input type="text" id="alamat" name="alamat" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('alamat', $currentUser  ->alamat) }}">
-        </div>
-
-        <div class="mb-4">
             <label for="no_telepon" class="block text-gray-700 text-sm font-bold mb-1">No. Telepon:</label>
             <input type="text" id="no_telepon" name="no_telepon" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('no_telepon', $currentUser  ->no_telepon) }}">
         </div>
@@ -49,7 +44,7 @@
         <div class="mb-4">
             <label for="foto_profil" class="block text-gray-700 text-sm font-bold mb-1">Foto Profil:</label>
             @if ($currentUser  ->foto_profil)
-                <img src="{{ asset('storage/' . $currentUser  ->foto_profil) }}" alt="Foto Profil" class="mb-2 rounded-full" style="width: 80px; height: 80px;">
+                <img src="{{ asset($currentUser  ->foto_profil) }}" alt="Foto Profil" class="mb-2 rounded border" style="width: 80px; height: 80px;">
             @endif
             <input type="file" id="foto_profil" name="foto_profil" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
