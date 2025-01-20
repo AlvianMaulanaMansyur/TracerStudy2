@@ -37,11 +37,6 @@
         </div>
 
         <div class="mb-4">
-            <label for="alamat" class="block text-gray-700 text-sm font-bold mb-1">Alamat:</label>
-            <input type="text" id="alamat" name="alamat" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('alamat', $currentUser  ->alamat) }}">
-        </div>
-
-        <div class="mb-4">
             <label for="no_telepon" class="block text-gray-700 text-sm font-bold mb-1">No. Telepon:</label>
             <input type="text" id="no_telepon" name="no_telepon" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ old('no_telepon', $currentUser  ->no_telepon) }}">
         </div>

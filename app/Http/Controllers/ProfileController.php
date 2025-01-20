@@ -88,7 +88,6 @@ public function editProfil()
         $request->validate([
             'nama_alumni' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'alamat' => 'nullable|string|max:255',
             'no_telepon' => 'nullable|string|max:15',
             'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
         ]);
@@ -96,7 +95,6 @@ public function editProfil()
         // Perbarui data alumni
         $currentUser->nama_alumni = $request->input('nama_alumni');
         $currentUser->email = $request->input('email');
-        $currentUser->alamat = $request->input('alamat');
         $currentUser->no_telepon = $request->input('no_telepon');
 
         // Jika ada foto baru yang diunggah
