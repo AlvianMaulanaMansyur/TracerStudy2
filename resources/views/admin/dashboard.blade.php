@@ -81,7 +81,7 @@
                         @foreach ($alumni as $index => $key)
                             <tr>
                                 <td>{{ $key->nim }}</td>
-                                <td><img src="{{ asset('storage/' . $key  ->foto_profil) }}" alt="foto profil" width="50"></td>
+                                <td><img src="{{ asset( '/storage/' . $key->foto_profil) }}" alt="foto profil" width="50"></td>
                                 <td>{{ $key->nama_alumni }}</td>
                                 <td>{{ $key->angkatan }}</td>
                                 <td>{{ $key->prodi->nama_prodi }}</td>
@@ -95,7 +95,7 @@
                     '{{ $key->nim }}',
                     '{{ $key->nama_alumni }}',
                     '{{ $key->angkatan }}',
-                    '{{ asset('storage/' . $key->foto_profil) }}',
+                    '{{ asset(  '/storage/' . $key->foto_profil) }}',
                     '{{ $key->email }}',
                     '{{ $key->jenjang }}',
                     '{{ $key->nik }}',

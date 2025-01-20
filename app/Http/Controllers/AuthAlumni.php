@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AuthAlumni extends Controller
 {
@@ -11,6 +13,7 @@ class AuthAlumni extends Controller
     {
         return view('alumni.login');
     }
+
 
     public function login(Request $request)
     {
@@ -20,21 +23,35 @@ class AuthAlumni extends Controller
             'password' => 'required',
         ]);
 
-        // Login
+        // Dapatkan data alumni berdasarkan NIM
+        $alumni = DB::table('alumni')->where('nim', $request->nim)->first();
+
+        if (!$alumni) {
+            return back()->withErrors([
+                'nim' => 'NIM tidak ditemukan.',
+            ]);
+        }
+
+        // Coba login
         if (Auth::guard('alumni')->attempt($request->only('nim', 'password'))) {
-            // Login berhasil, redirect ke halaman yang diinginkan
+            // Periksa apakah password masih default
+            if ($alumni->password === 'password') {
+                // Redirect ke halaman profil untuk mengubah password
+                return redirect()->route('alumni.profile.edit')->with('alert', 'Silakan ubah password Anda.');
+            }
+
+            // Login berhasil, redirect ke halaman dashboard
             $alumniId = Auth::guard('alumni')->user()->id;
             session(['alumniId' => $alumniId]);
             return redirect()->route('kuesioner.alumni.index');
         }
 
-        // Jika login gagal, menampilkan error
+        // Jika login gagal, kembalikan ke halaman login
         return back()->withErrors([
-            'nim' => 'NIM or password is incorrect.',
+            'nim' => 'NIM atau password salah.',
         ]);
-
-
     }
+
     public function logoutSession(Request $request)
     {
         // Menghapus sesi alumniId

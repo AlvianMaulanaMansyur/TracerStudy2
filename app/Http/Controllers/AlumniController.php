@@ -26,7 +26,7 @@ class AlumniController extends Controller
         $request->session()->regenerateToken();
 
         // Redirect to login or home page
-        return redirect('/login'); 
+        return redirect('/login');
     }
 
     public function index()
