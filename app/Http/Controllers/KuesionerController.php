@@ -10,6 +10,8 @@ use App\Models\Pertanyaan;
 use App\Models\Jawaban_kuesioner;
 use App\Models\Jawaban_logika;
 use App\Models\Logika;
+use App\Models\Status;
+use App\Models\Status_data;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -462,7 +464,6 @@ public function update(Request $request, $id)
 }
 
 
-
     public function destroy($id)
     {
         $kuesioner = Kuesioner::findOrFail($id); // Temukan kuesioner berdasarkan ID
@@ -558,7 +559,211 @@ public function update(Request $request, $id)
         }
     }
 
-    public function chartIndex()
+    
+    public function createStatus()
+{
+    // Ambil semua pertanyaan yang mengandung kata "bekerja" atau "status"
+    $pertanyaans = Pertanyaan::where(function($query) {
+        $query->where('data_pertanyaan', 'LIKE', '%bekerja%')
+              ->orWhere('data_pertanyaan', 'LIKE', '%status%')
+              ->orWhere('data_pertanyaan', 'LIKE', '%pekerjaan%');
+    })->get()->map(function ($pertanyaan) {
+        // Mengambil id dan mengonversi data_pertanyaan dari JSON string menjadi array
+        $dataPertanyaan = json_decode($pertanyaan->data_pertanyaan, true);
+        
+        // Ambil logika yang terkait dengan pertanyaan
+        $logika = $pertanyaan->logika;
+
+        // Siapkan array untuk menyimpan data logika
+        $logikaData = [];
+        foreach ($logika as $item) {
+            $dataLogika = json_decode($item->data_pertanyaan, true);
+            $logikaData[] = [
+                'id' => $item->id,
+                'teks_logika' => $dataLogika['teks_pertanyaan'] ?? 'Tidak ada teks logika',
+                'opsi_jawaban_logika' => $dataLogika['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
+            ];
+        }
+
+        return [
+            'id' => $pertanyaan->id,
+            'teks_pertanyaan' => $dataPertanyaan['teks_pertanyaan'] ?? 'Tidak ada teks pertanyaan',
+            'opsi_jawaban' => $dataPertanyaan['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
+            'logika' => $logikaData,
+        ];
+    });
+
+    // Ambil semua logika yang terkait dengan pertanyaan yang diambil
+    $semuaLogika = Logika::where(function($query) {
+        $query->where('data_pertanyaan', 'LIKE', '%bekerja%')
+              ->orWhere('data_pertanyaan', 'LIKE', '%status%')
+              ->orWhere('data_pertanyaan', 'LIKE', '%pekerjaan%');
+
+    })->get()->map(function ($item) {
+        $dataLogika = json_decode($item->data_pertanyaan, true);
+        return [
+            'id' => $item->id,
+            'teks_logika' => $dataLogika['teks_pertanyaan'] ?? 'Tidak ada teks logika',
+            'opsi_jawaban_logika' => $dataLogika['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
+        ];
+    });
+
+    // Panggil fungsi untuk mendapatkan data chart
+    $charts = $this->showStatusChart();
+
+    return view('admin.chart.createStatus', compact('pertanyaans', 'semuaLogika', 'charts'));
+}
+
+public function storeStatusData(Request $request)
+{
+    // Validasi input
+    $validatedData = $request->validate([
+        'questionOrLogikaId' => 'required|string',
+        'opsiJawaban' => 'array|nullable',
+        'type' => 'required|string', // Validasi type
+    ]);
+
+    // Siapkan data untuk disimpan
+    $dataStatus = [
+        'id' => $validatedData['questionOrLogikaId'],
+        'type' => $validatedData['type'], // Menyimpan type
+        'opsi_jawaban' => $validatedData['opsiJawaban'] ?? [],
+    ];
+
+    // Cek apakah data sudah ada
+    $existingData = Status::where('data_status->id', $validatedData['questionOrLogikaId'])
+                                ->where('data_status->type', $validatedData['type'])
+                                ->first();
+
+    if ($existingData) {
+        // Jika data sudah ada, perbarui data yang ada
+        $existingData->update([
+            'data_status' => json_encode($dataStatus), // Perbarui data dalam format JSON
+        ]);
+    } else {
+        // Jika data belum ada, simpan data baru
+        Status::create([
+            'data_status' => json_encode($dataStatus), // Simpan data dalam format JSON
+        ]);
+    }
+
+    // Redirect ke halaman dengan ID kuesioner
+    return redirect()->route('admin.status.create')
+                     ->with('success', 'Data chart berhasil disimpan!');
+}
+
+public function showStatusChart()
+{
+    // Ambil semua data status
+    $statusRecords = Status::all();
+
+    // Siapkan data untuk chart
+    $charts = [];
+
+    // Inisialisasi data untuk status bekerja
+    $dataChart = [
+        'labels' => ['Sudah Bekerja', 'Belum Bekerja'],
+        'data' => [0, 0] // Indeks 0 untuk 'Sudah Bekerja', indeks 1 untuk 'Belum Bekerja'
+    ];
+
+    foreach ($statusRecords as $record) {
+        $dataStatus = json_decode($record->data_status, true);
+        
+        // Ambil opsi jawaban
+        $opsiJawaban = $dataStatus['opsi_jawaban'];
+        $type = $dataStatus['type']; // Ambil type dari data_status
+
+        if ($type === 'pertanyaan') {
+            // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_kuesioner
+            if (!empty($opsiJawaban)) {
+                foreach ($opsiJawaban as $opsi) {
+                    // Ambil jawaban dari tabel jawaban_kuesioner
+                    $jawabanKuesioner = Jawaban_kuesioner::where('pertanyaan_id', $dataStatus['id'])->get();
+                    $jawabanCount = $jawabanKuesioner->where('jawaban', $opsi)->count();
+
+                    // Cek apakah opsi adalah 'sudah bekerja' atau 'belum bekerja'
+                    if (strtolower($opsi) === 'sudah bekerja') {
+                        $dataChart['data'][0] += $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
+                    } elseif (strtolower($opsi) === 'belum bekerja') {
+                        $dataChart['data'][1] += $jawabanCount; // Tambah jumlah untuk 'Belum Bekerja'
+                    }
+                }
+            }
+        } elseif ($type === 'logika') {
+            // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_logika
+            if (!empty($opsiJawaban)) {
+                foreach ($opsiJawaban as $opsi) {
+                    // Ambil jawaban dari tabel jawaban_logika
+                    $jawabanLogika = Jawaban_logika::where('logika_id', $dataStatus['id'])->get();
+                    $jawabanCount = $jawabanLogika->where('jawaban', $opsi)->count();
+
+                    // Cek apakah opsi adalah 'sudah bekerja' atau 'belum bekerja'
+                    if (strtolower($opsi) === 'sudah bekerja') {
+                        $dataChart['data'][0] += $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
+                    } elseif (strtolower($opsi) === 'belum bekerja') {
+                        $dataChart['data'][1] += $jawabanCount; // Tambah jumlah untuk 'Belum Bekerja'
+                    }
+                }
+            }
+        }
+    }
+
+    // Siapkan chart data
+    $charts[] = [
+        'data' => $dataChart,
+        'chartType' => 'bar', // Atau jenis chart yang Anda inginkan
+        'title' => 'Status Bekerja Alumni',
+    ];
+
+    return $charts;
+}
+
+public function getStatusCounts()
+{
+    // Ambil semua data status
+    $statusRecords = Status::all();
+
+    // Inisialisasi jumlah untuk status bekerja
+    $counts = [
+        'sudah_bekerja' => 0,
+        'belum_bekerja' => 0,
+    ];
+
+    foreach ($statusRecords as $record) {
+        $dataStatus = json_decode($record->data_status, true);
+        
+        // Ambil opsi jawaban
+        $opsiJawaban = $dataStatus['opsi_jawaban'];
+        $type = $dataStatus['type']; // Ambil type dari data_status
+
+        if (!empty($opsiJawaban)) {
+            if ($type === 'pertanyaan') {
+                // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_kuesioner
+                foreach ($opsiJawaban as $opsi) {
+                    if (strtolower($opsi) === 'sudah bekerja') {
+                        $counts['sudah_bekerja']++; // Tambah jumlah untuk 'Sudah Bekerja'
+                    } elseif (strtolower($opsi) === 'belum bekerja') {
+                        $counts['belum_bekerja']++; // Tambah jumlah untuk 'Belum Bekerja'
+                    }
+                }
+            } elseif ($type === 'logika') {
+                // Hitung jumlah untuk 'Sudah Bekerja' dan 'Belum Bekerja' dari jawaban_logika
+                foreach ($opsiJawaban as $opsi) {
+                    if (strtolower($opsi) === 'sudah bekerja') {
+                        $counts['sudah_bekerja']++; // Tambah jumlah untuk 'Sudah Bekerja'
+                    } elseif (strtolower($opsi) === 'belum bekerja') {
+                        $counts['belum_bekerja']++; // Tambah jumlah untuk 'Belum Bekerja'
+                    }
+                }
+            }
+        }
+    }
+
+    // Kembalikan jumlah alumni yang sudah dan belum bekerja
+    return $counts;
+}
+
+public function chartIndex()
     {
         // Ambil semua kuesioner dari database
         $kuesioners = Kuesioner::all();
@@ -566,6 +771,7 @@ public function update(Request $request, $id)
         // Kembalikan view dengan data kuesioner
         return view('admin.chart.index', compact('kuesioners'));
     }
+
 
     public function createChart($kuesionerId)
 {
@@ -641,7 +847,7 @@ public function update(Request $request, $id)
      ->with('success', 'Data chart berhasil disimpan!');
     }
 
-    public function showChart($kuesionerId)
+public function showChart($kuesionerId)
 {
     // Ambil kuesioner berdasarkan ID
     $kuesioner = Kuesioner::findOrFail($kuesionerId);
@@ -745,14 +951,6 @@ public function update(Request $request, $id)
     return view('admin.chart.show', compact('kuesioner', 'charts'));
 }
 
-public function indexAlumniChart()
-{
-    // Ambil data alumni jika diperlukan
-    $alumni = Alumni::all(); // Atau sesuaikan dengan kebutuhan Anda
-
-    return view('admin.chart.indexAlumni');
-}
-
 public function deleteChart($chartId)
 {
     // Cari chart berdasarkan ID
@@ -772,3 +970,5 @@ public function deleteChart($chartId)
 }
 
 }
+
+

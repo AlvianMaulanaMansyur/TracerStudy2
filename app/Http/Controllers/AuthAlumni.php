@@ -9,7 +9,7 @@ class AuthAlumni extends Controller
 {
     public function showLoginForm()
     {
-        return view('alumni.login'); // Pastikan Anda memiliki tampilan login
+        return view('alumni.login');
     }
 
     public function login(Request $request)
@@ -20,7 +20,7 @@ class AuthAlumni extends Controller
             'password' => 'required',
         ]);
 
-        // Coba untuk login
+        // Login
         if (Auth::guard('alumni')->attempt($request->only('nim', 'password'))) {
             // Login berhasil, redirect ke halaman yang diinginkan
             $alumniId = Auth::guard('alumni')->user()->id;
@@ -28,12 +28,14 @@ class AuthAlumni extends Controller
             return redirect()->route('kuesioner.alumni.index');
         }
 
-        // Jika login gagal, kembali dengan pesan kesalahan
+        // Jika login gagal, menampilkan error
         return back()->withErrors([
             'nim' => 'NIM or password is incorrect.',
         ]);
+
+
     }
-    public function logout(Request $request)
+    public function logoutSession(Request $request)
     {
         // Menghapus sesi alumniId
         $request->session()->forget('alumniId');

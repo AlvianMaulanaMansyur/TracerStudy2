@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chart_data_main', function (Blueprint $table) {
+        Schema::create('status', function (Blueprint $table) {
             $table->id(); // ID unik untuk setiap entri
-            $table->json('data_chart_main'); // Kolom untuk menyimpan data chart dalam format JSON
+            $table->json('data_status'); // Kolom untuk menyimpan data chart dalam format JSON
             $table->timestamps(); // Timestamps untuk created_at dan updated_at
         });
     }
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chart_data_main');
+        Schema::dropIfExists('status');
     }
 };

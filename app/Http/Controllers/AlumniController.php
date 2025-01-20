@@ -10,10 +10,28 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Prodi;
 use Illuminate\Support\Facades\DB;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 class AlumniController extends Controller
 {
+    public function dashboard()
+    {
+        return view('alumni.dashboard');
+    }
     //
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        // Invalidate session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Redirect to login or home page
+        return redirect('/login'); 
+    }
+
     public function index()
     {
         // Misalkan $prodiIds adalah array ID program studi yang ingin Anda ambil
@@ -54,7 +72,7 @@ class AlumniController extends Controller
             ->groupBy('tahun_lulus') // Mengelompokkan berdasarkan tahun lulus
             ->get();
 
-        // Mengambil data Mahasiswa 
+        // Mengambil data Mahasiswa
         $angkatanPerTahun = Alumni::whereIn('prodi_id', $prodiIds)
             ->select('angkatan', DB::raw('count(*) as total'))
             ->groupBy('angkatan')
@@ -104,7 +122,7 @@ class AlumniController extends Controller
             ->groupBy('tahun_lulus') // Mengelompokkan berdasarkan tahun lulus
             ->get();
 
-        // Mengambil data Mahasiswa 
+        // Mengambil data Mahasiswa
         $angkatanPerTahun = Alumni::whereIn('prodi_id', $prodiIds)
             ->select('angkatan', DB::raw('count(*) as total'))
             ->groupBy('angkatan')
@@ -240,4 +258,5 @@ class AlumniController extends Controller
 
         return view('alumni.faq'); // Mengembalikan tampilan home alumni
     }
+
 }

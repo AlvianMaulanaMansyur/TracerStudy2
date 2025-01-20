@@ -32,6 +32,7 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::get('/kuesioner', [KuesionerController::class, 'AlumniKuesioner'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'AlumniKuesionerPage'])->name('kuesioner.alumni.page');
     Route::post('/kuesioner/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
+    Route::get('/dashboard', [AlumniController::class, 'dashboard'])->name('alumni.dashboard');
 });
 
 // Rute untuk admin
@@ -61,8 +62,9 @@ Route::prefix('admin')->group(function () {
         Route::post('/chart/store', [KuesionerController::class, 'storeChartData'])->name('admin.chart.store');
         Route::get('/chart/{kuesionerId}', [KuesionerController::class, 'showChart'])->name('admin.chart.show');
         Route::delete('/chart/{chartId}', [KuesionerController::class, 'deleteChart'])->name('admin.chart.delete');
-        Route::get('/chart-alumni/crate', [KuesionerController::class, 'crateAlumniChart'])->name('admin.chart.createAlumni');
-        Route::get('/chart-alumni', [KuesionerController::class, 'indexAlumniChart'])->name('admin.chart.indexAlumni');
+
+        Route::get('/status', [KuesionerController::class, 'createStatus'])->name('admin.status.create');
+        Route::post('/status/store', [KuesionerController::class, 'storeStatusData'])->name('admin.status.store');
 
         // Admin dashboard routes
         Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
@@ -93,3 +95,5 @@ Route::put('/admin/update-alumni', [AdminController::class, 'updateAlumni'])->na
 Route::post('/session/destroy', action: [KuesionerController::class, 'destroySession'])->name('session.destroy');
 
 Route::post('/logout', [AuthAdmin::class, 'logout'])->name('logout');
+
+Route::post('/logoutAlumni', [AuthAlumni::class, 'logoutSession'])->name('logoutAlumni');
