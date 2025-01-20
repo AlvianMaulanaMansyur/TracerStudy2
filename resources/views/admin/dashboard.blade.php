@@ -81,32 +81,30 @@
                         @foreach ($alumni as $index => $key)
                             <tr>
                                 <td>{{ $key->nim }}</td>
-                                <td><img src="{{ asset($key->foto_profil) }}" alt="foto profil" width="50"></td>
+                                <td><img src="{{ asset('storage/' . $key  ->foto_profil) }}" alt="foto profil" width="50"></td>
                                 <td>{{ $key->nama_alumni }}</td>
                                 <td>{{ $key->angkatan }}</td>
                                 <td>{{ $key->prodi->nama_prodi }}</td>
 
 
                                 <td class="">
-                                    <button data-modal-target="default-modal" data-modal-toggle="default-modal"
-                                        class="block text-white bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-500 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
-                                        type="button"
-                                        onclick="showModal(
-                                            '{{ $key->nim }}',
-                                            '{{ $key->nama_alumni }}',
-                                            '{{ $key->angkatan }}',
-                                            '{{ asset($key->foto_profil) }}',
-                                            '{{ $key->email }}',
-                                            '{{ $key->jenjang }}',
-                                            '{{ $key->nik }}',
-                                            '{{ $key->prodi->nama_prodi }}',
-                                            '{{ $key->no_telepon }}',
-
-                                        )">
-                                        <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
-                                    </button>
-
-                                </td>
+    <button data-modal-target="default-modal" data-modal-toggle="default-modal"
+        class="block text-white bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-500 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+        type="button"
+        onclick="showModal(
+            '{{ $key->nim }}',
+            '{{ $key->nama_alumni }}',
+            '{{ $key->angkatan }}',
+            '{{ asset('storage/' . $key->foto_profil) }}',
+            '{{ $key->email }}',
+            '{{ $key->jenjang }}',
+            '{{ $key->nik }}',
+            '{{ $key->prodi->nama_prodi }}',
+            '{{ $key->no_telepon }}'
+        )">
+        <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
+    </button>
+</td>
                             </tr>
 
                             {{-- Modal --}}
