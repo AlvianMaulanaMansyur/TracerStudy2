@@ -10,6 +10,8 @@ use App\Http\Controllers\PertanyaanController;
 use App\Http\Controllers\AuthAdmin;
 use App\Http\Controllers\AuthAlumni;
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\ProfileController;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
 Route::get('/statistik', [AlumniController::class, 'statistik'])->name('alumni.statistik');
@@ -21,6 +23,11 @@ Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login')
 Route::post('/logoutalumni', [AuthAlumni::class, 'logout'])->name('alumni.logout');
 // Protected Alumni Routes
 Route::middleware([AlumniMiddleware::class])->group(function () {
+
+    Route::get('/profil', [ProfileController::class, 'show'])->name('alumni.profil');
+    Route::get('/profil/edit', [ProfileController::class, 'editProfil'])->name('alumni.profil.edit');
+    Route::post('/profil/update', [ProfileController::class, 'updateProfil'])->name('alumni.profil.update');
+
     Route::resource('kuesioner', KuesionerController::class);
     Route::get('/kuesioner', [KuesionerController::class, 'AlumniKuesioner'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'AlumniKuesionerPage'])->name('kuesioner.alumni.page');
@@ -48,8 +55,14 @@ Route::prefix('admin')->group(function () {
         Route::get('/kuesioner/{id}/edit', [KuesionerController::class, 'edit'])->name('kuesioner.admin.edit');
         Route::put('/kuesioner/{id}', [KuesionerController::class, 'update'])->name('kuesioner.admin.update');
         Route::post('kuesioner/saveChoice', [KuesionerController::class, 'saveChoice'])->name('kuesioner.saveChoice');
-        Route::get('/kuesioner/{id}/statistik', [KuesionerController::class, 'statistik'])->name('kuesioner.statistik');
-        // Route::get('/alumni', [AlumniController::class, 'tampilAlumni'])->name('admin.dashboard');
+
+        Route::get('/createchart/{kuesionerId}', [KuesionerController::class, 'createChart'])->name('admin.chart.create');
+        Route::get('/chart', [KuesionerController::class, 'chartIndex'])->name('admin.chart.index');
+        Route::post('/chart/store', [KuesionerController::class, 'storeChartData'])->name('admin.chart.store');
+        Route::get('/chart/{kuesionerId}', [KuesionerController::class, 'showChart'])->name('admin.chart.show');
+        Route::delete('/chart/{chartId}', [KuesionerController::class, 'deleteChart'])->name('admin.chart.delete');
+        Route::get('/chart-alumni/crate', [KuesionerController::class, 'crateAlumniChart'])->name('admin.chart.createAlumni');
+        Route::get('/chart-alumni', [KuesionerController::class, 'indexAlumniChart'])->name('admin.chart.indexAlumni');
 
         // Admin dashboard routes
         Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');

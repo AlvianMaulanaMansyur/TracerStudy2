@@ -4,17 +4,35 @@
     <div class="container mx-auto">
         <h1 class="text-2xl font-bold mb-4">Rekap Data Responden</h1>
 
-        <!-- Dropdown Pilih Kuesioner -->
-        <div class="mb-3">
+        <div class="mb-6">
+            <label for="kuesioner_id" class="block text-sm font-medium text-gray-700">Pilih Judul Kuesioner</label>
             <select id="kuesioner_id" name="kuesioner_id" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">
-                <option value="" disabled {{ isset($kuesionerId) ? '' : 'selected' }}>-- Pilih Judul Kuesioner --
-                </option>
+                <option value="" selected>-- Pilih Judul Kuesioner --</option>
                 @foreach ($kuesioners as $kuesioner)
                     <option value="{{ $kuesioner->id }}"
-                        {{ isset($kuesionerId) && $kuesioner->id == $kuesionerId ? 'selected' : '' }}>
+                        {{ isset($kuesionerId) && $kuesionerId == $kuesioner->id ? 'selected' : '' }}>
                         {{ $kuesioner->judul_kuesioner }}
                     </option>
                 @endforeach
+            </select>
+        </div>
+
+        <div class="mb-6">
+            <label for="prodi" class="block text-sm font-medium text-gray-700">Filter Prodi</label>
+            <select id="prodi" name="prodi" class="block w-full mt-1 border-gray-300 rounded-md shadow-sm" >
+                <option value="" selected>-- Semua Prodi --</option>
+                <option value="Teknologi Rekayasa Perangkat Lunak"
+                    {{ isset($prodiFilter) && $prodiFilter == 'Teknologi Rekayasa Perangkat Lunak' ? 'selected' : '' }}>
+                    Teknologi Rekayasa Perangkat Lunak
+                </option>
+                <option value="Manajemen Informatika"
+                    {{ isset($prodiFilter) && $prodiFilter == 'Manajemen Informatika' ? 'selected' : '' }}>
+                    Manajemen Informatika
+                </option>
+                <option value="Administrasi Jaringan Komputer"
+                    {{ isset($prodiFilter) && $prodiFilter == 'Administrasi Jaringan Komputer' ? 'selected' : '' }}>
+                    Administrasi Jaringan Komputer
+                </option>
             </select>
         </div>
 
@@ -66,9 +84,36 @@
             </div>
         </div>
         <script>
-            document.getElementById('kuesioner_id').addEventListener('change', function() {
+            const kuesionerDropdown = document.getElementById('kuesioner_id');
+            const prodiDropdown = document.getElementById('prodi');
+
+            // Aktifkan dropdown prodi jika kuesioner dipilih
+            kuesionerDropdown.addEventListener('change', function() {
                 const kuesionerId = this.value;
-                window.location.href = `/admin/rekap/show?kuesioner_id=${kuesionerId}`;
+                
+                prodiDropdown.disabled = !kuesionerId; // Aktifkan atau nonaktifkan dropdown prodi
+
+                if (kuesionerId) {
+                    const prodi = prodiDropdown.value;
+                    let url = `/admin/rekap/show?kuesioner_id=${kuesionerId}`;
+                    if (prodi) {
+                        url += `&prodi=${prodi}`;
+                    }
+                    window.location.href = url; // Redirect saat kuesioner dipilih
+                }
+            });
+
+            // Redirect jika prodi dipilih (hanya jika kuesioner sudah dipilih)
+            prodiDropdown.addEventListener('change', function() {
+                const kuesionerId = kuesionerDropdown.value;
+                const prodi = this.value;
+                if (kuesionerId) {
+                    let url = `/admin/rekap/show?kuesioner_id=${kuesionerId}`;
+                    if (prodi) {
+                        url += `&prodi=${prodi}`;
+                    }
+                    window.location.href = url; // Redirect dengan filter prodi
+                }
             });
         </script>
     @endsection

@@ -1,6 +1,6 @@
 <div id="default-modal" tabindex="-1" aria-hidden="true"
-    class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 flex justify-center items-center w-full h-full animated ">
-    <div class="relative p-4 w-full max-w-2xl max-h-full">
+    class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 flex justify-center items-center w-full h-full animated">
+    <div class="relative p-4 w-full max-w-5xl max-h-full">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
             <!-- Modal header -->
@@ -14,42 +14,56 @@
                 <div class="w-1/3 flex justify-center items-center">
                     <img src="" alt="Foto Profil" class="rounded w-32 h-32" id="profileImage">
                 </div>
-                <form id="editForm">
+                <form id="editForm" class="flex flex-wrap gap-4 w-full">
                     @csrf
                     @method('PUT')
-                    <div class="form-group ">
+                    <!-- NIM -->
+                    <div class="form-group w-1/4">
                         <label for="nim">NIM</label>
-                        <input type="text " class="form-control cursor-not-allowed" id="nim" name="nim"
-                            readonly>
+                        <input type="text" readonly class="form-control rounded cursor-not-allowed" id="nim" name="nim" readonly>
                     </div>
-                    <div class="form-group">
+                    <!-- Nama Alumni -->
+                    <div class="form-group w-1/4">
                         <label for="nama_alumni">Nama Alumni</label>
-                        <input type="text" class="form-control" id="nama_alumni" name="nama_alumni">
+                        <input type="text" readonly class="form-control rounded cursor-not-allowed" id="nama_alumni" name="nama_alumni" readonly>
                     </div>
-                    <div class="form-group">
+                    <!-- Angkatan -->
+                    <div class="form-group w-1/4 hidden">
                         <label for="angkatan">Angkatan</label>
-                        <input type="text" class="form-control" id="angkatan" name="angkatan">
+                        <input type="text" readonly class="form-control rounded cursor-not-allowed" id="angkatan" name="angkatan" readonly>
                     </div>
-                    <div class="form-group">
-                        <label for="gelombang_wisuda">Gelombang Wisuda</label>
-                        <input type="text" class="form-control" id="gelombang_wisuda" name="gelombang_wisuda">
+                    <!-- Jenjang -->
+                    <div class="form-group w-1/4 ">
+                        <label for="jenjang">Jenjang</label>
+                        <input type="text" readonly class="form-control rounded cursor-not-allowed" id="jenjang" name="jenjang" readonly>
                     </div>
-                    <div class="form-group">
+                    <!-- Email -->
+                    <div class="form-group w-1/4">
                         <label for="email">Email</label>
-                        <input type="text" class="form-control" id="email" name="email">
+                        <input type="text" readonly class="form-control rounded cursor-not-allowed" id="email" name="email" readonly>
                     </div>
+                    <!-- Alamat -->
+                    <div class="form-group w-1/4">
+                        <label for="nik">nik</label>
+                        <input type="text" readonly class="form-control rounded" id="nik" name="nik">
+                    </div>
+                    <!-- Telepon -->
+                    <div class="form-group w-1/4">
+                        <label for="prodi">prodi</label>
+                        <input type="text" readonly class="form-control rounded" id="prodi" name="prodi">
+                    </div>
+                    <div class="form-group w-1/4">
+                        <label for="no_telepon">No Telepon</label>
+                        <input type="text" readonly class="form-control rounded" id="no_telepon" name="no_telepon">
+                    </div>
+
                 </form>
             </div>
             <!-- Modal footer -->
-            <div
-                class="flex justify-end items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+            <div class="flex justify-end items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                 <button type="button" id="closeModal"
-                    class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-transparent rounded-lg border border-blue-500 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
-                    Tutup
-                </button>
-                <button type="button" id="update"
                     class="ms-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    Simpan Perubahan
+                    Tutup
                 </button>
             </div>
         </div>
@@ -59,19 +73,23 @@
 
 
 
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Fungsi untuk menampilkan modal dan mengisi field dengan data yang ingin diedit
-        window.showModal = function(nim, nama, angkatan, foto_profil, email, gelombang_wisuda) {
+        window.showModal = function(nim, nama, angkatan, foto_profil, email, jenjang, nik, nama_prodi, no_telepon, ) {
             document.getElementById('nim').value = nim;
             document.getElementById('nama_alumni').value = nama;
             document.getElementById('angkatan').value = angkatan;
             document.getElementById('profileImage').src = foto_profil;
             document.getElementById('email').value = email;
-            document.getElementById('gelombang_wisuda').value = gelombang_wisuda;
-            // document.getElementById('alamat').value = alamat;
-            // document.getElementById('no_telepon').value = no_telepon;
+            document.getElementById('jenjang').value = jenjang;
+            document.getElementById('nik').value = nik;
+            document.getElementById('prodi').value = nama_prodi;
+            document.getElementById('no_telepon').value = no_telepon;
+            // document.getElementById('tahun_lulus').value = tahun_lulus;
 
+            // console.log(tahun_lulus);
 
             // Menampilkan modal
             document.getElementById('default-modal').classList.remove('hidden');

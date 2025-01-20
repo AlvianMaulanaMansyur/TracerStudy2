@@ -11,6 +11,9 @@
             Tidak ada kuesioner yang tersedia.
         </div>
     @else
+    <div>
+        
+    </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
                 <thead class="bg-gray-200">
