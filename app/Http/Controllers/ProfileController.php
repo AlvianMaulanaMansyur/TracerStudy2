@@ -67,6 +67,7 @@ class ProfileController extends Controller
     // Ambil data alumni berdasarkan pengguna yang login
     $profil = Alumni::findOrFail($currentUser->id);
 
+    // dd($profil);
     // Kirim data ke view
     return view('alumni.profil', compact('profil'));
 }
@@ -88,20 +89,18 @@ public function editProfil()
         $request->validate([
             'nama_alumni' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'alamat' => 'nullable|string|max:255',
             'no_telepon' => 'nullable|string|max:15',
-            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
+            // 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
         ]);
 
         // Perbarui data alumni
         $currentUser->nama_alumni = $request->input('nama_alumni');
         $currentUser->email = $request->input('email');
-        $currentUser->alamat = $request->input('alamat');
         $currentUser->no_telepon = $request->input('no_telepon');
 
         // Jika ada foto baru yang diunggah
     if ($request->hasFile('foto_profil')) {
-        
+
         // Hapus foto lama jika ada
         if ($currentUser ->foto_profil) {
             Storage::disk('public')->delete($currentUser ->foto_profil);
@@ -119,7 +118,7 @@ public function editProfil()
         // }
 
         // Simpan perubahan
-        $currentUser->save();
+        // $currentUser->save();
 
         // Redirect dengan pesan sukses
         return redirect()->route('alumni.profil')->with('success', 'Profil berhasil diperbarui.');

@@ -1,12 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.alumniDashboard')
 
 @section('content')
 
-<div class="container mx-auto my-10 px-4">
-    <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
+<div class="container mx-full my-10 px-4">
+    <div class="mx-auto bg-white rounded-lg shadow-lg p-6">
         <!-- Header -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">DETAIL ALUMNI</h1>
+        <div class=" mb-6">
+            <h1 class="text-xl font-bold text-gray-800">DETAIL ALUMNI</h1>
         </div>
 
         @if ($errors->any())
@@ -21,8 +21,8 @@
 
         <!-- Foto Profil -->
         <div class="flex justify-center mb-6"> <!-- Menambahkan margin bawah di sini -->
-            <div class="w-36 h-36 rounded-full overflow-hidden border-2 border-gray-300">
-                <img src="{{ asset('storage/' . $profil->foto_profil) }}" alt="Foto Profil" class="object-cover w-full h-full">
+            <div class="w-36 h-36 rounded overflow-hidden border-2 border-gray-300">
+                <img src="{{ asset($profil->foto_profil) }}" alt="Foto Profil" class="object-cover w-full h-full">
             </div>
         </div>
 
@@ -35,12 +35,12 @@
                         'NIM' => $profil->nim,
                         'Nama' => $profil->nama_alumni,
                         'Email' => $profil->email,
-                        'Jenis Kelamin' => $profil->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan',
+                        'Jenis Kelamin' => $profil->jenis_kelamin,
                         'Angkatan' => $profil->angkatan,
                         'Tahun Lulus' => $profil->tahun_lulus,
-                        'Alamat' => $profil->alamat,
+                        // 'Alamat' => $profil->alamat,
                         'No. Telepon' => $profil->no_telepon,
-                        'Status Verifikasi' => ucfirst($profil->status_verifikasi),
+                        // 'Status Verifikasi' => ucfirst($profil->status_verifikasi),
                     ] as $label => $value)
                         <div>
                             <p class="text-gray-600"><strong>{{ $label }}:</strong></p>
@@ -53,7 +53,7 @@
 
         <!-- Edit Button -->
         <div class="text-center mt-6">
-            <a href="{{ route('alumni.profil.edit') }}" 
+            <a href="{{ route('alumni.profil.edit') }}"
                class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded-lg shadow-md transition duration-200">
                 EDIT PROFIL
             </a>

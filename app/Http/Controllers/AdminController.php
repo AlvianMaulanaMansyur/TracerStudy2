@@ -12,7 +12,7 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        return view('admin.dashboard'); // This view should be created for the dashboard page
+        return view('admin.dashboard'); 
     }
 
     public function tampilAlumni()
