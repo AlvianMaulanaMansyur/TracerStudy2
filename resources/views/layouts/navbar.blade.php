@@ -79,7 +79,16 @@
                 <li><a href="{{ route('alumni.statistik') }}" class="block text-blue-100 hover:bg-blue-700 px-4 py-2">Statistik</a></li>
                 <li><a href="{{ route('alumni.faq') }}" class="block text-blue-100 hover:bg-blue-700 px-4 py-2">FAQ</a></li>
                 <li><a href="{{ route('kuesioner.alumni.index') }}" class="block text-blue-100 hover:bg-blue-700 px-4 py-2">Kuesioner</a></li>
+                <li><a href="{{ route('alumni.faq') }}" class="block text-blue-100 hover:bg-blue-700 px-4 py-2">Edit Profile</a></li>
+                @if(!$alumniId)
                 <li><a href="{{ route('alumni.login') }}" class="block text-blue-100 hover:bg-blue-700 px-4 py-2">Login</a></li>
+                @else
+                <li>
+                    <a href="#" class="block text-blue-100 hover:bg-blue-700 px-4 py-2" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Logout
+                    </a>
+                </li>
+                @endif
             </ul>
         </div>
     </nav>
@@ -128,3 +137,5 @@
         transition: background-color 0.3s ease;
     }
 </style>
+message.txt
+7 KB

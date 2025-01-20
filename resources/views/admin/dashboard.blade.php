@@ -5,8 +5,7 @@
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
                 <div class="justify-center align-items-center ">
-                    <h1>Welcome Back</h1>
-                    <h2>Admin</h2>
+                    <h1>Welcome Back, Admin Politeknik Negeri Bali!</h1>
                 </div>
             </div>
         </div>
@@ -39,8 +38,8 @@
                                 3
                             </div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        <div class="col-auto me-4">
+                            <i class="fa-solid fa-book-open fa-xl" ></i>
                         </div>
                     </div>
                 </div>
@@ -71,30 +70,23 @@
                             <th width="200">NIM</th>
                             <th width="50">Foto Profile</th>
                             <th>Nama</th>
-                            {{-- <th>Email</th> --}}
+                            <th>Angkatan</th>
                             <th width="50">Prodi</th>
-                            {{-- <th width="50">Jurusan</th> --}}
-                            {{-- <th>Gelombang Wisuda</th> --}}
-                            {{-- <th>Alamat</th> --}}
-                            {{-- <th>No Telp</th> --}}
                             <th width="50">detail</th>
 
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                         @foreach ($alumni as $index => $key)
                             <tr>
                                 <td>{{ $key->nim }}</td>
                                 <td><img src="{{ asset($key->foto_profil) }}" alt="foto profil" width="50"></td>
                                 <td>{{ $key->nama_alumni }}</td>
-                                {{-- <td>{{ $key->email }}</td> --}}
+                                <td>{{ $key->angkatan }}</td>
                                 <td>{{ $key->prodi->nama_prodi }}</td>
-                                {{-- <td>{{ $key->prodi->jurusan->nama_jurusan }}</td> --}}
-                                
-                                {{-- <td>{{ $key->gelombang_wisuda }}</td> --}}
-                                {{-- <td>{{ $key->alamat }}</td> --}}
-                                {{-- <td>{{ $key->no_telepon }}</td> --}}
+
+
                                 <td class="">
                                     <button data-modal-target="default-modal" data-modal-toggle="default-modal"
                                         class="block text-white bg-yellow-500 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-4 py-2.5 text-center dark:bg-yellow-500 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
@@ -105,14 +97,18 @@
                                             '{{ $key->angkatan }}',
                                             '{{ asset($key->foto_profil) }}',
                                             '{{ $key->email }}',
-                                            '{{ $key->gelombang_wisuda }}'
+                                            '{{ $key->jenjang }}',
+                                            '{{ $key->nik }}',
+                                            '{{ $key->prodi->nama_prodi }}',
+                                            '{{ $key->no_telepon }}',
+
                                         )">
                                         <i class="fa-regular fa-eye" style="color: #ffffff;"></i>
                                     </button>
 
                                 </td>
                             </tr>
-                            
+
                             {{-- Modal --}}
                         @endforeach
                     </tbody>

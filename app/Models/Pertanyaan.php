@@ -10,8 +10,8 @@ class Pertanyaan extends Model
     use HasFactory;
 
     protected $table = 'pertanyaan';
-    public $incrementing = false; // Kolom id bukan auto-increment
-    protected $keyType = 'string'; // Jika tipe datanya string
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'id',
         'data_pertanyaan',
@@ -28,4 +28,5 @@ class Pertanyaan extends Model
     {
         return $this->hasMany(Logika::class, 'pertanyaan_id');
     }
+
 }

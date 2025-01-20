@@ -55,8 +55,14 @@ Route::prefix('admin')->group(function () {
         Route::get('/kuesioner/{id}/edit', [KuesionerController::class, 'edit'])->name('kuesioner.admin.edit');
         Route::put('/kuesioner/{id}', [KuesionerController::class, 'update'])->name('kuesioner.admin.update');
         Route::post('kuesioner/saveChoice', [KuesionerController::class, 'saveChoice'])->name('kuesioner.saveChoice');
-        Route::get('/kuesioner/{id}/statistik', [KuesionerController::class, 'statistik'])->name('kuesioner.statistik');
-        // Route::get('/alumni', [AlumniController::class, 'tampilAlumni'])->name('admin.dashboard');
+
+        Route::get('/createchart/{kuesionerId}', [KuesionerController::class, 'createChart'])->name('admin.chart.create');
+        Route::get('/chart', [KuesionerController::class, 'chartIndex'])->name('admin.chart.index');
+        Route::post('/chart/store', [KuesionerController::class, 'storeChartData'])->name('admin.chart.store');
+        Route::get('/chart/{kuesionerId}', [KuesionerController::class, 'showChart'])->name('admin.chart.show');
+        Route::delete('/chart/{chartId}', [KuesionerController::class, 'deleteChart'])->name('admin.chart.delete');
+        Route::get('/chart-alumni/crate', [KuesionerController::class, 'crateAlumniChart'])->name('admin.chart.createAlumni');
+        Route::get('/chart-alumni', [KuesionerController::class, 'indexAlumniChart'])->name('admin.chart.indexAlumni');
 
         // Admin dashboard routes
         Route::get('/alumni', [AdminController::class, 'index'])->name('admin.alumni.index');
