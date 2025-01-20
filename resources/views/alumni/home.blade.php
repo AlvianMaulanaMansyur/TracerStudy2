@@ -63,11 +63,11 @@
                 },
                 {
                     element: document.getElementById('sudahBekerja'),
-                    endValue: 70
+                    endValue: @json($datastatusalumni['jumlah_sudah'])
                 },
                 {
                     element: document.getElementById('belumBekerja'),
-                    endValue: 30
+                    endValue: @json($datastatusalumni['jumlah_belum'])
                 }
             ];
 

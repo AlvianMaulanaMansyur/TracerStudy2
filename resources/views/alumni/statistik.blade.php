@@ -32,12 +32,12 @@
         </div>
         <div class="flex flex-col items-center list-none mx-12">
             <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
-            <li id="sudahBekerja" class="text-2xl font-semibold">0</li>
+            <li id="sudahBekerja" class="text-2xl font-semibold"></li>
             <li class="text-sm text-2xl">Sudah Bekerja</li>
         </div>
         <div class="flex flex-col items-center list-none mx-12">
             <img src="{{ asset('images/kelompok_orang.png') }}" alt="Tracer Study" class="w-48 h-auto mb-1">
-            <li id="belumBekerja" class="text-2xl font-semibold">0</li>
+            <li id="belumBekerja" class="text-2xl font-semibold"></li>
             <li class="text-sm text-2xl">Belum Bekerja</li>
         </div>
     </div>
@@ -54,14 +54,16 @@
                 },
                 {
                     element: document.getElementById('sudahBekerja'),
-                    endValue: 70
+                    endValue: @json($datastatusalumni['jumlah_sudah'])
                 },
                 {
                     element: document.getElementById('belumBekerja'),
-                    endValue: 30
+                    endValue: @json($datastatusalumni['jumlah_belum'])
+                    
                 }
             ];
 
+            console.log(@json($datastatusalumni['jumlah_belum']))
             let hasAnimated = false;
 
             const options = {
@@ -105,199 +107,175 @@
         });
     </script>
 
+<div class="container mx-auto p-6 bg-white rounded-lg shadow-lg mt-36 mb-4 border border-gray-200">
+    <h2 class="text-3xl font-bold text-gray-800">Chart Statistik</h2>
+    <p class="mt-3 text-gray-600">Berikut ini adalah Chart Statistik dari jurusan teknologi informasi</p>
 
-
-
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg mt-36 mb-4 border border-gray-200">
-        <h2 class="text-3xl font-bold text-gray-800">Chart Statistik</h2>
-        <p class="mt-3 text-gray-600">Berikut ini adalah Chart Statistik dari jurusan teknologi informasi</p>
-
-        <!-- Div untuk tombol -->
-        <div class="mt-4 space-x-4">
-            <a id="show-pie-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 1</a>
-            <a id="show-line-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 2</a>
-            <a id="show-bar-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 3</a>
-            <a id="show-lineMahasiswa-chart" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg">Chart 4</a>
-        </div>
-        <!-- Canvas untuk Chart -->
-        <div class="mt-10 mb-20">
-            <!-- <h1 class="text-3xl font-bold mb-4 text-gray-800">ApexChart dengan Laravel dan Tailwind CSS</h1> -->
-
-            <!-- Grafik -->
-            <div id="chart-container" class="bg-white-50 p-4 rounded-lg shadow mb-10 border border-gray-200"></div>
-        </div>
+    <!-- Div untuk tombol -->
+    <div class="mt-4 space-x-4" id="chart-buttons">
+        <!-- Tombol akan diisi secara dinamis di sini -->
     </div>
 
+    <!-- Canvas untuk Chart -->
+    <div class="mt-10 mb-20">
+        <div id="chart-container" class="bg-white-50 p-4 rounded-lg shadow mb-10 border border-gray-200"></div>
+    </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        let chartInstance = null; // Variabel untuk menyimpan instans grafik
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    let chartInstance = null; // Variabel untuk menyimpan instans grafik
 
-        // Fungsi untuk merender grafik
-        const renderChart = (options) => {
-            // Hancurkan instans grafik sebelumnya jika ada
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+    // Fungsi untuk merender grafik
+    const renderChart = (options) => {
+        // Hancurkan instans grafik sebelumnya jika ada
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
 
-            // Buat instans grafik baru
-            chartInstance = new ApexCharts(document.querySelector("#chart-container"), options);
-            chartInstance.render();
-        };
+        // Buat instans grafik baru
+        chartInstance = new ApexCharts(document.querySelector("#chart-container"), options);
+        chartInstance.render();
+    };
 
-        // Opsi Grafik
-         // linechart alumni
-         const resultArray = @json($angkatanPerTahunLulus);
+    // Data dari controller
+    const chartsData = @json($charts); // Pastikan Anda mengirimkan data charts dari controller
+    console.log(chartsData); // Debugging: Periksa data yang diterima
 
-// Menyiapkan kategori dan data
-const categories = resultArray.map(item => item.tahun_lulus); // Mengambil tahun lulus sebagai kategori
-const data = resultArray.map(item => item.total); // Mengambil total alumni sebagai data
+    // Mengisi tombol secara dinamis
+    const chartButtonsContainer = document.getElementById('chart-buttons');
+    Object.keys(chartsData).forEach((kuesionerId) => {
+        const chartGroup = chartsData[kuesionerId];
+        chartGroup.forEach((chart) => {
+            const button = document.createElement('a');
+            button.id = `show-chart-${chart.id}`;
+            button.className = "bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded transition duration-200 cursor-pointer shadow-md hover:shadow-lg";
+            button.innerText = chart.title; // Menggunakan judul chart sebagai teks tombol
 
-console.log(resultArray); // Menampilkan hasil di console
-console.log(categories); // Menampilkan kategori di console
-console.log(data); // Menampilkan data di console
+            // Event Listener untuk tombol
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const options = {
+                    chart: {
+                        type: chart.chartType, // Jenis chart dinamis
+                        height: 350
+                    },
+                    series: [{
+                        name: chart.title,
+                        data: chart.data.data // Data untuk chart
+                    }],
+                    xaxis: {
+                        categories: chart.data.labels // Label untuk sumbu X
+                    },
+                    title: {
+                        text: chart.title,
+                        align: 'center',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    ...getChartOptions(chart.chartType) // Mengambil opsi tambahan berdasarkan tipe chart
+                };
+                renderChart(options); // Render chart dengan opsi yang sesuai
+            });
 
-// Opsi Grafik
-const lineOptions = {
-        series: [{
-            name: 'Jumlah Alumni',
-            data: data // Mengambil total alumni
-        }],
-        chart: {
-            height: 350,
-            type: 'line'
-        },
-        title: {
-            text: 'Jumlah Alumni per Tahun Lulus', // Judul chart
-            align: 'center', // Posisi judul
-            style: {
-                fontSize: '15px', // Ukuran font
-                fontWeight: 'bold' // Ketebalan font
-            }
-        },
-            xaxis: {
-                categories: categories // Mengambil tahun lulus sebagai kategori
-            }
-        };
+            chartButtonsContainer.appendChild(button);
+        });
+    });
 
-        // linechart pertumbuhan Mahasiswa
-        const resultarray = @json($angkatanPerTahun);
-
-        // Menyiapkan kategori dan data
-        const categorie = resultarray.map(item => item.angkatan); // Mengambil tahun lulus sebagai kategori
-        const datas = resultarray.map(item => item.total); // Mengambil total alumni sebagai data
-
-        console.log(resultarray); // Menampilkan hasil di console
-        console.log(categorie); // Menampilkan kategori di console
-        console.log(datas); // Menampilkan data di console
-
-        // Opsi Grafik
-        const lineMahasiswaOptions = {
-            series: [{
-                name: 'Jumlah Mahasiswa',
-                data: datas // Mengambil total mahasiswa
-            }],
+    // Render grafik pertama secara default jika ada
+    if (Object.keys(chartsData).length > 0) {
+        const firstChart = chartsData[Object.keys(chartsData)[0]][0]; // Ambil chart pertama dari grup pertama
+        const options = {
             chart: {
-                height: 350,
-                type: 'line'
-            },
-            title: {
-            text: 'Jumlah Mahasiswa per Tahun Angkatan', // Judul chart
-            align: 'center', // Posisi judul
-            style: {
-                fontSize: '15px', // Ukuran font
-                fontWeight: 'bold' // Ketebalan font
-            }
-        },
-            xaxis: {
-                categories: categorie // Mengambil angkatan sebagai kategori
-            }
-        };
-
-        const barOptions = {
-            chart: {
-                type: 'bar',
+                type: firstChart.chartType,
                 height: 350
             },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    endingShape: 'rounded'
+            series: [{
+                name: firstChart.title,
+                data: firstChart.data.data
+            }],
+            xaxis: {
+                categories: firstChart.data.labels
+            },
+            title: {
+                text: firstChart.title,
+                align: 'center',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: 'bold'
                 }
             },
-            dataLabels: {
-                enabled: false
-            },
-            series: [{
-                name: 'Sales',
-                data: [30, 40]
-            }],
-            xaxis: {
-                categories: ['Sudah Bekerja', 'Belum Bekerja']
-            },
-            fill: {
-                opacity: 1
-            },
-            title: {
-                text: 'Grafik Mahasiswa Jurusan Teknologi Informasi',
-                align: 'center'
-            }
+            ...getChartOptions(firstChart.chartType)
         };
+        renderChart(options); // Render chart pertama sebagai default
+    }
 
-        // Mengonversi data jumlahAlumni ke format JavaScript
-        const jumlahAlumni = @json($jumlahAlumni);
-        console.log(jumlahAlumni)
-
-        // Mengambil total dari setiap prodi
-        const seriesData = jumlahAlumni.map(item => item.total);
-
-        // Menggunakan seriesData dalam pieOptions
-        const pieOptions = {
-            chart: {
-                type: 'pie',
-                height: 350
-            },
-            series: seriesData, // Menggunakan data yang telah diproses
-            labels: ['MI', 'TRPL', 'AJK'], // Pastikan label sesuai dengan prodi_id
-            title: {
-                text: 'Alumni Jurusan Teknologi Informasi',
-                align: 'center'
-            },
-            responsive: [{
-                breakpoint: 480,
-                options: {
-                    chart: {
-                        width: 200
+    // Fungsi untuk mendapatkan opsi tambahan berdasarkan tipe chart
+    function getChartOptions(chartType) {
+        switch(chartType) {
+            case 'bar':
+                return {
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        }
                     },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    }
+                };
+            case 'line':
+                return {
+                    stroke: {
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 4
+                    }
+                };
+            case 'pie':
+                return {
                     legend: {
                         position: 'bottom'
                     }
-                }
-            }]
-        };
-
-        // Event Listener untuk tombol
-        document.getElementById('show-pie-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(pieOptions);
-        });
-
-        document.getElementById('show-bar-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(barOptions);
-        });
-
-        document.getElementById('show-line-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(lineOptions);
-        });
-        document.getElementById('show-lineMahasiswa-chart').addEventListener('click', function(event) {
-            event.preventDefault();
-            renderChart(lineMahasiswaOptions);
-        });
-
-        // Render grafik pie secara default
-        renderChart(pieOptions);
+                };
+            case 'radar':
+                return {
+                    stroke: {
+                        width: 2
+                    },
+                    markers: {
+                        size: 4
+                    }
+                };
+            case 'scatter':
+                return {
+                    dataLabels: {
+                        enabled: false
+                    },
+                    markers: {
+                        size: 6,
+                        colors: ['#FF5733'],
+                        shape: 'circle',
+                        strokeWidth: 2,
+                        hover: {
+                            size: 8
+                        }
+                    }
+                };
+            default:
+                return {}; // Opsi default jika tipe tidak dikenali
+        }
+    }
 </script>
 </div>
 
