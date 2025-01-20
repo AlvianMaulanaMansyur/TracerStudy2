@@ -35,6 +35,20 @@
             <span>Data responden</span>
         </a>
     </li>
+
+    <li class="nav-item {{ request()->routeIs('admin.chart.index') ? 'active' : '' }} ">
+        <a class="nav-link" href="{{ route('admin.chart.index') }}">
+            <i class="fa-solid fa-users"></i>
+            <span>Chart Kuesioner</span>
+        </a>
+    </li>
+
+    <li class="nav-item {{ request()->routeIs('admin.chart.indexAlumni') ? 'active' : '' }} ">
+        <a class="nav-link" href="{{ route('admin.chart.indexAlumni') }}">
+            <i class="fa-solid fa-users"></i>
+            <span>Chart Alumni</span>
+        </a>
+    </li>
 </div>
     <!-- Divider -->
     <hr class="sidebar-divider">

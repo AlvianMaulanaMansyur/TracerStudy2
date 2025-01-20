@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumni;
+use App\Models\Chart_data;
 use App\Models\Halaman;
 use App\Models\Kuesioner;
 use App\Models\Pertanyaan;
@@ -556,34 +558,217 @@ public function update(Request $request, $id)
         }
     }
 
-    public function statistik($kuesionerId)
+    public function chartIndex()
     {
-        // Ambil semua pertanyaan untuk kuesioner tertentu
-        $pertanyaan = Pertanyaan::where('kuesioner_id', $kuesionerId)->get();
+        // Ambil semua kuesioner dari database
+        $kuesioners = Kuesioner::all();
 
-        // Ambil semua jawaban untuk pertanyaan yang terkait dengan kuesioner
-        $jawaban = Jawaban_kuesioner::whereIn('pertanyaan_id', $pertanyaan->pluck('id'))->get();
+        // Kembalikan view dengan data kuesioner
+        return view('admin.chart.index', compact('kuesioners'));
+    }
 
-        // Proses data untuk statistik
-        $statistik = [];
-        foreach ($pertanyaan as $pertanyaanItem) {
-            $statistik[$pertanyaanItem->id] = [
-                'pertanyaan' => $pertanyaanItem->data_pertanyaan,
-                'jawaban' => [],
+    public function createChart($kuesionerId)
+{
+    // Ambil semua pertanyaan yang berhubungan dengan kuesioner_id tertentu
+    $pertanyaans = Pertanyaan::where('kuesioner_id', $kuesionerId)->get()->map(function ($pertanyaan) {
+        // Mengambil id dan mengonversi data_pertanyaan dari JSON string menjadi array
+        $dataPertanyaan = json_decode($pertanyaan->data_pertanyaan, true);
+        
+        // Ambil logika yang terkait dengan pertanyaan
+        $logika = $pertanyaan->logika;
+
+        // Siapkan array untuk menyimpan data logika
+        $logikaData = [];
+        foreach ($logika as $item) {
+            $dataLogika = json_decode($item->data_pertanyaan, true);
+            $logikaData[] = [
+                'id' => $item->id,
+                'teks_logika' => $dataLogika['teks_pertanyaan'] ?? 'Tidak ada teks logika',
+                'opsi_jawaban_logika' => $dataLogika['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
             ];
         }
 
-        foreach ($jawaban as $jawabanItem) {
-            $pertanyaanId = $jawabanItem->pertanyaan_id;
-            $jawabanValue = $jawabanItem->jawaban;
+        return [
+            'id' => $pertanyaan->id,
+            'teks_pertanyaan' => $dataPertanyaan['teks_pertanyaan'] ?? 'Tidak ada teks pertanyaan',
+            'opsi_jawaban' => $dataPertanyaan['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
+            'logika' => $logikaData,
+        ];
+    });
 
-            if (!isset($statistik[$pertanyaanId]['jawaban'][$jawabanValue])) {
-                $statistik[$pertanyaanId]['jawaban'][$jawabanValue] = 0;
+    // Ambil semua logika yang terkait dengan pertanyaan yang diambil
+    $semuaLogika = Logika::whereIn('pertanyaan_id', $pertanyaans->pluck('id'))->get()->map(function ($item) {
+        $dataLogika = json_decode($item->data_pertanyaan, true);
+        return [
+            'id' => $item->id,
+            'teks_logika' => $dataLogika['teks_pertanyaan'] ?? 'Tidak ada teks logika',
+            'opsi_jawaban_logika' => $dataLogika['opsi_jawaban'] ?? 'Tidak ada opsi jawaban',
+        ];
+    });
+
+    return view('admin.chart.create', compact('pertanyaans', 'semuaLogika', 'kuesionerId'));
+}
+
+    public function storeChartData(Request $request)
+    {
+    // Validasi input
+    $validatedData = $request->validate([
+        'questionOrLogikaId' => 'required|string',
+        'opsiJawaban' => 'array|nullable',
+        'kuesioner_id' => 'required|string',
+        'type' => 'required|string', // Validasi type
+        'chartType' => 'required|string',
+        'judulChart' => 'required|string'
+    ]);
+
+    // Siapkan data untuk disimpan
+    $dataChart = [
+        'id' => $validatedData['questionOrLogikaId'],
+        'judul_chart' => $validatedData['judulChart'], // Menyimpan type
+        'type' => $validatedData['type'], // Menyimpan type
+        'chart_type' => $validatedData['chartType'], // Menyimpan type
+        'opsi_jawaban' => $validatedData['opsiJawaban'] ?? [],
+    ];
+
+    // Simpan data chart ke dalam database
+    Chart_data::create([
+        'data_chart' => json_encode($dataChart), // Simpan data dalam format JSON
+        'kuesioner_id' => $validatedData['kuesioner_id']
+    ]);
+
+     // Redirect ke halaman dengan ID kuesioner
+     return redirect()->route('admin.chart.show', ['kuesionerId' => $validatedData['kuesioner_id']])
+     ->with('success', 'Data chart berhasil disimpan!');
+    }
+
+    public function showChart($kuesionerId)
+{
+    // Ambil kuesioner berdasarkan ID
+    $kuesioner = Kuesioner::findOrFail($kuesionerId);
+
+    // Ambil semua data chart berdasarkan kuesioner_id
+    $chartDataRecords = Chart_data::where('kuesioner_id', $kuesionerId)->get();
+
+    // Siapkan data untuk chart
+    $charts = [];
+
+    foreach ($chartDataRecords as $record) {
+        $dataChart = json_decode($record->data_chart, true);
+        
+        // Ambil type dari data charta
+        $judulChart = $dataChart['judul_chart'];
+        $type = $dataChart['type'];
+        $chartType = $dataChart['chart_type'];
+
+        // Siapkan data untuk setiap chart
+        $chartData = [
+            'labels' => [],
+            'data' => []
+        ];
+
+        if ($type === 'pertanyaan') {
+            // Ambil jawaban dari tabel jawaban_kuesioner
+            $jawabanKuesioner = Jawaban_kuesioner::where('pertanyaan_id', $dataChart['id'])->get();
+            $opsiJawaban = $dataChart['opsi_jawaban'];
+
+            if (!empty($opsiJawaban)) {
+                foreach ($opsiJawaban as $opsi) {
+                    $jawabanCount = $jawabanKuesioner->where('jawaban', $opsi)->count();
+                    // Cek apakah opsi sudah ada di labels
+                    $index = array_search($opsi, $chartData['labels']);
+                    if ($index !== false) {
+                        // Jika sudah ada, tambahkan jumlahnya
+                        $chartData['data'][$index] += $jawabanCount;
+                    } else {
+                        // Jika belum ada, tambahkan ke labels dan data
+                        $chartData['labels'][] = $opsi;
+                        $chartData['data'][] = $jawabanCount;
+                    }
+                }
+            } else {
+                foreach ($jawabanKuesioner as $jawaban) {
+                    // Cek apakah jawaban sudah ada di labels
+                    $index = array_search($jawaban->jawaban, $chartData['labels']);
+                    if ($index !== false) {
+                        // Jika sudah ada, tambahkan jumlahnya
+                        $chartData['data'][$index] += 1;
+                    } else {
+                        // Jika belum ada, tambahkan ke labels dan data
+                        $chartData['labels'][] = $jawaban->jawaban;
+                        $chartData['data'][] = 1;
+                    }
+                }
             }
-            $statistik[$pertanyaanId]['jawaban'][$jawabanValue]++;
+        } elseif ($type === 'logika') {
+            // Ambil jawaban dari tabel jawaban_logika
+            $jawabanLogika = Jawaban_logika::where('logika_id', $dataChart['id'])->get();
+            $opsiJawaban = $dataChart['opsi_jawaban'];
+
+            if (!empty($opsiJawaban)) {
+                foreach ($opsiJawaban as $opsi) {
+                    $jawabanCount = $jawabanLogika->where('jawaban', $opsi)->count();
+                    // Cek apakah opsi sudah ada di labels
+                    $index = array_search($opsi, $chartData['labels']);
+                    if ($index !== false) {
+                        // Jika sudah ada, tambahkan jumlahnya
+                        $chartData['data'][$index] += $jawabanCount;
+                    } else {
+                        // Jika belum ada, tambahkan ke labels dan data
+                        $chartData['labels'][] = $opsi;
+                        $chartData['data'][] = $jawabanCount;
+                    }
+                }
+            } else {
+                foreach ($jawabanLogika as $jawaban) {
+                    // Cek apakah jawaban sudah ada di labels
+                    $index = array_search($jawaban->jawaban, $chartData['labels']);
+                    if ($index !== false) {
+                        // Jika sudah ada, tambahkan jumlahnya
+                        $chartData['data'][$index] += 1;
+                    } else {
+                        // Jika belum ada, tambahkan ke labels dan data
+                        $chartData['labels'][] = $jawaban->jawaban;
+                        $chartData['data'][] = 1;
+                    }
+                }
+            }
         }
 
-
-        return view('kuesioner.admin.statistik', compact('statistik'));
+        $charts[] = [
+            'id' => $record->id,
+            'data' => $chartData,
+            'chartType' => $chartType,
+            'title' => $judulChart,
+        ];
     }
+
+    return view('admin.chart.show', compact('kuesioner', 'charts'));
+}
+
+public function indexAlumniChart()
+{
+    // Ambil data alumni jika diperlukan
+    $alumni = Alumni::all(); // Atau sesuaikan dengan kebutuhan Anda
+
+    return view('admin.chart.indexAlumni');
+}
+
+public function deleteChart($chartId)
+{
+    // Cari chart berdasarkan ID
+    $chart = Chart_data::find($chartId);
+
+    // Cek apakah chart ditemukan
+    if ($chart) {
+        // Hapus chart dari database
+        $chart->delete();
+
+        // Kembalikan respons JSON
+        return response()->json(['success' => 'Chart berhasil dihapus!']);
+    } else {
+        // Jika chart tidak ditemukan
+        return response()->json(['error' => 'Chart tidak ditemukan!'], 404);
+    }
+}
+
 }

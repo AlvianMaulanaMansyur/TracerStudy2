@@ -21,7 +21,6 @@ return new class extends Migration
         ->onDelete('cascade'); // Tambahkan ini
     $table->timestamps();
 });
-
     }
 
     /**
