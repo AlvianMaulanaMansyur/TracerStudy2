@@ -1507,27 +1507,41 @@ $('.page-block').each(function() {
     // const idKuesioner = {{ $kuesioner->id }};
     // console.log(idKuesioner);
     $.ajax({
-        url: `/api/kuesioner/${encodeURIComponent(kuesionerId)}`,
-        method: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify(formData),
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-        },
-        success: function(data) {
-            if (data.message) {
-                alert(data.message);
-                // Reset form atau lakukan tindakan lain setelah berhasil
-                $('#kuesionerForm')[0].reset();
-            } else {
-                console.error('Terjadi kesalahan:', data);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+    url: `/api/kuesioner/${encodeURIComponent(kuesionerId)}`,
+    method: 'PUT',
+    contentType: 'application/json',
+    data: JSON.stringify(formData),
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+    },
+    success: function(data) {
+        if (data.message) {
+            // Gunakan SweetAlert untuk menampilkan pesan sukses
+            Swal.fire({
+                title: 'Berhasil!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                // Refresh halaman setelah user klik OK
+                location.reload();
+            });
+        } else {
+            console.error('Terjadi kesalahan:', data);
         }
-    });
+    },
+    error: function(xhr, status, error) {
+        console.error('Error:', error);
+        // Gunakan SweetAlert untuk menampilkan pesan error
+        Swal.fire({
+            title: 'Error!',
+            text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+        });
+    }
+});
+
 });
         });
     </script>

@@ -559,7 +559,7 @@ if (type === 'radio' || type === 'checkbox' || type === 'dropdown') {
                     text: 'Tambah Pertanyaan Baru',
                 });
 
-                const $questionsContainer = $('<div class="questions-container"></div>');
+                const $questionsContainer = $('<div class="logic-questions-container"></div>');
 
                 $optionContainer.append($label, $questionsContainer, $addQuestionButton);
                 $dynamicOptionsContainer.append($optionContainer);
@@ -833,10 +833,9 @@ $newQuestion.find('.add-option').on('click', function() {
                     $optionContainer.remove();
                 });
 
-
-    // Tambahkan kontainer opsi ke dalam grup opsi
-    $newQuestion.find('.option-group').append($optionContainer);
-});
+                // Tambahkan kontainer opsi ke dalam grup opsi
+                $newQuestion.find('.option-group').append($optionContainer);
+            });
 
                 // Event untuk menghapus pertanyaan
                 $newQuestion.find('.remove-question').on('click', function() {
