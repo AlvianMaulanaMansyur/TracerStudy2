@@ -35,11 +35,11 @@
                                     <i class="fa-solid fa-caret-down"></i>
                                 </div>
 
-                                <div class="question-type flex items-center justify-between px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg shadow hover:bg-yellow-200 cursor-pointer transition-transform transform hover:scale-105" 
+                                {{-- <div class="question-type flex items-center justify-between px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg shadow hover:bg-yellow-200 cursor-pointer transition-transform transform hover:scale-105" 
                                      draggable="true" id="add-rating-question">
                                     <span>Tambah Dropdown</span>
                                     <i class="fa-regular fa-star"></i>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                         <button type="button" id="add-page"
@@ -145,7 +145,7 @@
                             <div id="pageSelectModal" class="modal-logic hidden">
                                 <div class="modal-content">
                                     <span class="close-button">&times;</span>
-                                    <h2>Atur Halaman Tujuan</h2>
+                                    <h2>Atur Pertanyaan Tambahan</h2>
                                     <div class="dynamic-options-container"></div>
                                     <button type="button" class="savePageSelection" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Simpan</button>
                                 </div>
@@ -564,29 +564,26 @@ if (type === 'radio' || type === 'checkbox' || type === 'dropdown') {
                 $optionContainer.append($label, $questionsContainer, $addQuestionButton);
                 $dynamicOptionsContainer.append($optionContainer);
 
-const addNewQuestion = (logika = null) => {
-
+                const addNewQuestion = (logika = null) => {
     const $questionContainer = $('<div class="logic-question-container mb-2"></div>');
-    // $questionContainer.attr('data-question-id', logika.pertanyaan_id); // Tambahkan data-question-id
 
     if (logika) {
-        // Jika logika ada, ambil ID dari logika
-        // $questionContainer.attr('data-logic-id', logika.id); // Misalnya, logika.id adalah ID yang sudah ada
         console.log(logika);
         console.log('logika oke');
     } else {
         console.log('logika oki');
-
-        // Jika logika tidak ada, buat ID baru
-        logicIdCount++; // Increment counter
-        $questionContainer.attr('data-logic-id', 'L' + String(logicIdCount).padStart(3, '0')); // Contoh: L001, L002, dst.
+        logicIdCount++;
+        $questionContainer.attr('data-logic-id', 'L' + String(logicIdCount).padStart(3, '0'));
     }
 
+    // Membuat kontainer flex untuk select dan input
+    const $flexContainer = $('<div class="flex items-center mb-2"></div>');
+
     const $typeSelect = $('<select>', {
-        class: 'question-type-select w-full border border-gray-300 rounded-lg mb-2',
+        class: 'question-type-select w-1/3 border border-gray-300 rounded-lg mr-2', // Mengatur lebar dan margin
     });
 
-    const questionTypes = ['text', 'radio', 'checkbox'];
+    const questionTypes = ['text', 'radio', 'checkbox', 'dropdown']; // Menambahkan dropdown
     questionTypes.forEach(type => {
         $typeSelect.append($('<option>', {
             value: type,
@@ -594,21 +591,73 @@ const addNewQuestion = (logika = null) => {
         }));
     });
 
-    // Jika ada logika, set nilai input dengan data yang ada
     const $questionInput = $('<input>', {
         type: 'text',
-        class: 'additional-question-input w-full border border-gray-300 rounded-lg mb-2',
+        class: 'additional-question-input w-2/3 border border-gray-300 rounded-lg',
         placeholder: 'Masukkan pertanyaan tambahan...',
-        value: logika ? logika.teks_pertanyaan : '' // Isi dengan teks pertanyaan yang ada
+        value: logika ? logika.teks_pertanyaan : ''
     });
+
+    // Menambahkan select dan input ke dalam kontainer flex
+    $flexContainer.append($typeSelect, $questionInput);
 
     const $addOptionButton = $('<button>', {
         type: 'button',
-        class: 'add-option-button bg-green-500 text-white px-4 py-2 rounded-lg mt-2',
+        class: 'add-option-button bg-green-500 text-white px-4 py-2 rounded-lg mt-2 hidden', // Awalnya disembunyikan
         text: 'Tambah Opsi',
     });
 
     const $optionsContainer = $('<div class="options-container mb-2"></div>');
+
+    // Array untuk menyimpan opsi yang ada
+    let optionsData = [];
+
+    // Menampilkan atau menyembunyikan tombol "Tambah Opsi" berdasarkan tipe yang dipilih
+    $typeSelect.on('change', function() {
+        const selectedType = $(this).val();
+
+        // Simpan opsi yang ada ke dalam array
+        optionsData = [];
+        $optionsContainer.children('.option-container').each(function() {
+            const optionValue = $(this).find('.new-option-input').val();
+            optionsData.push(optionValue); // Menyimpan nilai opsi
+        });
+
+        // Jika tipe yang dipilih adalah 'text'
+        if (selectedType === 'text') {
+            $optionsContainer.empty(); // Menghapus semua opsi yang ada
+            $addOptionButton.addClass('hidden'); // Sembunyikan tombol "Tambah Opsi"
+        } else if (selectedType === 'radio' || selectedType === 'checkbox' || selectedType === 'dropdown') {
+            $addOptionButton.removeClass('hidden'); // Tampilkan tombol
+
+            // Hapus opsi yang ada sebelum menambahkan kembali
+            $optionsContainer.empty();
+
+            // Tambahkan kembali opsi yang disimpan jika ada
+            optionsData.forEach(option => {
+                const $optionContainer = $('<div class="option-container flex items-center mt-2"></div>');
+                const $optionInput = $('<input>', {
+                    type: 'text',
+                    class: 'new-option-input w-full border border-gray-300 rounded-lg py-2 px-4',
+                    placeholder: 'Masukkan opsi jawaban...',
+                    value: option // Mengisi dengan nilai yang disimpan
+                });
+
+                const $removeOptionButton = $('<button>', {
+                    type: 'button',
+                    class: 'remove-option-button text-red-500 ml-2',
+                    text: 'Hapus',
+                });
+
+                $optionContainer.append($optionInput, $removeOptionButton);
+                $optionsContainer.append($optionContainer);
+
+                $removeOptionButton.on('click', function () {
+                    $optionContainer.remove();
+                });
+            });
+        }
+    });
 
     // Jika ada logika, tambahkan opsi yang ada
     if (logika && logika.opsi_jawaban) {
@@ -618,7 +667,7 @@ const addNewQuestion = (logika = null) => {
                 type: 'text',
                 class: 'new-option-input w-full border border-gray-300 rounded-lg py-2 px-4',
                 placeholder: 'Masukkan opsi jawaban...',
-                value: option // Isi dengan nilai opsi yang ada
+                value: option
             });
 
             const $removeOptionButton = $('<button>', {
@@ -641,8 +690,9 @@ const addNewQuestion = (logika = null) => {
         class: 'remove-question-button text-red-500 ml-2',
         text: 'Hapus Pertanyaan',
     });
-    // $questionsContainer.append($questionContainer);
-    $questionContainer.append($typeSelect, $questionInput, $optionsContainer, $addOptionButton, $removeQuestionButton);
+
+    // Menambahkan kontainer flex, opsi, dan tombol ke questionContainer
+    $questionContainer.append($flexContainer, $optionsContainer, $addOptionButton, $removeQuestionButton);
     $questionsContainer.append($questionContainer);
 
     $addOptionButton.on('click', function () {
@@ -669,15 +719,12 @@ const addNewQuestion = (logika = null) => {
 
     $removeQuestionButton.on('click', function () {
         if (logika) {
-        // Jika logika ada, ambil ID dari logika
-        // $questionContainer.attr('data-logic-id', logika.id); // Misalnya, logika.id adalah ID yang sudah ada
-        console.log(logika);
-        console.log('logika oke');
-    } else {
-        console.log('logika oki');
-        logicIdCount--; // Increment counter
-        // Jika logika tidak ada, buat ID baru
-    }
+            console.log(logika);
+            console.log('logika oke');
+        } else {
+            console.log('logika oki');
+            logicIdCount--;
+        }
         $questionContainer.remove();
     });
 };

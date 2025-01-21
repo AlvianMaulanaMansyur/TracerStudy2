@@ -835,6 +835,7 @@ $addQuestionButton.on('click', function() {
             }
         });
     }
+    
     const $select = $newQuestion.find('.logic-button');
     $select.closest('.question-container').find('.modal-logic');
     $select.on('click', function () {

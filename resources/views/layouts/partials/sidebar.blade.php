@@ -46,7 +46,7 @@
     <li class="nav-item {{ request()->routeIs(patterns: 'admin.status.create') ? 'active' : '' }} ">
         <a class="nav-link" href="{{ route('admin.status.create') }}">
             <i class="fa-solid fa-users"></i>
-            <span>Chart Alumni</span>
+            <span>Data Status</span>
         </a>
     </li>
 </div>
