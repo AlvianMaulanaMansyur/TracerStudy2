@@ -13,9 +13,12 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+    public function getUserData()
+    {
+        $currentUser = Auth::guard('alumni')->user();
+
+        return view('layouts.partials.alumni.navbar', compact('currentUser'));
+    }
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -89,14 +92,15 @@ public function editProfil()
         $request->validate([
             'nama_alumni' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'no_telepon' => 'nullable|string|max:15',
-            // 'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:5000',
         ]);
 
         // Perbarui data alumni
         $currentUser->nama_alumni = $request->input('nama_alumni');
         $currentUser->email = $request->input('email');
         $currentUser->no_telepon = $request->input('no_telepon');
+
+
+
 
         // Jika ada foto baru yang diunggah
     if ($request->hasFile('foto_profil')) {
@@ -118,10 +122,10 @@ public function editProfil()
         // }
 
         // Simpan perubahan
-        // $currentUser->save();
+        $currentUser->save();
 
         // Redirect dengan pesan sukses
         return redirect()->route('alumni.profil')->with('success', 'Profil berhasil diperbarui.');
     }
-
+    
 }
