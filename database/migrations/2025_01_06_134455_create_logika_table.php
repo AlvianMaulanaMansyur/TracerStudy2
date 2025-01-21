@@ -19,6 +19,11 @@ return new class extends Migration
         ->references('id')
         ->on('pertanyaan')
         ->onDelete('cascade'); // Tambahkan ini
+
+        // $table->string('kuesioner_id'); 
+        // $table->foreign('kuesioner_id')
+        //     ->references('id')
+        //     ->on('kuesioner'); // Tambahkan ini
     $table->timestamps();
 });
     }

@@ -32,6 +32,9 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::get('/kuesioner', [KuesionerController::class, 'AlumniKuesioner'])->name('kuesioner.alumni.index');
     Route::get('/kuesioner/{slug}/{halamanId}', [KuesionerController::class, 'AlumniKuesionerPage'])->name('kuesioner.alumni.page');
     Route::post('/kuesioner/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
+
+    Route::get('/thankyou', [KuesionerController::class, 'thankYouPage'])->name('kuesioner.alumni.finish');
+
     Route::get('/dashboard', [AlumniController::class, 'dashboard'])->name('alumni.dashboard');
     Route::post('/alumni/change-password', [AlumniController::class, 'changePassword'])->name('alumni.change-password');
 

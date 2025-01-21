@@ -127,3 +127,7 @@
 }
 
 
+.btn.required-active {
+    background-color: #4CAF50; /* Warna hijau */
+    color: white; /* Teks putih */
+}
