@@ -46,6 +46,7 @@ Route::middleware([AlumniMiddleware::class])->group(function () {
     Route::post('/kuesioner/submit', [KuesionerController::class, 'submit'])->name('kuesioner.alumni.submit');
 
     Route::get('/thankyou', [KuesionerController::class, 'thankYouPage'])->name('kuesioner.alumni.finish');
+    Route::get('/jawaban/{slug}', [KuesionerController::class, 'JawabanAlumni'])->name('kuesioner.alumni.jawaban');
 
     Route::get('/dashboard', [AlumniController::class, 'dashboard'])->name('alumni.dashboard');
     Route::post('/alumni/change-password', [AlumniController::class, 'changePassword'])->name('alumni.change-password');
@@ -89,6 +90,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/alumni/filter', [AdminController::class, 'filter'])->name('admin.alumni.filter');
         Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
         Route::get('/rekap/show', [RekapController::class, 'show'])->name('rekap.show');
+        Route::get('/jawaban/{slug}/{nim}', [RekapController::class, 'showDetail'])->name('rekap.jawaban');
     });
 });
 Route::middleware([AdminMiddleware::class])->group(function () {

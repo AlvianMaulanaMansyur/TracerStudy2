@@ -25,7 +25,9 @@
                                     @if (isset($halamanPertamaIds[$kuesioner->id]))
                                         @if (isset($kuesionerSudahDiisi[$kuesioner->id]))
                                             <span class="text-gray-500">Sudah diisi</span>
+                                            <a href="{{ route('kuesioner.alumni.jawaban', ['slug' => $kuesioner->slug]) }}" class="bg-green-500 text-white px-2 py-1 rounded-lg">Lihat Jawaban</a>
                                         @else
+                                        
                                             <a href="{{ route('kuesioner.alumni.page', ['slug' => $kuesioner->slug, 'halamanId' => $halamanPertamaIds[$kuesioner->id]]) }}"
                                                 class="bg-green-500 text-white px-2 py-1 rounded-lg">Isi Kuesioner</a>
                                         @endif

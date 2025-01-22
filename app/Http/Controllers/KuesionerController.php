@@ -302,18 +302,22 @@ public function JawabanAlumni($slug)
         ->get();
 
     // Ambil jawaban kuesioner untuk alumni yang sedang login
-    $alumniId = Auth::guard('alumni')->user()->id; // Ambil ID alumni yang sedang login
+    $alumniId = Auth::guard('alumni')->user()->id;
     $jawabanKuesioner = Jawaban_kuesioner::where('alumni_id', $alumniId)
         ->whereIn('pertanyaan_id', $pertanyaan->pluck('id'))
         ->get();
 
     // Ambil jawaban logika untuk alumni yang sedang login
     $jawabanLogika = Jawaban_logika::where('alumni_id', $alumniId)
-        ->whereIn('logika_id', $pertanyaan->pluck('logika.id')) // Ambil ID logika dari pertanyaan
+        ->whereIn('logika_id', $pertanyaan->flatMap(function ($item) {
+            return $item->logika->pluck('id');
+        }))
         ->get();
 
     return view('kuesioner.alumni.jawaban', compact('kuesioner', 'pertanyaan', 'jawabanKuesioner', 'jawabanLogika'));
 }
+
+
 
     public function tampilkanPertanyaan($halamanId, Request $request)
     {

@@ -458,7 +458,7 @@ function saveVisibleAnswers() {
         }
     });
 
-    // Mengambil jawaban dari logika
+   // Mengambil jawaban dari logika
 $('.logika').each(function() {
     const logikaId = $(this).data('logika-id'); // Mengambil ID logika
     const pertanyaanId = $(this).closest('.pertanyaan').data('pertanyaan-id'); // Mengambil ID pertanyaan terkait
@@ -477,6 +477,9 @@ $('.logika').each(function() {
     // Ambil nilai dari select yang terpilih
     const selectedSelect = $(this).find('select').val();
 
+    // Ambil nilai dari input teks
+    const textInputValue = $(this).find('input[type="text"]').val(); // Ambil nilai dari input teks
+
     // Tambahkan nilai ke dalam array logikaValues
     if (checkedCheckboxes.length > 0) {
         logikaValues.push(...checkedCheckboxes); // Menambahkan semua nilai checkbox ke array
@@ -486,6 +489,9 @@ $('.logika').each(function() {
     }
     if (selectedSelect) {
         logikaValues.push(selectedSelect); // Menambahkan nilai select ke array
+    }
+    if (textInputValue) {
+        logikaValues.push(textInputValue); // Menambahkan nilai input teks ke array
     }
 
     // Hanya simpan jawaban logika jika ada jawaban untuk pertanyaan ini

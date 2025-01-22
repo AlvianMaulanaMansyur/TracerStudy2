@@ -47,6 +47,7 @@
                             <th>Nama Alumni</th>
                             <th>Prodi</th>
                             <th>Status</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="table-content">
@@ -57,12 +58,17 @@
                                     <td>{{ $responden['nim'] }}</td>
                                     <td>{{ $responden['nama'] }}</td>
                                     <td>{{ $responden['prodi'] }}</td>
+                                    {{-- <td>{{ $responden['id'] }}</td> --}}
+
                                     <td>
                                         @if ($responden['status'] === 'sudah')
                                             <span class="text-success">✅ Sudah</span>
                                         @else
                                             <span class="text-danger">❌ Belum</span>
                                         @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('rekap.jawaban', ['slug' => $kuesioner->slug, 'nim' => $responden['nim']]) }}" class="btn btn-primary btn-sm">Detail</a>
                                     </td>
                                 </tr>
                             @endforeach

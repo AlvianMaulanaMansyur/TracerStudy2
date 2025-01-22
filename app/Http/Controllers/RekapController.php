@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Kuesioner;
 use App\Models\Alumni;
 use App\Models\Jawaban_kuesioner;
+use App\Models\Jawaban_logika;
+use App\Models\Pertanyaan;
 
 class RekapController extends Controller
 {
@@ -128,4 +130,33 @@ class RekapController extends Controller
         // dd($prodiFilter);
         return view('kuesioner.admin.rekap', compact('kuesioners', 'paginated', 'kuesionerId', 'prodiFilter'));
     }
+
+    public function showDetail($slug, $nim)
+{
+    // Ambil kuesioner berdasarkan slug
+    $kuesioner = Kuesioner::where('slug', $slug)->firstOrFail();
+
+    // Ambil alumni berdasarkan NIM
+    $alumni = Alumni::where('nim', $nim)->firstOrFail(); // Menggunakan firstOrFail untuk memastikan alumni ditemukan
+    $alumniId = $alumni->id; // Ambil ID alumni
+
+    // Ambil semua pertanyaan yang terkait dengan kuesioner
+    $pertanyaan = Pertanyaan::with(['logika'])
+        ->where('kuesioner_id', $kuesioner->id)
+        ->get();
+
+    // Ambil jawaban kuesioner untuk alumni
+    $jawabanKuesioner = Jawaban_kuesioner::where('alumni_id', $alumniId)
+        ->whereIn('pertanyaan_id', $pertanyaan->pluck('id'))
+        ->get();
+
+    // Ambil jawaban logika untuk alumni
+    $jawabanLogika = Jawaban_logika::where('alumni_id', $alumniId)
+        ->whereIn('logika_id', $pertanyaan->flatMap(function ($item) {
+            return $item->logika->pluck('id');
+        }))
+        ->get();
+
+    return view('kuesioner.admin.jawaban', compact('kuesioner', 'pertanyaan', 'jawabanKuesioner', 'jawabanLogika'));
+}
 }
