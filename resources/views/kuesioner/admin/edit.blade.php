@@ -1338,19 +1338,24 @@ $newQuestion.find('.add-option').on('click', function() {
     $newQuestion.find('.option-group').append($optionContainer);
 });
 
- // Event untuk menghapus pertanyaan
- $newQuestion.find('.remove-question').on('click', function() {
-                    $currentEditingQuestion = null;
-                    $newQuestion.remove();
-                    questionCount--;
-                    questionIdCount--;
-                });
+ 
     // Tambahkan pertanyaan baru ke dalam kontainer
     function updateQuestionNumbers() {
     $('.question-container').each(function(index) {
         $(this).find('.question-number').text(`Q${index}`); // Update the question number, starting from 1
     });
 }
+
+// Event untuk menghapus pertanyaan
+$newQuestion.find('.remove-question').on('click', function() {
+                    console.log('remove question');
+                    
+                    $currentEditingQuestion = null;
+                    $newQuestion.remove();
+                    questionCount--;
+                    questionIdCount--;
+                    updateQuestionNumbers()
+                });
 
 pageContainer.find('.questions-container').append($newQuestion);
     if(existingData) {
@@ -1785,7 +1790,8 @@ $('.page-block').each(function() {
         // Gunakan SweetAlert untuk menampilkan pesan error
         Swal.fire({
             title: 'Error!',
-            text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
+            text: xhr.responseJSON.error,
+            text: xhr.responseJSON.details,
             icon: 'error',
             confirmButtonText: 'OK',
         });

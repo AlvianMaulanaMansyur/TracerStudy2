@@ -20,10 +20,12 @@ return new class extends Migration
         ->on('pertanyaan')
         ->onDelete('cascade'); // Tambahkan ini
 
-        // $table->string('kuesioner_id'); 
-        // $table->foreign('kuesioner_id')
-        //     ->references('id')
-        //     ->on('kuesioner'); // Tambahkan ini
+        $table->string('kuesioner_id'); 
+        $table->foreign('kuesioner_id')
+            ->references('id')
+            ->on('kuesioner')
+            ->onDelete('cascade'); // Tambahkan ini
+        // Tambahkan ini
     $table->timestamps();
 });
     }

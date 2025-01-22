@@ -26,6 +26,11 @@ class Kuesioner extends Model
         return $this->hasMany(Halaman::class, 'kuesioner_id'); // Sesuaikan dengan relasi yang benar
     }
 
+    public function logika()
+    {
+        return $this->hasMany(Logika::class, 'kuesioner_id'); // Sesuaikan dengan relasi yang benar
+    }
+
     public function pertanyaan() {
         return $this->hasMany(Pertanyaan::class);
     }

@@ -15,10 +15,12 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->string('judul_halaman'); // Kolom untuk menyimpan judul halaman
             $table->text('deskripsi_halaman')->nullable(); // Kolom untuk menyimpan deskripsi halaman, bisa null
-    //         $table->string('kuesioner_id'); 
-    // $table->foreign('kuesioner_id')
-    //     ->references('id')
-    //     ->on('kuesioner'); // Tambahkan ini
+            $table->string('kuesioner_id'); 
+            $table->foreign('kuesioner_id')
+            ->references('id')
+            ->on('kuesioner') // Tambahkan ini
+            ->onDelete('cascade'); // Tambahkan ini
+
             $table->timestamps(); // Kolom untuk menyimpan waktu pembuatan dan pembaruan
         });
     }

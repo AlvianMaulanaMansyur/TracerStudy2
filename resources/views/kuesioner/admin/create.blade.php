@@ -1206,6 +1206,7 @@ $('.page-block').on('input', '.page-title input', function() {
             halaman_id: pageId,  // Anda bisa menggunakan pageNumber sebagai ID halaman
             judul_halaman: pageTitle,
             deskripsi_halaman: pageDescription,
+            
         });
 
         // const halamanId = formData.pages[formData.pages.length - 1].halaman_id;

@@ -88,18 +88,18 @@ class KuesionerController extends Controller
             // Simpan data kuesioner
             $adminId = Auth::guard('admin')->user()->id;
 
-            // Buat slug dari judul kuesioner
-$slug = Str::slug($request->judul_kuesioner);
+                        // Buat slug dari judul kuesioner
+            $slug = Str::slug($request->judul_kuesioner);
 
-// Memeriksa apakah slug sudah ada di database
-$originalSlug = $slug;
-$count = 1;
+            // Memeriksa apakah slug sudah ada di database
+            $originalSlug = $slug;
+            $count = 1;
 
-while (Kuesioner::where('slug', $slug)->exists()) {
-    // Jika slug sudah ada, tambahkan angka ke slug
-    $slug = $originalSlug . '-' . $count;
-    $count++;
-}
+            while (Kuesioner::where('slug', $slug)->exists()) {
+                // Jika slug sudah ada, tambahkan angka ke slug
+                $slug = $originalSlug . '-' . $count;
+                $count++;
+            }
 
             $kuesioner = Kuesioner::create([
                 'id' => $request->kuesioner_id,
@@ -118,6 +118,7 @@ while (Kuesioner::where('slug', $slug)->exists()) {
                     'id' => $page['halaman_id'],
                     'judul_halaman' => $page['judul_halaman'],
                     'deskripsi_halaman' => $page['deskripsi_halaman'],
+                    'kuesioner_id' => $kuesioner->id,
                 ]);
             }
 
@@ -163,6 +164,7 @@ while (Kuesioner::where('slug', $slug)->exists()) {
                             'nomor_pertanyaan' =>$question['opsi_jawaban']
                         ]),
                         'pertanyaan_id' => $pertanyaanId, // Menggunakan pertanyaan_id yang benar
+                        'kuesioner_id' => $kuesioner->id,
                     ];
 
                     // Simpan logika ke database
@@ -287,6 +289,30 @@ while (Kuesioner::where('slug', $slug)->exists()) {
     $isHalamanTerakhir = $halaman->id === $halamanTerakhir->id;
 
     return view('kuesioner.alumni.show', compact('halaman', 'sortedQuestions', 'halamanSemua', 'kuesioner', 'isHalamanTerakhir'));
+}
+
+public function JawabanAlumni($slug)
+{
+    // Ambil kuesioner berdasarkan slug
+    $kuesioner = Kuesioner::where('slug', $slug)->firstOrFail();
+
+    // Ambil semua pertanyaan yang terkait dengan kuesioner
+    $pertanyaan = Pertanyaan::with(['logika'])
+        ->where('kuesioner_id', $kuesioner->id)
+        ->get();
+
+    // Ambil jawaban kuesioner untuk alumni yang sedang login
+    $alumniId = Auth::guard('alumni')->user()->id; // Ambil ID alumni yang sedang login
+    $jawabanKuesioner = Jawaban_kuesioner::where('alumni_id', $alumniId)
+        ->whereIn('pertanyaan_id', $pertanyaan->pluck('id'))
+        ->get();
+
+    // Ambil jawaban logika untuk alumni yang sedang login
+    $jawabanLogika = Jawaban_logika::where('alumni_id', $alumniId)
+        ->whereIn('logika_id', $pertanyaan->pluck('logika.id')) // Ambil ID logika dari pertanyaan
+        ->get();
+
+    return view('kuesioner.alumni.jawaban', compact('kuesioner', 'pertanyaan', 'jawabanKuesioner', 'jawabanLogika'));
 }
 
     public function tampilkanPertanyaan($halamanId, Request $request)
@@ -430,52 +456,51 @@ public function update(Request $request, $id)
             'slug' => $slug,
         ]);
 
-        // Proses halaman
+        // Hapus halaman yang ada
+        Halaman::where('kuesioner_id', $kuesioner->id)->delete();
+
+        // Proses halaman baru
         foreach ($request->pages as $page) {
-            Halaman::updateOrCreate(
-                ['id' => $page['halaman_id']],
-                [
-                    'judul_halaman' => $page['judul_halaman'],
-                    'deskripsi_halaman' => $page['deskripsi_halaman'],
-                ]
-            );
+            Halaman::create([
+                'id' => $page['halaman_id'],
+                'judul_halaman' => $page['judul_halaman'],
+                'deskripsi_halaman' => $page['deskripsi_halaman'],
+                'kuesioner_id' => $kuesioner->id,
+            ]);
         }
 
-        // Proses pertanyaan
-        $savedQuestionIds = [];
-        foreach ($request->questions as $question) {
-            $pertanyaan = Pertanyaan::updateOrCreate(
-                ['id' => $question['kode_pertanyaan']],
-                [
-                    'data_pertanyaan' => json_encode([
-                        'tipe_pertanyaan' => $question['tipe_pertanyaan'],
-                        'teks_pertanyaan' => $question['teks_pertanyaan'],
-                        'opsi_jawaban' => $question['opsi_jawaban'] ?? [],
-                        'nomor_pertanyaan' =>$question['nomor_pertanyaan'],
-                        'is_required' =>$question['is_required'],
-                    ]),
-                    'halaman_id' => $question['halaman_id'],
-                    'kuesioner_id' => $kuesioner->id,
-                ]
-            );
+        // Hapus pertanyaan yang ada
+        Pertanyaan::where('kuesioner_id', $kuesioner->id)->delete();
 
-            $savedQuestionIds[] = $pertanyaan->id;
+        // Proses pertanyaan baru
+        foreach ($request->questions as $question) {
+            $pertanyaan = Pertanyaan::create([
+                'id' => $question['kode_pertanyaan'],
+                'data_pertanyaan' => json_encode([
+                    'tipe_pertanyaan' => $question['tipe_pertanyaan'],
+                    'teks_pertanyaan' => $question['teks_pertanyaan'],
+                    'opsi_jawaban' => $question['opsi_jawaban'] ?? [],
+                    'nomor_pertanyaan' => $question['nomor_pertanyaan'],
+                    'is_required' => $question['is_required'],
+                ]),
+                'halaman_id' => $question['halaman_id'],
+                'kuesioner_id' => $kuesioner->id,
+            ]);
 
             // Proses logika untuk pertanyaan ini
             foreach ($request->logics as $logic) {
                 if ($logic['pertanyaan_id'] === $question['kode_pertanyaan']) {
-                    Logika::updateOrCreate(
-                        ['id' => $logic['id'] ?? Str::uuid()->toString()],
-                        [
-                            'data_pertanyaan' => json_encode([
-                                'option_name' => $logic['option_name'],
-                                'tipe_pertanyaan' => $logic['tipe_pertanyaan'],
-                                'teks_pertanyaan' => $logic['teks_pertanyaan'],
-                                'opsi_jawaban' => $logic['opsi_jawaban'] ?? [],
-                            ]),
-                            'pertanyaan_id' => $pertanyaan->id,
-                        ]
-                    );
+                    Logika::create([
+                        'id' => $logic['id'],
+                        'data_pertanyaan' => json_encode([
+                            'option_name' => $logic['option_name'],
+                            'tipe_pertanyaan' => $logic['tipe_pertanyaan'],
+                            'teks_pertanyaan' => $logic['teks_pertanyaan'],
+                            'opsi_jawaban' => $logic['opsi_jawaban'] ?? [],
+                        ]),
+                        'pertanyaan_id' => $pertanyaan->id,
+                        'kuesioner_id' => $kuesioner->id,
+                    ]);
                 }
             }
         }

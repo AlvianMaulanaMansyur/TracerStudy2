@@ -16,6 +16,7 @@ class Logika extends Model
         'id',
         'pertanyaan_id',
         'data_pertanyaan',
+        'kuesioner_id',
     ];
 
     public function pertanyaan()

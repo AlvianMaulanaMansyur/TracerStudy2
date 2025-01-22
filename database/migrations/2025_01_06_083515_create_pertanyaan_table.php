@@ -18,7 +18,8 @@ return new class extends Migration
     $table->string('halaman_id'); 
     $table->foreign('kuesioner_id')
         ->references('id')
-        ->on('kuesioner'); // Tambahkan ini
+        ->on('kuesioner')
+        ->onDelete('cascade'); // Tambahkan ini
     $table->foreign('halaman_id')
         ->references('id')
         ->on('halaman')

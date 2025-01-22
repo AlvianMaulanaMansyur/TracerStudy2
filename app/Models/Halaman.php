@@ -13,7 +13,7 @@ class Halaman extends Model
     protected $table = 'halaman';
     public $incrementing = false; // Kolom id bukan auto-increment
     protected $keyType = 'string'; // Jika tipe datanya string
-    protected $fillable = ['id', 'judul_halaman', 'deskripsi_halaman'];
+    protected $fillable = ['id', 'judul_halaman', 'deskripsi_halaman', 'kuesioner_id'];
 
     public function pertanyaan()
     {
