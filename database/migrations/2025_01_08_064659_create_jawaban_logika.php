@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Menambahkan foreign key untuk logika_id
-            $table->foreign('logika_id')->references('id')->on('logika')->onDelete('cascade'); // Relasi ke tabel logika
+            $table->foreign('logika_id')->references('id')->on('logika'); // Relasi ke tabel logika
         });
     }
 

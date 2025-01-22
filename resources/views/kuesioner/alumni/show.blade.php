@@ -9,7 +9,7 @@
         {{-- {{ $kuesioner }} --}}
         <div class="bg-white shadow rounded-lg p-6 mb-6" id="halaman-{{ $halaman->id }}">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ $halaman->judul_halaman }}</h2>
-
+            <h2 class="text-lg font-bold text-gray-800 mb-4">{{ $halaman->deskripsi_halaman }}</h2>
             @if ($sortedQuestions->isNotEmpty())
     @foreach ($sortedQuestions as $pertanyaanItem)
         @if ($pertanyaanItem->halaman_id == $halaman->id)
