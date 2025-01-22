@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
+
 
 class AuthAlumni extends Controller
 {
@@ -15,42 +18,67 @@ class AuthAlumni extends Controller
     }
 
 
-    public function login(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'nim' => 'required',
-            'password' => 'required',
-        ]);
 
-        // Dapatkan data alumni berdasarkan NIM
-        $alumni = DB::table('alumni')->where('nim', $request->nim)->first();
+public function login(Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'nim' => 'required',
+        'password' => 'required',
+    ]);
 
-        if (!$alumni) {
-            return back()->withErrors([
-                'nim' => 'NIM tidak ditemukan.',
-            ]);
-        }
+    // Key untuk throttle berdasarkan NIM dan IP
+    $key = $this->throttleKey($request);
 
-        // Coba login
-        if (Auth::guard('alumni')->attempt($request->only('nim', 'password'))) {
-            // Periksa apakah password masih default
-            if ($alumni->password === 'password') {
-                // Redirect ke halaman profil untuk mengubah password
-                return redirect()->route('alumni.profile.edit')->with('alert', 'Silakan ubah password Anda.');
-            }
+    // Cek apakah sudah melebihi batas percobaan login
+    if (RateLimiter::tooManyAttempts($key, 5)) {
+        $seconds = RateLimiter::availableIn($key);
 
-            // Login berhasil, redirect ke halaman dashboard
-            $alumniId = Auth::guard('alumni')->user()->id;
-            session(['alumniId' => $alumniId]);
-            return redirect()->route('kuesioner.alumni.index');
-        }
+        // Kirim pesan ke halaman view menggunakan session flash
+        return redirect()->back()->with('tooManyAttempts', "Terlalu banyak percobaan login. Silakan coba lagi dalam {$seconds} detik.");
+    }
 
-        // Jika login gagal, kembalikan ke halaman login
+    // Dapatkan data alumni berdasarkan NIM
+    $alumni = DB::table('alumni')->where('nim', $request->nim)->first();
+
+    if (!$alumni) {
+        RateLimiter::hit($key, 60); // Tambahkan percobaan gagal
         return back()->withErrors([
-            'nim' => 'NIM atau password salah.',
+            'nim' => 'NIM tidak ditemukan.',
         ]);
     }
+
+    // Coba login
+    if (Auth::guard('alumni')->attempt($request->only('nim', 'password'))) {
+        RateLimiter::clear($key); // Bersihkan percobaan jika login berhasil
+
+        // Periksa apakah password masih default
+        if ($alumni->password === 'password') {
+            return redirect()->route('alumni.profile.edit')->with('alert', 'Silakan ubah password Anda.');
+        }
+
+        // Login berhasil
+        $alumniId = Auth::guard('alumni')->user()->id;
+        session(['alumniId' => $alumniId]);
+        return redirect()->route('kuesioner.alumni.index');
+    }
+
+    // Tambahkan percobaan jika gagal login
+    RateLimiter::hit($key, 60);
+
+    return back()->withErrors([
+        'nim' => 'NIM atau password salah.',
+    ]);
+}
+
+/**
+ * Mendapatkan key throttle berdasarkan NIM dan IP.
+ */
+protected function throttleKey(Request $request)
+{
+    return Str::lower($request->input('nim')).'|'.$request->ip();
+}
+
 
     public function logoutSession(Request $request)
     {

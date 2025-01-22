@@ -13,9 +13,14 @@
                 <div
                     class="relative bg-white bg-opacity-0 border-2 p-6 rounded-2xl max-w-md mx-10 px-12 shadow-lg flex flex-col justify-center items-center">
                     <img src="{{ asset('images/PNB.png') }}" alt="" class="w-16 h-auto mt-6">
-
                     <h3 class="text-xl font-bold text-white ">SITIKA</h3>
-                    <h3 class="text-xl font-bold text-white ">POLITEKNIK NEGERI BALI</h3>
+                    <h3 class="text-xl font-bold text-white mb-7">POLITEKNIK NEGERI BALI</h3>
+
+                    @if (session('tooManyAttempts'))
+                        <div class="alert alert-danger" style="color: red;">
+                            {{ session('tooManyAttempts') }}
+                        </div>
+                    @endif
 
                     @if ($errors->any())
                         <div style="color: red;" class="mb-4">

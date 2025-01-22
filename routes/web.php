@@ -11,14 +11,26 @@ use App\Http\Controllers\AuthAdmin;
 use App\Http\Controllers\AuthAlumni;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpKernel\Profiler\Profile;
+use App\Http\Middleware\CustomThrottleRequests;
+
 
 Route::get('/', [AlumniController::class, 'index'])->name('alumni.index');
 Route::get('/statistik', [AlumniController::class, 'statistik'])->name('alumni.statistik');
 Route::get('/faq', [AlumniController::class, 'faq'])->name('alumni.faq');
 
+
+// limiter login alumni
+RateLimiter::for('login', function (Request $request) {
+    $email = (string) $request->input('email');
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($email.$request->ip());
+});
+
 // Rute untuk alumni
-Route::post('/login', [AuthAlumni::class, 'login']);
+// Route::middleware(['throttle:login'])->post('/login', [AuthAlumni::class, 'login']);
+Route::post('/login', [AuthAlumni::class, 'login'])->middleware(CustomThrottleRequests::class);
 Route::get('/login', [AuthAlumni::class, 'showLoginForm'])->name('alumni.login');
 Route::post('/logoutalumni', [AuthAlumni::class, 'logout'])->name('alumni.logout');
 // Protected Alumni Routes

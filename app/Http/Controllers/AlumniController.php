@@ -161,7 +161,7 @@ class AlumniController extends Controller
                         // Ambil jawaban dari tabel jawaban_logika
                         $jawabanKuesioner = Jawaban_kuesioner::where('pertanyaan_id', $dataStatus['id'])->get();
                         $jawabanCount = $jawabanKuesioner->where('jawaban', $opsi)->count();
-    
+
                         if (strtolower($opsi) === 'sudah bekerja') {
                             $counts['jumlah_sudah']+= $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
                         } elseif (strtolower($opsi) === 'belum bekerja') {
@@ -174,7 +174,7 @@ class AlumniController extends Controller
                         // Ambil jawaban dari tabel jawaban_logika
                         $jawabanLogika = Jawaban_logika::where('logika_id', $dataStatus['id'])->get();
                         $jawabanCount = $jawabanLogika->where('jawaban', $opsi)->count();
-    
+
                         if (strtolower($opsi) === 'sudah bekerja') {
                             $counts['jumlah_sudah']+= $jawabanCount; // Tambah jumlah untuk 'Sudah Bekerja'
                         } elseif (strtolower($opsi) === 'belum bekerja') {
