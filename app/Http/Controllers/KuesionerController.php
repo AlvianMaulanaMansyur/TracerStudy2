@@ -40,11 +40,11 @@ class KuesionerController extends Controller
 
         // Ambil ID terakhir dari tabel pertanyaan
         $lastQuestion = DB::table('pertanyaan')->orderBy('id', 'desc')->first();
-        $lastQuestionId = $lastQuestion ? (int) substr($lastQuestion->id, 3) : 0; // Ambil angka terakhir dari ID pertanyaan
+        $lastQuestionId = $lastQuestion ? (int) substr($lastQuestion->id, 1) : 0; // Ambil angka terakhir dari ID pertanyaan
     
         // Ambil ID terakhir dari tabel logika
         $lastLogic = DB::table('logika')->orderBy('id', 'desc')->first();
-        $lastLogicId = $lastLogic ? (int) substr($lastLogic->id, 2) : 0; // Ambil angka terakhir dari ID logika
+        $lastLogicId = $lastLogic ? (int) substr($lastLogic->id, 1) : 0; // Ambil angka terakhir dari ID logika
     
         // Ambil ID terakhir dari tabel halaman
         $lastPage = DB::table('halaman')->orderBy('id', 'desc')->first();
@@ -89,7 +89,17 @@ class KuesionerController extends Controller
             $adminId = Auth::guard('admin')->user()->id;
 
             // Buat slug dari judul kuesioner
-            $slug = Str::slug($request->judul_kuesioner);
+$slug = Str::slug($request->judul_kuesioner);
+
+// Memeriksa apakah slug sudah ada di database
+$originalSlug = $slug;
+$count = 1;
+
+while (Kuesioner::where('slug', $slug)->exists()) {
+    // Jika slug sudah ada, tambahkan angka ke slug
+    $slug = $originalSlug . '-' . $count;
+    $count++;
+}
 
             $kuesioner = Kuesioner::create([
                 'id' => $request->kuesioner_id,
@@ -121,6 +131,8 @@ class KuesionerController extends Controller
                             'tipe_pertanyaan' => $question['tipe_pertanyaan'],
                             'teks_pertanyaan' => $question['teks_pertanyaan'],
                             'opsi_jawaban' => $question['opsi_jawaban'],
+                            'nomor_pertanyaan' =>$question['nomor_pertanyaan'],
+                            'is_required' =>$question['is_required']
                         ]),
                         'halaman_id' => $question['halaman_id'], // Menggunakan halaman_id dari pertanyaan
                         'kuesioner_id' => $kuesioner->id,
@@ -148,6 +160,7 @@ class KuesionerController extends Controller
                             'tipe_pertanyaan' => $logic['tipe_pertanyaan'],
                             'teks_pertanyaan' => $logic['teks_pertanyaan'],
                             'opsi_jawaban' => $logic['opsi_jawaban'],
+                            'nomor_pertanyaan' =>$question['opsi_jawaban']
                         ]),
                         'pertanyaan_id' => $pertanyaanId, // Menggunakan pertanyaan_id yang benar
                     ];
@@ -191,29 +204,40 @@ class KuesionerController extends Controller
     }
 
     public function AlumniKuesioner()
-    {
-        // Ambil semua kuesioner dari database
-        $kuesioners = Kuesioner::all();
+{
+    // Ambil semua kuesioner dari database
+    $kuesioners = Kuesioner::all();
+    $alumniId = Auth::guard('alumni')->user()->id; // Ambil ID alumni yang sedang login
 
-        // Buat array untuk menyimpan ID halaman pertama dari setiap kuesioner
-        $halamanPertamaIds = [];
+    // Buat array untuk menyimpan ID halaman pertama dari setiap kuesioner
+    $halamanPertamaIds = [];
+    $kuesionerSudahDiisi = []; // Array untuk menyimpan kuesioner yang sudah diisi oleh alumni
 
-        foreach ($kuesioners as $kuesioner) {
-            // Ambil halaman pertama dari pertanyaan yang terkait dengan kuesioner
-            $halamanPertama = Pertanyaan::where('kuesioner_id', $kuesioner->id)
-                ->orderBy('halaman_id') // Mengurutkan berdasarkan halaman_id
-                ->first(); // Ambil halaman pertama
+    foreach ($kuesioners as $kuesioner) {
+        // Ambil halaman pertama dari pertanyaan yang terkait dengan kuesioner
+        $halamanPertama = Pertanyaan::where('kuesioner_id', $kuesioner->id)
+            ->orderBy('halaman_id') // Mengurutkan berdasarkan halaman_id
+            ->first(); // Ambil halaman pertama
 
-            if ($halamanPertama) {
-                $halamanPertamaIds[$kuesioner->id] = $halamanPertama->halaman_id; // Simpan ID halaman pertama
-            } else {
-                $halamanPertamaIds[$kuesioner->id] = null; // Jika tidak ada halaman, simpan null
-            }
+        if ($halamanPertama) {
+            $halamanPertamaIds[$kuesioner->id] = $halamanPertama->halaman_id; // Simpan ID halaman pertama
+        } else {
+            $halamanPertamaIds[$kuesioner->id] = null; // Jika tidak ada halaman, simpan null
         }
 
-        // Kembalikan tampilan dengan data kuesioner dan ID halaman pertama
-        return view('kuesioner.alumni.index', compact('kuesioners', 'halamanPertamaIds'));
+        // Cek apakah alumni sudah mengisi pertanyaan dalam kuesioner ini
+        $pertanyaanIds = Pertanyaan::where('kuesioner_id', $kuesioner->id)->pluck('id')->toArray();
+        $jawabanKuesioner = Jawaban_kuesioner::where('alumni_id', $alumniId)
+            ->whereIn('pertanyaan_id', $pertanyaanIds)
+            ->exists(); // Cek apakah ada jawaban untuk pertanyaan terkait
+
+        if ($jawabanKuesioner) {
+            $kuesionerSudahDiisi[$kuesioner->id] = true; // Tandai kuesioner ini sudah diisi
+        }
     }
+
+    return view('kuesioner.alumni.index', compact('kuesioners', 'halamanPertamaIds', 'kuesionerSudahDiisi'));
+}
 
     public function showPage($slug, $halamanId)
     {
@@ -235,23 +259,35 @@ class KuesionerController extends Controller
     }
 
     public function AlumniKuesionerPage($slug, $halamanId)
-    {
-        // Ambil halaman berdasarkan ID
-        $halaman = Halaman::findOrFail($halamanId);
+{
+    // Ambil halaman berdasarkan ID
+    $halaman = Halaman::findOrFail($halamanId);
 
-        // Ambil semua pertanyaan yang terkait dengan halaman
-        $pertanyaan = Pertanyaan::with(['logika'])
-            ->where('halaman_id', $halamanId)
-            ->get();
+    // Ambil semua pertanyaan yang terkait dengan halaman
+    $pertanyaan = Pertanyaan::with(['logika'])
+        ->where('halaman_id', $halamanId)
+        ->get();
 
-        // Ambil kuesioner berdasarkan slug
-        $kuesioner = Kuesioner::where('slug', $slug)->firstOrFail(); // Menggunakan slug untuk mencari kuesioner
+    // Urutkan pertanyaan berdasarkan nomor_pertanyaan
+    $sortedQuestions = $pertanyaan->sortBy(function ($item) {
+        $data = json_decode($item->data_pertanyaan);
+        return (int) str_replace('Q', '', $data->nomor_pertanyaan); // Ekstrak angka dari nomor_pertanyaan
+    });
 
-        // Ambil semua halaman yang terkait dengan kuesioner
-        $halamanSemua = Halaman::whereIn('id', Pertanyaan::where('kuesioner_id', $kuesioner->id)->pluck('halaman_id'))->get();
+    // Ambil kuesioner berdasarkan slug
+    $kuesioner = Kuesioner::where('slug', $slug)->firstOrFail(); // Menggunakan slug untuk mencari kuesioner
 
-        return view('kuesioner.alumni.show', compact('halaman', 'pertanyaan', 'halamanSemua', 'kuesioner'));
-    }
+    // Ambil semua halaman yang terkait dengan kuesioner
+    $halamanSemua = Halaman::whereIn('id', Pertanyaan::where('kuesioner_id', $kuesioner->id)->pluck('halaman_id'))->get();
+
+    // Dapatkan ID halaman terakhir
+    $halamanTerakhir = $halamanSemua->last(); // Mengambil halaman terakhir dari koleksi
+
+    // Cek apakah halaman saat ini adalah halaman terakhir
+    $isHalamanTerakhir = $halaman->id === $halamanTerakhir->id;
+
+    return view('kuesioner.alumni.show', compact('halaman', 'sortedQuestions', 'halamanSemua', 'kuesioner', 'isHalamanTerakhir'));
+}
 
     public function tampilkanPertanyaan($halamanId, Request $request)
     {
@@ -286,7 +322,14 @@ class KuesionerController extends Controller
             return isset($data->halaman) && $data->halaman == $currentPage;
         });
 
-        return view('kuesioner.alumni.show', compact('kuesioner', 'filteredQuestions', 'currentPage', 'totalPages', 'pertanyaan'));
+        // Urutkan pertanyaan berdasarkan nomor_pertanyaan
+    $sortedQuestions = $filteredQuestions->sortBy(function ($item) {
+        $data = json_decode($item->data_pertanyaan);
+        // Ekstrak angka dari nomor_pertanyaan
+        return (int) str_replace('Q', '', $data->nomor_pertanyaan);
+    });
+
+    return view('kuesioner.alumni.show', compact('kuesioner', 'sortedQuestions', 'currentPage', 'totalPages', 'pertanyaan'));
     }
 
     public function edit($id)
@@ -297,11 +340,11 @@ class KuesionerController extends Controller
 
     // Ambil ID terakhir dari tabel pertanyaan
     $lastQuestion = DB::table('pertanyaan')->orderBy('id', 'desc')->first();
-    $lastQuestionId = $lastQuestion ? (int) substr($lastQuestion->id, 3) : 0; // Ambil angka terakhir dari ID pertanyaan
+    $lastQuestionId = $lastQuestion ? (int) substr($lastQuestion->id, 1) : 0; // Ambil angka terakhir dari ID pertanyaan
 
     // Ambil ID terakhir dari tabel logika
     $lastLogic = DB::table('logika')->orderBy('id', 'desc')->first();
-    $lastLogicId = $lastLogic ? (int) substr($lastLogic->id, 2) : 0; // Ambil angka terakhir dari ID logika
+    $lastLogicId = $lastLogic ? (int) substr($lastLogic->id, 1) : 0; // Ambil angka terakhir dari ID logika
 
     // Ambil ID terakhir dari tabel halaman
     $lastPage = DB::table('halaman')->orderBy('id', 'desc')->first();
@@ -318,6 +361,7 @@ class KuesionerController extends Controller
     // Siapkan data untuk JavaScript
     $existingQuestions = $kuesioner->pertanyaan->map(function($pertanyaan) {
         $dataPertanyaan = json_decode($pertanyaan->data_pertanyaan);
+
         $dataLogika = $pertanyaan->logika->map(function($logika) {
             return [
                 'pertanyaan_id' => $logika->pertanyaan_id, // Ambil pertanyaan_id
@@ -335,7 +379,9 @@ class KuesionerController extends Controller
             'pertanyaan' => $dataPertanyaan->teks_pertanyaan, // Mengambil teks_pertanyaan
             'opsi_jawaban' => array_map(function($opsi) {
                 return $opsi->opsiJawaban; // Mengambil opsiJawaban dari opsi_jawaban
-            }, $dataPertanyaan->opsi_jawaban),
+            }, array: $dataPertanyaan->opsi_jawaban),
+            'nomor_pertanyaan' => $dataPertanyaan->nomor_pertanyaan,
+            'is_required' => $dataPertanyaan->is_required,
             'logika' => $dataLogika, // Ambil logika dari relasi
             'halaman_id' => $pertanyaan->halaman_id, // Ambil halaman_id
         ];
@@ -405,6 +451,8 @@ public function update(Request $request, $id)
                         'tipe_pertanyaan' => $question['tipe_pertanyaan'],
                         'teks_pertanyaan' => $question['teks_pertanyaan'],
                         'opsi_jawaban' => $question['opsi_jawaban'] ?? [],
+                        'nomor_pertanyaan' =>$question['nomor_pertanyaan'],
+                        'is_required' =>$question['is_required'],
                     ]),
                     'halaman_id' => $question['halaman_id'],
                     'kuesioner_id' => $kuesioner->id,
@@ -473,32 +521,54 @@ public function update(Request $request, $id)
     }
 
     public function submit(Request $request)
-    {
-        try {
-            $request->validate([
-                'jawaban' => 'required|array',
-                'jawaban.*' => 'nullable',
-                'jawaban.logika' => 'nullable|array',
-                'jawaban.logika.*' => 'nullable',
-            ]);
-    
-            $alumniId = Auth::guard('alumni')->user()->id;
-    
+{
+    try {
+        $request->validate([
+            'jawaban' => 'required|array',
+            'jawaban.*' => 'nullable',
+            'jawaban.logika' => 'nullable|array',
+            'jawaban.logika.*' => 'nullable',
+        ]);
+
+        $alumniId = Auth::guard('alumni')->user()->id;
+
+        // Cek apakah alumni sudah mengisi pertanyaan dalam kuesioner ini
+        $pertanyaanIds = Pertanyaan::where('kuesioner_id', $request->kuesioner_id)->pluck('id')->toArray();
+        $jawabanKuesioner = Jawaban_kuesioner::where('alumni_id', $alumniId)
+            ->whereIn('pertanyaan_id', $pertanyaanIds)
+            ->exists(); // Cek apakah ada jawaban untuk pertanyaan terkait
+
+        if ($jawabanKuesioner) {
+            return response()->json([
+                'error' => 'Anda sudah mengisi kuesioner ini sebelumnya.'
+            ], 403); // Mengembalikan status forbidden
+        }
+
+        // Proses jawaban pertanyaan
+        foreach ($request->jawaban as $halamanId => $jawabanHalaman) {
             // Proses jawaban pertanyaan
-            foreach ($request->jawaban as $halamanId => $jawabanHalaman) {
-                // Proses jawaban pertanyaan
-                if (isset($jawabanHalaman['pertanyaan'])) {
-                    foreach ($jawabanHalaman['pertanyaan'] as $pertanyaanId => $jawaban) {
-                        // Cek apakah $pertanyaanId valid
-                        $pertanyaan = Pertanyaan::find($pertanyaanId);
-                    
-                        if (!$pertanyaan) {
-                            return response()->json([
-                                'error' => "Pertanyaan ID '$pertanyaanId' tidak valid."
-                            ], 422);
+            if (isset($jawabanHalaman['pertanyaan'])) {
+                foreach ($jawabanHalaman['pertanyaan'] as $pertanyaanId => $jawaban) {
+                    // Cek apakah $pertanyaanId valid
+                    $pertanyaan = Pertanyaan::find($pertanyaanId);
+                
+                    if (!$pertanyaan) {
+                        return response()->json([
+                            'error' => "Pertanyaan ID '$pertanyaanId' tidak valid."
+                        ], 422);
+                    }
+
+                    // Jika jawaban adalah array (checkbox), simpan setiap nilai
+                    if (is_array($jawaban)) {
+                        foreach ($jawaban as $value) {
+                            Jawaban_kuesioner::create([
+                                'jawaban' => $value,
+                                'alumni_id' => $alumniId,
+                                'pertanyaan_id' => $pertanyaan->id,
+                            ]);
                         }
-    
-                        // Simpan jawaban
+                    } else {
+                        // Simpan jawaban tunggal
                         Jawaban_kuesioner::create([
                             'jawaban' => $jawaban,
                             'alumni_id' => $alumniId,
@@ -506,19 +576,31 @@ public function update(Request $request, $id)
                         ]);
                     }
                 }
-    
-                // Proses jawaban logika
-                if (isset($jawabanHalaman['logika'])) {
-                    foreach ($jawabanHalaman['logika'] as $logikaId => $logikaJawaban) {
-                        // Validasi logika_id
-                        $logika = Logika::find($logikaId);
-                
-                        if (!$logika) {
-                            return response()->json([
-                                'error' => "Logika ID '$logikaId' tidak valid."
-                            ], 422);
+            }
+
+            // Proses jawaban logika
+            if (isset($jawabanHalaman['logika'])) {
+                foreach ($jawabanHalaman['logika'] as $logikaId => $logikaJawaban) {
+                    // Validasi logika_id
+                    $logika = Logika::find($logikaId);
+            
+                    if (!$logika) {
+                        return response()->json([
+                            'error' => "Logika ID '$logikaId' tidak valid."
+                        ], 422);
+                    }
+
+                    // Jika logikaJawaban adalah array, simpan setiap nilai
+                    if (is_array($logikaJawaban)) {
+                        foreach ($logikaJawaban as $value) {
+                            Jawaban_logika::create([
+                                'logika_id' => $logika->id,
+                                'alumni_id' => $alumniId,
+                                'jawaban' => $value,
+                            ]);
                         }
-                
+                    } else {
+                        // Simpan jawaban tunggal
                         Jawaban_logika::create([
                             'logika_id' => $logika->id,
                             'alumni_id' => $alumniId,
@@ -527,37 +609,43 @@ public function update(Request $request, $id)
                     }
                 }
             }
-    
-            return response()->json(['success' => 'Jawaban berhasil disimpan!']);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'error' => 'Validasi gagal.',
-                'details' => $e->errors(),
-            ], 422);
-        } catch (\Illuminate\Database\QueryException $e) {
-            \Log::error('Database error', [
-                'message' => $e->getMessage(),
-                'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
-            ]);
-    
-            return response()->json([
-                'error' => 'Terjadi kesalahan pada database.',
-                'details' => $e->getMessage(),
-            ], 500);
-        } catch (\Exception $e) {
-            \Log::error('Error saving answers', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-    
-            return response()->json([
-                'error' => 'Terjadi kesalahan saat menyimpan jawaban.',
-                'details' => $e->getMessage(),
-            ], 500);
         }
+
+        return response()->json(['message' => 'Jawaban berhasil disimpan!']);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'error' => 'Validasi gagal.',
+            'details' => $e->errors(),
+        ], 422);
+    } catch (\Illuminate\Database\QueryException $e) {
+        \Log::error('Database error', [
+            'message' => $e->getMessage(),
+            'sql' => $e->getSql(),
+            'bindings' => $e->getBindings(),
+        ]);
+
+        return response()->json([
+            'error' => 'Terjadi kesalahan pada database.',
+            'details' => $e->getMessage(),
+        ], 500);
+    } catch (\Exception $e) {
+        \Log::error('Error saving answers', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json([
+            'error' => 'Terjadi kesalahan saat menyimpan jawaban.',
+            'details' => $e->getMessage(),
+        ], 500);
     }
+}
+
+public function thankYouPage()
+{
+    return view('kuesioner.alumni.finish');
+}
 
     
     public function createStatus()

@@ -8,69 +8,77 @@
         </div>
         {{-- {{ $kuesioner }} --}}
         <div class="bg-white shadow rounded-lg p-6 mb-6" id="halaman-{{ $halaman->id }}">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Halaman: {{ $halaman->judul_halaman }}</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ $halaman->judul_halaman }}</h2>
 
-            @if ($pertanyaan->isNotEmpty())
-                @foreach ($pertanyaan as $pertanyaanItem)
-                    @if ($pertanyaanItem->halaman_id == $halaman->id)
-                        <div class="bg-gray-50 border border-gray-200 p-4 mb-4 rounded-md pertanyaan"
-                            data-pertanyaan-id="{{ $pertanyaanItem->id }}">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-3">
-                                {{ json_decode($pertanyaanItem->data_pertanyaan)->teks_pertanyaan }}</h3>
-                            @php
-                                $dataPertanyaan = json_decode($pertanyaanItem->data_pertanyaan);
-                            @endphp
-
-                            @switch($dataPertanyaan->tipe_pertanyaan)
-                                @case('text')
-                                    <p class="text-gray-600 mb-2">Jawaban:</p>
-                                    <input type="text" name="jawaban[{{ $pertanyaanItem->id }}]"
-                                        class="border rounded p-2 w-full" placeholder="Masukkan jawaban Anda">
-                                @break
-                                @case('radio')
-                                    <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
-                                    @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
-                                        <label class="flex items-center space-x-2 mb-2">
-                                            <input type="radio" name="jawaban[{{ $pertanyaanItem->id }}]"
-                                                value="{{ $opsi->opsiJawaban }}" data-option-name="{{ $opsi->opsiJawaban }}"
-                                                class="rounded border-gray-300 text-blue-600">
-                                            <span>{{ $opsi->opsiJawaban }}</span>
-                                        </label>
-                                    @endforeach
-                                @break
-
-                                @case('checkbox')
-                                    <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
-                                    @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
-                                        <label class="flex items-center space-x-2 mb-2">
-                                            <input type="checkbox" name="jawaban[{{ $pertanyaanItem->id }}][]"
-                                                value="{{ $opsi->opsiJawaban }}" data-option-name="{{ $opsi->opsiJawaban }}"
-                                                class="rounded border-gray-300 text-blue-600">
-                                            <span>{{ $opsi->opsiJawaban }}</span>
-                                        </label>
-                                    @endforeach
-                                @break
-
-                                @case('dropdown')
-                                    <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
-                                    <select name="jawaban[{{ $pertanyaanItem->id }}]" data-option-name="dropdown"
-                                        class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="" selected>Pilih Jawaban</option>
-                                        @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
-                                            <option value="{{ $opsi->opsiJawaban }}">{{ $opsi->opsiJawaban }}</option>
-                                        @endforeach
-                                    </select>
-                                @break
-
-                                @default
-                                    <p class="text-red-500">Tipe pertanyaan tidak dikenali.</p>
-                            @endswitch
-                        </div>
+            @if ($sortedQuestions->isNotEmpty())
+    @foreach ($sortedQuestions as $pertanyaanItem)
+        @if ($pertanyaanItem->halaman_id == $halaman->id)
+            <div class="bg-gray-50 border border-gray-200 p-4 mb-4 rounded-md pertanyaan"
+                data-pertanyaan-id="{{ $pertanyaanItem->id }}">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                    {{ json_decode($pertanyaanItem->data_pertanyaan)->teks_pertanyaan }}
+                    @php
+                        $dataPertanyaan = json_decode($pertanyaanItem->data_pertanyaan);
+                    @endphp
+                    @if ($dataPertanyaan->is_required)
+                        <span class="text-red-500">*</span> <!-- Menampilkan asterisk jika required -->
                     @endif
-                @endforeach
-            @else
-                <p class ="text-gray-500">Tidak ada pertanyaan untuk halaman ini.</p>
-            @endif
+                </h3>
+
+                @switch($dataPertanyaan->tipe_pertanyaan)
+                    @case('text')
+                        <p class="text-gray-600 mb-2">Jawaban:</p>
+                        <input type="text" name="jawaban[{{ $pertanyaanItem->id }}]"
+                            class="border rounded p-2 w-full" placeholder="Masukkan jawaban Anda"
+                            @if ($dataPertanyaan->is_required) required @endif>
+                    @break
+                    @case('radio')
+                        <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
+                        @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
+                            <label class="flex items-center space-x-2 mb-2">
+                                <input type="radio" name="jawaban[{{ $pertanyaanItem->id }}]"
+                                    value="{{ $opsi->opsiJawaban }}" data-option-name="{{ $opsi->opsiJawaban }}"
+                                    class="rounded border-gray-300 text-blue-600"
+                                    @if ($dataPertanyaan->is_required) required @endif>
+                                <span>{{ $opsi->opsiJawaban }}</span>
+                            </label>
+                        @endforeach
+                    @break
+
+                    @case('checkbox')
+                        <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
+                        @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
+                            <label class="flex items-center space-x-2 mb-2">
+                                <input type="checkbox" name="jawaban[{{ $pertanyaanItem->id }}][]"
+                                    value="{{ $opsi->opsiJawaban }}" data-option-name="{{ $opsi->opsiJawaban }}"
+                                    class="rounded border-gray-300 text-blue-600"
+                                    @if ($dataPertanyaan->is_required) required @endif>
+                                <span>{{ $opsi->opsiJawaban }}</span>
+                            </label>
+                        @endforeach
+                    @break
+
+                    @case('dropdown')
+                        <p class="text-gray-600 mb-2">Opsi Jawaban:</p>
+                        <select name="jawaban[{{ $pertanyaanItem->id }}]" data-option-name="dropdown"
+                            class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            @if ($dataPertanyaan->is_required) required @endif>
+                            <option value="" selected>Pilih Jawaban</option>
+                            @foreach ($dataPertanyaan->opsi_jawaban as $opsi)
+                                <option value="{{ $opsi->opsiJawaban }}">{{ $opsi->opsiJawaban }}</option>
+                            @endforeach
+                        </select>
+                    @break
+
+                    @default
+                        <p class="text-red-500">Tipe pertanyaan tidak dikenali.</p>
+                @endswitch
+            </div>
+        @endif
+    @endforeach
+@else
+    <p class ="text-gray-500">Tidak ada pertanyaan untuk halaman ini.</p>
+@endif
         </div>
 
         <!-- Navigasi Halaman -->
@@ -88,7 +96,7 @@
             </div>
 
             <div class="nav-button">
-                <button class="simpan inline-block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">Simpan</button>
+                
                 @if ($prevPage)
                     <a href="{{ route('kuesioner.alumni.page', ['slug' => $kuesioner->slug, 'halamanId' => $prevPage->id]) }}"
                         class="inline-block px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 prev-page">
@@ -104,6 +112,10 @@
                         Next
                     </a>
                 @endif
+
+                @if ($isHalamanTerakhir)
+                <button class="simpan inline-block px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">Simpan</button>
+            @endif
             </div>
         </div>
     </div>
@@ -126,15 +138,15 @@
             const inputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"], select');
 
             const logikas = @json(
-                $pertanyaan->map(function ($pertanyaan) {
+                $sortedQuestions->map(function ($pertanyaan) {
                     return json_decode($pertanyaan->logika);
                 }));
 
             // console.log(logikas);
 
             // Memuat data yang sudah disimpan dari Local Storage
-            const alumniKuesionerAnswers = JSON.parse(localStorage.getItem('AlumniKuesionerAnswers')) || {};
-            const alumniPageAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner')) || {};
+            const alumniKuesionerAnswers = JSON.parse(localStorage.getItem('AlumniKuesionerAnswers[' + kuesionerId + ']')) || {};
+            const alumniPageAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner[' + kuesionerId + ']')) || {};
 
             console.log(alumniKuesionerAnswers);
             console.log('halamananana: ',alumniPageAnswers);
@@ -155,20 +167,22 @@
 
                  // Pastikan alumniKuesionerAnswers[pertanyaanId] ada dan tidak kosong
     if (!alumniKuesionerAnswers[pertanyaanId]) {
+        console.log('alalalalal');
         alumniKuesionerAnswers[pertanyaanId] = {}; // Inisialisasi dengan objek kosong jika belum ada
     }
-                // Mengisi jawaban yang sudah disimpan
-                if (alumniKuesionerAnswers[pertanyaanId]) {
-                    if (input.type === 'radio'  && input.value === alumniKuesionerAnswers[pertanyaanId]) {
-                        input.checked = true;
-                    } else if (input.type === 'checkbox'  && input.value === alumniKuesionerAnswers[pertanyaanId]) {
-                        if (alumniKuesionerAnswers[pertanyaanId].includes(input.value)) {
-                            input.checked = true;
-                        }
-                    } else if (input.tagName === 'SELECT'  && input.value === alumniKuesionerAnswers[pertanyaanId]) {
-                        input.value = alumniKuesionerAnswers[pertanyaanId];
-                    }
-                }
+    if (alumniKuesionerAnswers[pertanyaanId]) {
+        if (input.type === 'radio' && input.value === alumniKuesionerAnswers[pertanyaanId]) {
+            input.checked = true;
+        } else if (input.type === 'checkbox' && alumniKuesionerAnswers[pertanyaanId]) {
+            // Cek apakah alumniKuesionerAnswers[pertanyaanId] adalah array
+            if (Array.isArray(alumniKuesionerAnswers[pertanyaanId])) {
+                // Set checkbox checked jika nilai checkbox ada dalam array
+                input.checked = alumniKuesionerAnswers[pertanyaanId].includes(input.value);
+            }
+        } else if (input.tagName === 'SELECT' && input.value === alumniKuesionerAnswers[pertanyaanId]) {
+            input.value = alumniKuesionerAnswers[pertanyaanId];
+        }
+    }
 
                 if (input.value) { // Pastikan nilai tidak kosong
                     displayLogic(pertanyaanDiv, input.value);
@@ -179,7 +193,7 @@
                     const pertanyaanDiv = this.closest('.pertanyaan');
                     const pertanyaanId = pertanyaanDiv.dataset.pertanyaanId;
 
-                    const alumniKuesionerAnswers = JSON.parse(localStorage.getItem('AlumniKuesionerAnswers')) || {};
+                    const alumniKuesionerAnswers = JSON.parse(localStorage.getItem('AlumniKuesionerAnswers[' + kuesionerId + ']')) || {};
                     if (!alumniKuesionerAnswers[pertanyaanId]) {
                         alumniKuesionerAnswers[pertanyaanId] = {};
                     }
@@ -195,6 +209,7 @@ if (this.type === 'radio' || this.tagName === 'SELECT') {
 } else if (this.type === 'checkbox') {
     // Jika nilai sebelumnya adalah objek, ubah menjadi array kosong
     let checkboxValues = alumniKuesionerAnswers[pertanyaanId];
+    console.log('jsdjfjfjf');
 
     if (!Array.isArray(checkboxValues)) {
         console.warn(`Nilai sebelumnya bukan array. Mengatur ulang menjadi array kosong.`, checkboxValues);
@@ -217,10 +232,11 @@ if (this.type === 'radio' || this.tagName === 'SELECT') {
 
     // Simpan kembali nilai sebagai array
     alumniKuesionerAnswers[pertanyaanId] = checkboxValues;
+    console.log('checkbox values', alumniKuesionerAnswers[pertanyaanId]);
 }
 
                     // Simpan kembali ke Local Storage
-                    localStorage.setItem('AlumniKuesionerAnswers', JSON.stringify(alumniKuesionerAnswers));
+                    localStorage.setItem('AlumniKuesionerAnswers[' + kuesionerId + ']', JSON.stringify(alumniKuesionerAnswers));
 
                     // Display logic based on the current input value
                     displayLogic(pertanyaanDiv, this.value);
@@ -266,7 +282,6 @@ if (this.type === 'radio' || this.tagName === 'SELECT') {
                                 const savedTextAnswer = JSON.parse(localStorage.getItem(`logika_jawaban_alumni_${pertanyaanId}_${logika.id}`)) || {};
                                 console.log(savedTextAnswer);
                                 const inputValue = savedTextAnswer.value || ''; // Get the saved value or default to an empty string
-                                // console.log(savedTextAnswer.logika.id)
 
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
@@ -312,6 +327,7 @@ if (this.type === 'radio' || this.tagName === 'SELECT') {
                               // Ambil nilai yang disimpan dari localStorage
                                 const savedCheckboxAnswer = JSON.parse(localStorage.getItem(`logika_jawaban_alumni_${pertanyaanId}_${logika.id}`)) || {};
                                 const checkboxValues = savedCheckboxAnswer.value || []; // Ambil nilai yang disimpan atau default ke array kosong
+                                console.log(savedCheckboxAnswer);
 
                                 logikaDiv.innerHTML = `
                                     <h4 class="font-medium text-gray-700 mb-2">${dataPertanyaan.teks_pertanyaan}</h4>
@@ -336,6 +352,8 @@ const input = logikaDiv.querySelector('input[type="text"], textarea, select');
 const inputRadio = logikaDiv.querySelectorAll(`input[type="radio"][name="logika_jawaban[${logika.id}]"]`);
 const inputCheckboxes = logikaDiv.querySelectorAll(`input[type="checkbox"][name="logika_jawaban[${logika.id}]\\[\\]"]`);
 
+console.log('input checkbox',inputCheckboxes);
+
 if (input) {
     input.addEventListener('change', function() {
         const logikaJawaban = {
@@ -345,13 +363,13 @@ if (input) {
         };
             localStorage.setItem(`logika_jawaban_alumni_${pertanyaanId}_${logika.id}`, JSON.stringify(logikaJawaban));
             saveLogikaJawaban(pertanyaanId, logikaJawaban);
+            console.log('ajsdfsdfdf');
     });
 }
 
 if (inputRadio) {
    inputRadio.forEach(radio => {
         radio.addEventListener('change', function() {
-            console.log('ajjjaa');
             const logikaJawaban = {
                 logikaId: logika.id,
                 // pertanyaanId: pertanyaanId,
@@ -364,7 +382,7 @@ if (inputRadio) {
 }
 
 console.log('halololo',inputCheckboxes.length);
-console.log(document.body.innerHTML);
+// console.log(document.body.innerHTML);
 
 if (inputCheckboxes.length > 0) {
     inputCheckboxes.forEach(checkbox => {
@@ -414,7 +432,6 @@ pertanyaanDiv.appendChild(logikaDiv);
             }
         });
 
-       // Fungsi untuk menyimpan jawaban yang terlihat ke localStorage
 function saveVisibleAnswers() {
     // Mengambil semua input dan select yang terlihat, kecuali yang ada di dalam .logika
     const visibleInputs = $('.pertanyaan input:visible, .pertanyaan select:visible').not('.logika input:visible, .logika select:visible');
@@ -442,21 +459,46 @@ function saveVisibleAnswers() {
     });
 
     // Mengambil jawaban dari logika
-    $('.logika').each(function() {
-        const logikaId = $(this).data('logika-id'); // Mengambil ID logika
-        const pertanyaanId = $(this).closest('.pertanyaan').data('pertanyaan-id'); // Mengambil ID pertanyaan terkait
+$('.logika').each(function() {
+    const logikaId = $(this).data('logika-id'); // Mengambil ID logika
+    const pertanyaanId = $(this).closest('.pertanyaan').data('pertanyaan-id'); // Mengambil ID pertanyaan terkait
 
-        // Ambil nilai dari input logika
-        const logikaValue = $(this).find('input:checked, select, textarea, input[type="text"]').val();
+    // Ambil nilai dari input logika
+    const logikaValues = [];
 
-        // Hanya simpan jawaban logika jika ada jawaban untuk pertanyaan ini
-        if (answers[pertanyaanId]) {
-            logicAnswers[logikaId] = logikaValue; // Simpan nilai logika
+    // Ambil nilai dari checkbox yang tercentang
+    const checkedCheckboxes = $(this).find('input[type="checkbox"]:checked').map(function() {
+        return $(this).val(); // Mengambil nilai dari checkbox yang tercentang
+    }).get(); // Mengubah hasil menjadi array
+
+    // Ambil nilai dari radio yang terpilih
+    const selectedRadio = $(this).find('input[type="radio"]:checked').val();
+
+    // Ambil nilai dari select yang terpilih
+    const selectedSelect = $(this).find('select').val();
+
+    // Tambahkan nilai ke dalam array logikaValues
+    if (checkedCheckboxes.length > 0) {
+        logikaValues.push(...checkedCheckboxes); // Menambahkan semua nilai checkbox ke array
+    }
+    if (selectedRadio) {
+        logikaValues.push(selectedRadio); // Menambahkan nilai radio ke array
+    }
+    if (selectedSelect) {
+        logikaValues.push(selectedSelect); // Menambahkan nilai select ke array
+    }
+
+    // Hanya simpan jawaban logika jika ada jawaban untuk pertanyaan ini
+    if (answers[pertanyaanId]) {
+        // Hanya simpan logika jika ada nilai
+        if (logikaValues.length > 0) {
+            logicAnswers[logikaId] = logikaValues; // Simpan nilai logika sebagai array
         }
-    });
+    }
+});
 
     // Ambil data yang sudah ada di localStorage
-    const existingHalamanAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner')) || {};
+    const existingHalamanAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner[' + kuesionerId + ']')) || {};
 
     // Inisialisasi objek untuk halaman jika belum ada
     if (!existingHalamanAnswers[halamanId]) {
@@ -467,7 +509,7 @@ function saveVisibleAnswers() {
     existingHalamanAnswers[halamanId]['logika'] = logicAnswers; // Menyimpan jawaban logika terpisah
 
     // Simpan kembali ke localStorage
-    localStorage.setItem('AlumniJawabanHalamanKuesioner', JSON.stringify(existingHalamanAnswers));
+    localStorage.setItem('AlumniJawabanHalamanKuesioner[' + kuesionerId + ']', JSON.stringify(existingHalamanAnswers));
 }
 
    // Event listener untuk tombol Simpan
@@ -476,31 +518,50 @@ $('.nav-button .simpan').on('click', function(event) {
     saveVisibleAnswers(); // Simpan jawaban ke localStorage
 
     // Ambil data dari localStorage
-    const existingHalamanAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner')) || {};
+    const existingHalamanAnswers = JSON.parse(localStorage.getItem('AlumniJawabanHalamanKuesioner[' + kuesionerId + ']')) || {};
 
-    console.log(existingHalamanAnswers);
+    console.log('halo',existingHalamanAnswers);
     // Kirim data ke server menggunakan AJAX
     $.ajax({
         url: '/kuesioner/submit', // Ganti dengan URL endpoint Anda
         method: 'POST',
         data: {
             jawaban: existingHalamanAnswers,
+            kuesioner_id: kuesionerId,
             _token: $('meta[name="csrf-token"]').attr('content') // Jika Anda menggunakan CSRF token
         },
-        success: function(response) {
+        success: function(data) {
             // Tindakan setelah berhasil menyimpan
-            localStorage.clear();
-            alert('Jawaban berhasil disimpan!');
-            // Anda bisa melakukan redirect atau tindakan lain di sini
+            localStorage.removeItem('AlumniJawabanHalamanKuesioner[' + kuesionerId + ']');
+            localStorage.removeItem('AlumniKuesionerAnswers[' + kuesionerId + ']');
+
+                if (data.message) {
+            // Gunakan SweetAlert untuk menampilkan pesan sukses
+            Swal.fire({
+                title: 'Berhasil!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                // Refresh halaman setelah user klik OK
+             var kuesionerUrl = "{{ route('kuesioner.alumni.finish') }}";
+                window.location.href = kuesionerUrl;
+            });
+        } else {
+            console.error('Terjadi kesalahan:', data);
+        }
         },
-        error: function(xhr) {
-    const response = JSON.parse(xhr.responseText);
-    if (response.error) {
-        alert(response.error + (response.details ? ': ' + response.details : ''));
-    } else {
-        alert('Terjadi kesalahan yang tidak diketahui.');
+        error: function(xhr, status, error, data) {
+        console.error('Error:', error);
+        // Gunakan SweetAlert untuk menampilkan pesan error
+        const errorMessage = xhr.responseJSON.error
+        Swal.fire({
+            title: 'Error!',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'OK',
+        });
     }
-}
 
     });
 });

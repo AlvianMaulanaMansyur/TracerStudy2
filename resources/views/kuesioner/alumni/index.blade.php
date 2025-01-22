@@ -18,14 +18,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- {{ $kuesioners }} --}}
                         @foreach ($kuesioners as $kuesioner)
                             <tr class="hover:bg-gray-100">
                                 <td class="py-2 px-4 border-b text-center">{{ $kuesioner->judul_kuesioner }}</td>
                                 <td class="py-2 px-4 border-b text-center">
                                     @if (isset($halamanPertamaIds[$kuesioner->id]))
-                                        <a href="{{ route('kuesioner.alumni.page', ['slug' => $kuesioner->slug, 'halamanId' => $halamanPertamaIds[$kuesioner->id]]) }}"
-                                            class="bg-green-500 text-white px-2 py-1 rounded-lg">Isi Kuesioner</a>
+                                        @if (isset($kuesionerSudahDiisi[$kuesioner->id]))
+                                            <span class="text-gray-500">Sudah diisi</span>
+                                        @else
+                                            <a href="{{ route('kuesioner.alumni.page', ['slug' => $kuesioner->slug, 'halamanId' => $halamanPertamaIds[$kuesioner->id]]) }}"
+                                                class="bg-green-500 text-white px-2 py-1 rounded-lg">Isi Kuesioner</a>
+                                        @endif
                                     @endif
                                 </td>
                             </tr>
