@@ -27,7 +27,7 @@ return [
             'provider' => 'admin',
         ],
     ],
-    
+
     'providers' => [
         'alumni' => [
             'driver' => 'eloquent',
